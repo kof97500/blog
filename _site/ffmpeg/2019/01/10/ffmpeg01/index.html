@@ -1,0 +1,1149 @@
+
+<!doctype html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/assets/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/assets/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/assets/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="ffmpeg,音视频,笔记," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Micheal's blog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="最近使用ffmpeg调用videotoolbox进行硬编码，在iOS10系统下测试时，发现运行一两分钟就会崩溃。">
+<meta name="keywords" content="ffmpeg, 音视频, 笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记ffmpeg在iOS10下硬编码视频崩溃问题">
+<meta property="og:url" content="http://localhost:4000/ffmpeg/2019/01/10/ffmpeg01/">
+<meta property="og:site_name" content="Micheal's blog">
+<meta property="og:description" content="最近使用ffmpeg调用videotoolbox进行硬编码，在iOS10系统下测试时，发现运行一两分钟就会崩溃。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://i.loli.net/2019/06/15/5d047c797afc989862.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="记ffmpeg在iOS10下硬编码视频崩溃问题">
+<meta name="twitter:description" content="最近使用ffmpeg调用videotoolbox进行硬编码，在iOS10系统下测试时，发现运行一两分钟就会崩溃。">
+<meta name="twitter:image" content="https://i.loli.net/2019/06/15/5d047c797afc989862.png">
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://localhost:4000/"/>
+
+
+
+
+
+  <title>记ffmpeg在iOS10下硬编码视频崩溃问题 | Micheal's blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> <div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Micheal's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+<div id="posts" class="posts-expand">
+  
+  
+
+  
+
+  
+  
+  
+
+  <article class="post post-type- " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://localhost:4000/ffmpeg/2019/01/10/ffmpeg01/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Michael">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="assets/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Micheal's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+          
+          
+            记ffmpeg在iOS10下硬编码视频崩溃问题
+          
+        </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-10T00:00:00+08:00">
+                2019-01-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/category/#/ffmpeg" itemprop="url" rel="index">
+                    <span itemprop="name">ffmpeg</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+            
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <p>最近使用ffmpeg调用videotoolbox进行硬编码，在iOS10系统下测试时，发现运行一两分钟就会崩溃。</p>
+
+<p><img src="https://i.loli.net/2019/06/15/5d047c797afc989862.png" alt="ffmpeg_crash_thread01.png" /></p>
+
+<p>同时控制台会输出</p>
+<blockquote>
+  <p>[h264_videotoolbox @ 0x12c92d600] Error encoding frame: 0<br />
+[h264_videotoolbox @ 0x12c92d600]</p>
+</blockquote>
+
+<p>经过查阅ffmpeg源码和videotoolbox相关文档，解决了这个问题，记录下解决过程。</p>
+
+<h3 id="ffmpeg调用videotoolbox硬编码简单流程">ffmpeg调用videotoolbox硬编码简单流程</h3>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29</pre></td><td class="code"><pre class="highlight"><code>	<span class="c1">//找到硬编码codec
+</span>	<span class="n">AVCodec</span><span class="o">*</span><span class="n">codec</span> <span class="o">=</span> <span class="n">avcodec_find_encoder_by_name</span><span class="p">(</span><span class="s">"h264_videotoolbox"</span><span class="p">);</span>
+	<span class="c1">//创建codecContext
+</span>	<span class="n">AVCodecContext</span><span class="o">*</span><span class="n">ctx</span> <span class="o">=</span> <span class="n">avcodec_alloc_context3</span><span class="p">(</span><span class="n">codec</span><span class="p">);</span>
+	<span class="c1">//设置参数
+</span>	<span class="p">...</span>
+	<span class="c1">//创建AVFrame
+</span>	<span class="n">AVFrame</span> <span class="o">*</span><span class="n">pYuvFrame</span> <span class="o">=</span> <span class="n">av_frame_alloc</span><span class="p">();</span>
+	<span class="c1">//拷贝原始数据给frame
+</span>	<span class="n">av_image_fill_arrays</span><span class="p">(</span><span class="n">pYuvFrame</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">,</span> <span class="n">pYuvFrame</span><span class="o">-&gt;</span><span class="n">linesize</span><span class="p">,</span> <span class="n">videoBuffer</span><span class="p">,</span> <span class="n">AV_PIX_FMT_YUV420P</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+	<span class="c1">//将frame交给context编码
+</span>	<span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="n">avcodec_send_frame</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">pYuvFrame</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">//编码错误，释放context
+</span>        <span class="n">avcodec_free_context</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ctx</span><span class="p">);</span>
+        <span class="p">...</span>
+        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="c1">//没有错误，取出编码后数据，做后续处理
+</span>    <span class="n">AVPacket</span> <span class="o">*</span><span class="n">pkt</span> <span class="o">=</span> <span class="n">av_packet_alloc</span><span class="p">();</span>
+    <span class="k">while</span> <span class="p">(</span><span class="nb">true</span><span class="p">)</span> <span class="p">{</span>
+    	<span class="c1">//将编码后数据写入AVPacket
+</span>        <span class="n">result</span> <span class="o">=</span> <span class="n">avcodec_receive_packet</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">pkt</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+        
+        <span class="p">...</span>
+    <span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<p>ffmpeg调用videotoolbox硬编码的代码调用和普通的软编码类似，只是avcodec的获取方式通过字符串”h264_videotoolbox”来获取，然后根据codec创建AVCodecContext，在codecContext设置好一系列编码参数后，创建一个AVFrame，调用av_image_fill_arrays将原始视频数据写入AVFrame中，然后调用avcodec_send_frame函数将AVFrame传给codecContext进行编码。</p>
+
+<h3 id="定位错误">定位错误</h3>
+
+<p>首先根据崩溃线程所在队列名称，可以看出是和videotoolbox硬编码相关的，如果了解过videotoolbox使用流程的话，基本可以确定是在硬编码的回调函数中。打开ffmpeg中videotoolbox硬编码的实现文件videotoolboxenc.c，找到硬编码的回调函数vtenc_output_callback，可以看到崩溃是控制台输出的位置，基本确定崩溃是在vtenc_output_callback中。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26</pre></td><td class="code"><pre class="highlight"><code><span class="k">static</span> <span class="kt">void</span> <span class="nf">vtenc_output_callback</span><span class="p">(</span>
+    <span class="kt">void</span> <span class="o">*</span><span class="n">ctx</span><span class="p">,</span>
+    <span class="kt">void</span> <span class="o">*</span><span class="n">sourceFrameCtx</span><span class="p">,</span>
+    <span class="n">OSStatus</span> <span class="n">status</span><span class="p">,</span>
+    <span class="n">VTEncodeInfoFlags</span> <span class="n">flags</span><span class="p">,</span>
+    <span class="n">CMSampleBufferRef</span> <span class="n">sample_buffer</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">AVCodecContext</span> <span class="o">*</span><span class="n">avctx</span> <span class="o">=</span> <span class="n">ctx</span><span class="p">;</span>
+    <span class="n">VTEncContext</span>   <span class="o">*</span><span class="n">vtctx</span> <span class="o">=</span> <span class="n">avctx</span><span class="o">-&gt;</span><span class="n">priv_data</span><span class="p">;</span>
+    <span class="n">ExtraSEI</span> <span class="o">*</span><span class="n">sei</span> <span class="o">=</span> <span class="n">sourceFrameCtx</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">vtctx</span><span class="o">-&gt;</span><span class="n">async_error</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">sample_buffer</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">CFRelease</span><span class="p">(</span><span class="n">sample_buffer</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">status</span> <span class="o">||</span> <span class="o">!</span><span class="n">sample_buffer</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">av_log</span><span class="p">(</span><span class="n">avctx</span><span class="p">,</span> <span class="n">AV_LOG_ERROR</span><span class="p">,</span> <span class="s">"Error encoding frame: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">status</span><span class="p">);</span>
+        <span class="n">set_async_error</span><span class="p">(</span><span class="n">vtctx</span><span class="p">,</span> <span class="n">AVERROR_EXTERNAL</span><span class="p">);</span>
+    <span class="p">}</span>
+
+   <span class="p">...</span>
+    <span class="n">vtenc_q_push</span><span class="p">(</span><span class="n">vtctx</span><span class="p">,</span> <span class="n">sample_buffer</span><span class="p">,</span> <span class="n">sei</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<h3 id="分析vtenc_output_callback函数">分析vtenc_output_callback函数</h3>
+
+<p>这个回调函数首先检查了VTEncContext这个结构体的async_error值是否不为0，这个async_error是用于记录错误值，并最终返回为avcodec_send_frame函数的结果。之后是检查status和sample_buffer,根据控制台输出，可以判断在崩溃前，函数进入到了这个if判断，并且由于status打印的是0，可以知道进入这里是sample_buffer为空。最后将sample_buffer传入一个队列，用于后续的处理。</p>
+
+<h3 id="通过增加打印日志找到崩溃前的代码执行顺序">通过增加打印日志找到崩溃前的代码执行顺序</h3>
+
+<h4 id="回调函数中打印日志">回调函数中打印日志</h4>
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32<br/>33</pre></td><td class="code"><pre class="highlight"><code><span class="k">static</span> <span class="kt">void</span> <span class="nf">vtenc_output_callback</span><span class="p">(</span>
+    <span class="kt">void</span> <span class="o">*</span><span class="n">ctx</span><span class="p">,</span>
+    <span class="kt">void</span> <span class="o">*</span><span class="n">sourceFrameCtx</span><span class="p">,</span>
+    <span class="n">OSStatus</span> <span class="n">status</span><span class="p">,</span>
+    <span class="n">VTEncodeInfoFlags</span> <span class="n">flags</span><span class="p">,</span>
+    <span class="n">CMSampleBufferRef</span> <span class="n">sample_buffer</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"vtencoutputcallback %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">__LINE__</span><span class="p">);</span><span class="c1">//522
+</span>    <span class="n">AVCodecContext</span> <span class="o">*</span><span class="n">avctx</span> <span class="o">=</span> <span class="n">ctx</span><span class="p">;</span>
+    <span class="n">VTEncContext</span>   <span class="o">*</span><span class="n">vtctx</span> <span class="o">=</span> <span class="n">avctx</span><span class="o">-&gt;</span><span class="n">priv_data</span><span class="p">;</span>
+    <span class="n">ExtraSEI</span> <span class="o">*</span><span class="n">sei</span> <span class="o">=</span> <span class="n">sourceFrameCtx</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">vtctx</span><span class="o">-&gt;</span><span class="n">async_error</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"vtencoutputcallback %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">__LINE__</span><span class="p">);</span><span class="c1">//528
+</span>        <span class="k">if</span><span class="p">(</span><span class="n">sample_buffer</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">CFRelease</span><span class="p">(</span><span class="n">sample_buffer</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"vtencoutputcallback %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">__LINE__</span><span class="p">);</span><span class="c1">//534
+</span>        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">status</span> <span class="o">||</span> <span class="o">!</span><span class="n">sample_buffer</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">av_log</span><span class="p">(</span><span class="n">avctx</span><span class="p">,</span> <span class="n">AV_LOG_ERROR</span><span class="p">,</span> <span class="s">"Error encoding frame: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">status</span><span class="p">);</span>
+        <span class="n">set_async_error</span><span class="p">(</span><span class="n">vtctx</span><span class="p">,</span> <span class="n">AVERROR_EXTERNAL</span><span class="p">);</span>
+        
+        <span class="n">printf</span><span class="p">(</span><span class="s">"vtencoutputcallback %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">__LINE__</span><span class="p">);</span><span class="c1">//542
+</span>        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="p">...</span>
+
+    <span class="n">vtenc_q_push</span><span class="p">(</span><span class="n">vtctx</span><span class="p">,</span> <span class="n">sample_buffer</span><span class="p">,</span> <span class="n">sei</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>首先在进入回调后增加打印，然后在出错误的两个判断中也增加，然后重新编译，运行程序。
+发生崩溃后，打印日志如下：</p>
+
+<blockquote>
+  <p>vtencoutputcallback 522<br />
+vtencoutputcallback 522<br />
+Error encoding frame: 0<br />
+vtencoutputcallback 542<br />
+[h264_videotoolbox @ 0x14e10be00] vtencoutputcallback 522<br />
+vtencoutputcallback 528<br />
+vtencoutputcallback 534</p>
+</blockquote>
+
+<table>
+  <tbody>
+    <tr>
+      <td>根据日志打印顺序可以分析出，一开始是正常的执行回调函数，直到sample_buffer某次为空后，会先进入(status</td>
+      <td> </td>
+      <td>!sample_buffer)这个判断并打印Error encoding frame: 0，然后下次进入回调的时候，再进入(vtctx-&gt;async_error)这个判断，然后执行完CFRelease(sample_buffer)后崩溃。</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="从async_error入手">从async_error入手</h4>
+
+<p>因为崩溃的时候async_error不为0，所以想到看看async_error会影响哪些地方。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32<br/>33<br/>34<br/>35<br/>36<br/>37<br/>38<br/>39</pre></td><td class="code"><pre class="highlight"><code><span class="k">static</span> <span class="kt">int</span> <span class="nf">vtenc_q_pop</span><span class="p">(</span><span class="n">VTEncContext</span> <span class="o">*</span><span class="n">vtctx</span><span class="p">,</span> <span class="n">bool</span> <span class="n">wait</span><span class="p">,</span> <span class="n">CMSampleBufferRef</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="n">ExtraSEI</span> <span class="o">**</span><span class="n">sei</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">BufNode</span> <span class="o">*</span><span class="n">info</span><span class="p">;</span>
+
+    <span class="n">pthread_mutex_lock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">vtctx</span><span class="o">-&gt;</span><span class="n">lock</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">vtctx</span><span class="o">-&gt;</span><span class="n">async_error</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">pthread_mutex_unlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">vtctx</span><span class="o">-&gt;</span><span class="n">lock</span><span class="p">);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"vtencqpop %d"</span><span class="p">,</span><span class="n">__LINE__</span><span class="p">);</span><span class="c1">//241
+</span>        <span class="k">return</span> <span class="n">vtctx</span><span class="o">-&gt;</span><span class="n">async_error</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="p">...</span>
+<span class="p">}</span>
+
+<span class="k">static</span> <span class="n">av_cold</span> <span class="kt">int</span> <span class="nf">vtenc_frame</span><span class="p">(</span>
+    <span class="n">AVCodecContext</span> <span class="o">*</span><span class="n">avctx</span><span class="p">,</span>
+    <span class="n">AVPacket</span>       <span class="o">*</span><span class="n">pkt</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">AVFrame</span>  <span class="o">*</span><span class="n">frame</span><span class="p">,</span>
+    <span class="kt">int</span>            <span class="o">*</span><span class="n">got_packet</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="p">...</span>
+
+    <span class="n">status</span> <span class="o">=</span> <span class="n">vtenc_q_pop</span><span class="p">(</span><span class="n">vtctx</span><span class="p">,</span> <span class="o">!</span><span class="n">frame</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">buf</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sei</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">status</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"vtencframe %d status %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">__LINE__</span><span class="p">,</span><span class="n">status</span><span class="p">);</span><span class="c1">//2283
+</span>        <span class="k">goto</span> <span class="n">end_nopkt</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">buf</span><span class="p">)</span>   <span class="k">goto</span> <span class="n">end_nopkt</span><span class="p">;</span>
+
+    <span class="p">...</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="nl">end_nopkt:</span>
+	<span class="n">printf</span><span class="p">(</span><span class="s">"vtencframe %d end_nopkt</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">__LINE__</span><span class="p">,</span><span class="n">status</span><span class="p">);</span><span class="c1">//2301
+</span>    <span class="n">av_packet_unref</span><span class="p">(</span><span class="n">pkt</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">status</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<p>然后在调用avcodec_send_frame处打印出错时的结果。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9</pre></td><td class="code"><pre class="highlight"><code>	<span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="n">avcodec_send_frame</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">pYuvFrame</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    	<span class="n">printf</span><span class="p">(</span><span class="s">"result = %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">result</span><span class="p">);</span>
+        <span class="c1">//编码错误，释放context
+</span>        <span class="n">avcodec_free_context</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ctx</span><span class="p">);</span>
+        <span class="p">...</span>
+        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+    <span class="p">}</span>
+
+</code></pre></td></tr></tbody></table></div></div>
+<p>崩溃后，日志输出：</p>
+<blockquote>
+  <p>vtencoutputcallback 522<br />
+vtencoutputcallback 522<br />
+vtencoutputcallback 522<br />
+Error encoding frame: 0<br />
+vtencoutputcallback 542<br />
+[h264_videotoolbox @ 0x157101e00] vtencqpop 241vtencframe 2283 status -542398533<br />
+vtencframe 2301 end_nopkt<br />
+result = -542398533<br />
+vtencoutputcallback 522<br />
+vtencoutputcallback 528<br />
+vtencoutputcallback 534</p>
+</blockquote>
+
+<p>可以看到，在出现空的sample_buffer后，就将错误值返回给了上层调用，然后在上层已经调用 avcodec_free_context(&amp;ctx);释放context的情况下，再次进入了编码回调，并且进入(vtctx-&gt;async_error)这个判断。因此就要看看在释放context的过程中发生了什么。</p>
+
+<h4 id="分析avcodeccontext释放过程">分析AVCodecContext释放过程</h4>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14</pre></td><td class="code"><pre class="highlight"><code><span class="k">static</span> <span class="n">av_cold</span> <span class="kt">int</span> <span class="nf">vtenc_close</span><span class="p">(</span><span class="n">AVCodecContext</span> <span class="o">*</span><span class="n">avctx</span><span class="p">)</span>
+<span class="p">{</span>
+    
+	<span class="n">VTEncContext</span> <span class="o">*</span><span class="n">vtctx</span> <span class="o">=</span> <span class="n">avctx</span><span class="o">-&gt;</span><span class="n">priv_data</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"vtencclose %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">__LINE__</span><span class="p">);</span><span class="c1">//2412
+</span>    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">vtctx</span><span class="o">-&gt;</span><span class="n">session</span><span class="p">)</span> <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"vtencclose %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">__LINE__</span><span class="p">);</span><span class="c1">//2414
+</span>    <span class="n">VTCompressionSessionCompleteFrames</span><span class="p">(</span><span class="n">vtctx</span><span class="o">-&gt;</span><span class="n">session</span><span class="p">,</span>
+                                       <span class="n">kCMTimeIndefinite</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"vtencclose %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">__LINE__</span><span class="p">);</span><span class="c1">//2417
+</span>    <span class="n">clear_frame_queue</span><span class="p">(</span><span class="n">vtctx</span><span class="p">);</span>
+	 <span class="p">...</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>在编码器关闭函数vtenc_close中，每行增加打印,运行程序,崩溃后控制台输出：</p>
+<blockquote>
+  <p>vtencoutputcallback 522<br />
+vtencoutputcallback 522<br />
+Error encoding frame: 0<br />
+vtencoutputcallback 542<br />
+[h264_videotoolbox @ 0x12604aa00] vtencqpop 241vtencframe 2283 status -542398533<br />
+vtencframe 2301 end_nopkt<br />
+result = -542398533<br />
+vtencclose 2412<br />
+vtencclose 2414<br />
+vtencoutputcallback 522<br />
+vtencoutputcallback 528<br />
+vtencoutputcallback 534</p>
+</blockquote>
+
+<p>根据打印可以看出，执行到  VTCompressionSessionCompleteFrames后就崩溃在CFRelease(sample_buffer);之后。</p>
+
+<h3 id="尝试注释cfreleasesample_buffer解决问题">尝试注释CFRelease(sample_buffer);解决问题</h3>
+
+<p>查找了苹果的官方文档，VTCompressionSessionCompleteFrames的作用是强制让编码器完成编码。</p>
+<blockquote>
+  <p>Forces the compression session to complete the encoding of frames.</p>
+</blockquote>
+
+<p>猜测是在回调中sample_buffer已经被释放，而编码器执行了VTCompressionSessionCompleteFrames方法后，可能在回调结束后又对sample_buffer指针发送消息，因此造成野指针崩溃。同时也查阅硬件编码的一些使用示例，确认在编码回调函数中CFRelease(sample_buffer)是不必要的。因此尝试注释这句话，重新运行后不再崩溃。</p>
+
+<h3 id="ios系统差异以及一点优化">iOS系统差异以及一点优化</h3>
+
+<p>为什么只在iOS10及以下系统中出现这个问题呢?导致这个问题出现的首要原因是某些情况下sample_buffer会为空，经过测试，在iOS11和12中都不会有这样的情况。而在出现这种情况后，ffmpeg的回调函数是记录一个错误然后返回错误值给调用方，然后调用方销毁context再重新创建，这样对性能是一个损耗。其实在sample_buffer为空的时候不处理，后续不为空的时候继续即可，这样就避免了无谓的销毁和创建context，最终修改的代码如下：</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26</pre></td><td class="code"><pre class="highlight"><code><span class="k">static</span> <span class="kt">void</span> <span class="nf">vtenc_output_callback</span><span class="p">(</span>
+    <span class="kt">void</span> <span class="o">*</span><span class="n">ctx</span><span class="p">,</span>
+    <span class="kt">void</span> <span class="o">*</span><span class="n">sourceFrameCtx</span><span class="p">,</span>
+    <span class="n">OSStatus</span> <span class="n">status</span><span class="p">,</span>
+    <span class="n">VTEncodeInfoFlags</span> <span class="n">flags</span><span class="p">,</span>
+    <span class="n">CMSampleBufferRef</span> <span class="n">sample_buffer</span><span class="p">)</span>
+<span class="p">{</span>
+    
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">CMSampleBufferDataIsReady</span><span class="p">(</span><span class="n">sampleBuffer</span><span class="p">))</span>
+    <span class="p">{</span>
+<span class="c1">//        NSLog(@"didCompressH264 data is not ready ");
+</span>        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">AVCodecContext</span> <span class="o">*</span><span class="n">avctx</span> <span class="o">=</span> <span class="n">ctx</span><span class="p">;</span>
+    <span class="n">VTEncContext</span>   <span class="o">*</span><span class="n">vtctx</span> <span class="o">=</span> <span class="n">avctx</span><span class="o">-&gt;</span><span class="n">priv_data</span><span class="p">;</span>
+    <span class="n">ExtraSEI</span> <span class="o">*</span><span class="n">sei</span> <span class="o">=</span> <span class="n">sourceFrameCtx</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">vtctx</span><span class="o">-&gt;</span><span class="n">async_error</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">sample_buffer</span><span class="p">)</span> <span class="p">{</span>
+<span class="c1">//            CFRelease(sample_buffer);
+</span>        <span class="p">}</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+   <span class="p">...</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<h3 id="补充一个有点弯路的解决方法">补充：一个有点弯路的解决方法</h3>
+
+<p>在找到正确的解决方法之前，还曾经做过一个尝试：既然出错后销毁会有问题，那我不销毁，继续使用context呢？<br />
+于是经过尝试，发现vtctx-&gt;async_error会一直不为0，也就是说设置过一次后，就无法继续，只有在关闭的时候才会置0，因此尝试在将结果返回给调用方时，也将vtctx-&gt;async_error置为0。代码如下：</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15</pre></td><td class="code"><pre class="highlight"><code><span class="k">static</span> <span class="kt">int</span> <span class="nf">vtenc_q_pop</span><span class="p">(</span><span class="n">VTEncContext</span> <span class="o">*</span><span class="n">vtctx</span><span class="p">,</span> <span class="n">bool</span> <span class="n">wait</span><span class="p">,</span> <span class="n">CMSampleBufferRef</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="n">ExtraSEI</span> <span class="o">**</span><span class="n">sei</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">BufNode</span> <span class="o">*</span><span class="n">info</span><span class="p">;</span>
+
+    <span class="n">pthread_mutex_lock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">vtctx</span><span class="o">-&gt;</span><span class="n">lock</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">vtctx</span><span class="o">-&gt;</span><span class="n">async_error</span><span class="p">)</span> <span class="p">{</span>
+        
+        <span class="kt">int</span> <span class="n">err</span> <span class="o">=</span> <span class="n">vtctx</span><span class="o">-&gt;</span><span class="n">async_error</span><span class="p">;</span>
+        <span class="n">vtctx</span><span class="o">-&gt;</span><span class="n">async_error</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="n">pthread_mutex_unlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">vtctx</span><span class="o">-&gt;</span><span class="n">lock</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">err</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="p">...</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<p>这样之后，经过尝试，也不会崩溃。但一来这种改动违背了作者的初衷，既然作者没有将vtctx-&gt;async_error置为0，也就是说作者希望出错后就重新创建，二来可能对其他的错误处理造成影响，因此不考虑使用这种方式解决。</p>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            
+            <a href="/tag/#/ffmpeg" rel="tag"># ffmpeg</a>
+          
+            
+            <a href="/tag/#/%E9%9F%B3%E8%A7%86%E9%A2%91" rel="tag"># 音视频</a>
+          
+            
+            <a href="/tag/#/%E7%AC%94%E8%AE%B0" rel="tag"># 笔记</a>
+          
+        </div>
+      
+
+      
+      
+      
+      
+      
+
+      
+      
+        <div class="post-nav" id="post-nav-id">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/gpuimage/2018/11/07/GPUImage3_01/" rel="prev" title="GPUImage3源码研究 研究视频滤镜过程">
+                GPUImage3源码研究 研究视频滤镜过程 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+      
+
+      
+    </footer>
+  </article>
+
+  <div class="post-spread">
+    
+  </div>
+</div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        
+        
+        
+
+
+
+
+
+
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/assets/images/avatar.gif"
+               alt="Michael" />
+          <p class="site-author-name" itemprop="name">Michael</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+        
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+
+
+
+
+
+
+
+            
+              <div class="post-toc-content">
+    <ol class=nav>
+      <li class="nav-item nav-level-3"> <a class="nav-link" href="#ffmpeg调用videotoolbox硬编码简单流程"> <span class="nav-number">1</span> <span class="nav-text">ffmpeg调用videotoolbox硬编码简单流程</span> </a> </li> <li class="nav-item nav-level-3"> <a class="nav-link" href="#定位错误"> <span class="nav-number">2</span> <span class="nav-text">定位错误</span> </a> </li> <li class="nav-item nav-level-3"> <a class="nav-link" href="#分析vtenc_output_callback函数"> <span class="nav-number">3</span> <span class="nav-text">分析vtenc_output_callback函数</span> </a> </li> <li class="nav-item nav-level-3"> <a class="nav-link" href="#通过增加打印日志找到崩溃前的代码执行顺序"> <span class="nav-number">4</span> <span class="nav-text">通过增加打印日志找到崩溃前的代码执行顺序</span> </a> <ol class="nav-child"> <li class="nav-item nav-level-4"> <a class="nav-link" href="#回调函数中打印日志"> <span class="nav-number">4.1</span> <span class="nav-text">回调函数中打印日志</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#从async_error入手"> <span class="nav-number">4.2</span> <span class="nav-text">从async_error入手</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#分析avcodeccontext释放过程"> <span class="nav-number">4.3</span> <span class="nav-text">分析AVCodecContext释放过程</span> </a> </li> </ol> </li> <li class="nav-item nav-level-3"> <a class="nav-link" href="#尝试注释cfreleasesample_buffer解决问题"> <span class="nav-number">5</span> <span class="nav-text">尝试注释CFRelease(sample_buffer);解决问题</span> </a> </li> <li class="nav-item nav-level-3"> <a class="nav-link" href="#ios系统差异以及一点优化"> <span class="nav-number">6</span> <span class="nav-text">iOS系统差异以及一点优化</span> </a> </li> <li class="nav-item nav-level-3"> <a class="nav-link" href="#补充一个有点弯路的解决方法"> <span class="nav-number">7</span> <span class="nav-text">补充：一个有点弯路的解决方法</span> </a> </li>
+    </ol>
+  </div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Michael</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://jekyllrb.com">Jekyll</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/simpleyyt/jekyll-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+   
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/assets/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/assets/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  <script type="text/javascript" src="/assets/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/assets/js/src/post-details.js?v=5.1.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/assets/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+    
+
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+  
+
+  
+  
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
+

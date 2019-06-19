@@ -1,0 +1,949 @@
+
+<!doctype html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/assets/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/assets/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/assets/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="OpenGL,音视频,笔记,Metal," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Micheal's blog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="上篇笔记">
+<meta name="keywords" content="OpenGL, 音视频, 笔记, Metal">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Metal学习笔记02 渲染图片纹理">
+<meta property="og:url" content="http://localhost:4000/metal/2018/10/23/Metal02/">
+<meta property="og:site_name" content="Micheal's blog">
+<meta property="og:description" content="上篇笔记">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://i.loli.net/2019/06/18/5d07c196a841928080.jpg">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Metal学习笔记02 渲染图片纹理">
+<meta name="twitter:description" content="上篇笔记">
+<meta name="twitter:image" content="https://i.loli.net/2019/06/18/5d07c196a841928080.jpg">
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://localhost:4000/"/>
+
+
+
+
+
+  <title>Metal学习笔记02 渲染图片纹理 | Micheal's blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> <div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Micheal's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+<div id="posts" class="posts-expand">
+  
+  
+
+  
+
+  
+  
+  
+
+  <article class="post post-type- " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://localhost:4000/metal/2018/10/23/Metal02/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Michael">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="assets/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Micheal's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+          
+          
+            Metal学习笔记02 渲染图片纹理
+          
+        </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-23T00:00:00+08:00">
+                2018-10-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/category/#/Metal" itemprop="url" rel="index">
+                    <span itemprop="name">Metal</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+            
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <p><a href="https://kof97500.github.io/metal/2018/10/21/Metal01/">上篇笔记</a></p>
+
+<p>上篇笔记实现了用Metal绘制三角形和矩形，这次来绘制一张图片。</p>
+
+<h3 id="加载图片为纹理">加载图片为纹理</h3>
+
+<p>加载图片为纹理有两种方式，一种是使用MTLTextureDescriptor创建Texture，需要将图片转为位图的buffer，另一种是使用MetalKit中的MTKTextureLoader，这种方式使用CGImage即可。</p>
+
+<h4 id="使用mtltexturedescriptor创建texture">使用MTLTextureDescriptor创建Texture</h4>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25</pre></td><td class="code"><pre class="highlight"><code>
+	<span class="k">@property</span><span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span><span class="n">strong</span><span class="p">)</span><span class="n">id</span><span class="o">&lt;</span><span class="n">MTLTexture</span><span class="o">&gt;</span><span class="n">texture</span><span class="p">;</span>
+	<span class="p">...</span>
+	<span class="n">NSString</span><span class="o">*</span><span class="n">imagePath</span> <span class="o">=</span> <span class="p">[[</span><span class="n">NSBundle</span> <span class="nf">mainBundle</span><span class="p">]</span><span class="nf">pathForResource</span><span class="p">:</span><span class="s">@"container"</span> <span class="nf">ofType</span><span class="p">:</span><span class="s">@"png"</span><span class="p">];</span>
+    <span class="n">UIImage</span><span class="o">*</span><span class="n">image</span> <span class="o">=</span> <span class="p">[</span><span class="n">UIImage</span> <span class="nf">imageWithContentsOfFile</span><span class="p">:</span><span class="n">imagePath</span><span class="p">];</span>
+    <span class="n">CGImageRef</span> <span class="n">cgImageRef</span> <span class="o">=</span> <span class="p">[</span><span class="n">image</span> <span class="nf">CGImage</span><span class="p">];</span>
+    <span class="n">GLuint</span> <span class="n">width</span> <span class="o">=</span> <span class="p">(</span><span class="n">GLuint</span><span class="p">)</span><span class="n">CGImageGetWidth</span><span class="p">(</span><span class="n">cgImageRef</span><span class="p">);</span>
+    <span class="n">GLuint</span> <span class="n">height</span> <span class="o">=</span> <span class="p">(</span><span class="n">GLuint</span><span class="p">)</span><span class="n">CGImageGetHeight</span><span class="p">(</span><span class="n">cgImageRef</span><span class="p">);</span>
+    <span class="n">CGRect</span> <span class="n">rect</span> <span class="o">=</span> <span class="n">CGRectMake</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">);</span>
+    <span class="kt">void</span> <span class="o">*</span><span class="n">imageData</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="n">width</span> <span class="o">*</span> <span class="n">height</span> <span class="o">*</span> <span class="mi">4</span><span class="p">);</span>
+    <span class="n">CGContextRef</span> <span class="n">context</span> <span class="o">=</span> <span class="n">CGBitmapContextCreate</span><span class="p">(</span><span class="n">imageData</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="n">width</span> <span class="o">*</span> <span class="mi">4</span><span class="p">,</span> <span class="n">CGColorSpaceCreateDeviceRGB</span><span class="p">(),</span> <span class="n">kCGImageAlphaPremultipliedLast</span><span class="p">);</span>
+    <span class="n">CGContextTranslateCTM</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">height</span><span class="p">);</span>
+    <span class="n">CGContextScaleCTM</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">);</span>
+    
+    <span class="n">CGContextDrawImage</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">rect</span><span class="p">,</span> <span class="n">cgImageRef</span><span class="p">);</span>
+    <span class="n">CGContextRelease</span><span class="p">(</span><span class="n">context</span><span class="p">);</span>
+	
+	<span class="p">...</span>
+	
+	
+	<span class="n">MTLTextureDescriptor</span><span class="o">*</span><span class="n">textureDes</span> <span class="o">=</span> <span class="p">[</span><span class="n">MTLTextureDescriptor</span> <span class="nf">texture2DDescriptorWithPixelFormat</span><span class="p">:</span><span class="n">MTLPixelFormatRGBA8Unorm</span> <span class="nf">width</span><span class="p">:</span><span class="n">width</span> <span class="n">height</span><span class="o">:</span><span class="n">height</span> <span class="n">mipmapped</span><span class="o">:</span><span class="nb">NO</span><span class="p">];</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">texture</span> <span class="o">=</span> <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">device</span> <span class="nf">newTextureWithDescriptor</span><span class="p">:</span><span class="n">textureDes</span><span class="p">];</span>
+	
+	<span class="n">MTLRegion</span> <span class="n">region</span> <span class="o">=</span> <span class="n">MTLRegionMake2D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">);</span>
+    <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">texture</span> <span class="nf">replaceRegion</span><span class="p">:</span><span class="n">region</span> <span class="nf">mipmapLevel</span><span class="p">:</span><span class="mi">0</span> <span class="n">withBytes</span><span class="o">:</span><span class="n">imageData</span> <span class="n">bytesPerRow</span><span class="o">:</span><span class="n">width</span><span class="o">*</span><span class="mi">4</span><span class="p">];</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>这里将UIImage转为imageData，然后创建一个纹理描述器，设置宽高、颜色格式。然后device根据描述器创建一个纹理。之后调用replaceRegion：方法将图片数据放入纹理中，其中region参数表示图片的范围。需要注意的是，由于CGImage的坐标中y轴是向上增长的，和UIKit相反，所以CGContextDrawImage的图片会上下颠倒，需要做下翻转。具体可以参考 <a href="https://blog.csdn.net/jkxiaoxue1218/article/details/50590267">ios-绘图之图片上下颠倒</a></p>
+
+<h4 id="使用mtktextureloader创建texture">使用MTKTextureLoader创建Texture</h4>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5</pre></td><td class="code"><pre class="highlight"><code>    <span class="n">MTKTextureLoader</span><span class="o">*</span><span class="n">loader</span> <span class="o">=</span> <span class="p">[[</span><span class="n">MTKTextureLoader</span> <span class="nf">alloc</span><span class="p">]</span><span class="nf">initWithDevice</span><span class="p">:</span><span class="n">self</span><span class="p">.</span><span class="n">device</span><span class="p">];</span>
+
+    <span class="n">NSError</span><span class="o">*</span><span class="n">error</span><span class="p">;</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">texture</span> <span class="o">=</span> <span class="p">[</span><span class="n">loader</span> <span class="nf">newTextureWithCGImage</span><span class="p">:</span><span class="n">image</span><span class="p">.</span><span class="n">CGImage</span> <span class="nf">options</span><span class="p">:@{</span><span class="n">MTKTextureLoaderOptionSRGB</span><span class="o">:</span><span class="err">@</span><span class="p">(</span><span class="nb">NO</span><span class="p">)}</span> <span class="n">error</span><span class="o">:&amp;</span><span class="n">error</span><span class="p">];</span>
+
+</code></pre></td></tr></tbody></table></div></div>
+<p>这里使用device创建一个MTKTextureLoader，然后传入图片的CGImage即可。</p>
+
+<h3 id="设置texture为renderencoder的纹理">设置texture为renderEncoder的纹理</h3>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1</pre></td><td class="code"><pre class="highlight"><code>	<span class="p">[</span><span class="n">renderEncoder</span> <span class="nf">setFragmentTexture</span><span class="p">:</span><span class="n">self</span><span class="p">.</span><span class="n">texture</span> <span class="nf">atIndex</span><span class="p">:</span><span class="mi">0</span><span class="p">];</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<h3 id="修改shader">修改shader</h3>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17</pre></td><td class="code"><pre class="highlight"><code><span class="k">struct</span> <span class="n">VertexOut</span>
+<span class="p">{</span>
+    <span class="n">float4</span> <span class="n">position</span> <span class="p">[[</span><span class="nf">position</span><span class="p">]];</span>
+    <span class="n">float2</span> <span class="n">textureCoordinate</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="n">vertex</span> <span class="n">VertexOut</span> <span class="n">texture_vertex</span> <span class="p">(</span>
+    <span class="n">constant</span> <span class="n">float4</span><span class="o">*</span><span class="n">vertex_array</span><span class="p">[[</span><span class="n">buffer</span><span class="p">(</span><span class="mi">0</span><span class="p">)]],</span>
+    <span class="n">constant</span> <span class="n">float2</span><span class="o">*</span><span class="n">textureCoord_array</span><span class="p">[[</span><span class="n">buffer</span><span class="p">(</span><span class="mi">1</span><span class="p">)]],</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">vid</span><span class="p">[[</span><span class="nf">vertex_id</span><span class="p">]]){</span>
+
+    <span class="n">VertexOut</span> <span class="n">outputVertices</span><span class="p">;</span>
+
+    <span class="n">outputVertices</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">vertex_array</span><span class="p">[</span><span class="nf">vid</span><span class="p">];</span>
+    <span class="n">outputVertices</span><span class="p">.</span><span class="n">textureCoordinate</span> <span class="o">=</span> <span class="n">textureCoord_array</span><span class="p">[</span><span class="nf">vid</span><span class="p">];</span>
+
+    <span class="k">return</span> <span class="n">outputVertices</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>因为渲染纹理需要顶点着色器向片段着色器传顶点坐标和纹理坐标，所以这里定义了一个结构体，用作顶点着色器函数的返回值类型。函数第一个参数表示传入的顶点数据数组，第二参数表示传入的纹理坐标数组。函数的实现就是将顶点和纹理坐标组合成结构体返回。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7</pre></td><td class="code"><pre class="highlight"><code><span class="n">fragment</span> <span class="n">float4</span> <span class="nf">texture_fragment</span><span class="p">(</span><span class="n">VertexOut</span> <span class="n">fragmentInput</span> <span class="p">[[</span><span class="nf">stage_in</span><span class="p">]],</span>
+                                 <span class="n">texture2d</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span> <span class="n">inputTexture</span> <span class="p">[[</span><span class="n">texture</span><span class="p">(</span><span class="mi">0</span><span class="p">)]])</span> <span class="p">{</span>
+    <span class="n">constexpr</span> <span class="n">sampler</span> <span class="n">quadSampler</span><span class="p">;</span>
+    <span class="n">float4</span> <span class="n">color</span> <span class="o">=</span> <span class="n">inputTexture</span><span class="p">.</span><span class="n">sample</span><span class="p">(</span><span class="n">quadSampler</span><span class="p">,</span> <span class="n">fragmentInput</span><span class="p">.</span><span class="n">textureCoordinate</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">color</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>这里第一个参数是从顶点着色器返回的，包含顶点和纹理坐标，第二个参数是传入的纹理。函数实现中，定义了一个取样器，用于取得纹理对应坐标的颜色并返回。</p>
+
+<h3 id="创建纹理坐标buffer并传入renderencoder">创建纹理坐标buffer并传入renderEncoder</h3>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9</pre></td><td class="code"><pre class="highlight"><code>	<span class="kt">float</span> <span class="n">textureCoord</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span><span class="mi">1</span>
+    <span class="p">};</span>
+    <span class="n">id</span><span class="o">&lt;</span><span class="n">MTLBuffer</span><span class="o">&gt;</span><span class="n">textureCoordBuffer</span> <span class="o">=</span> <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">device</span> <span class="nf">newBufferWithBytes</span><span class="p">:</span><span class="n">textureCoord</span> <span class="nf">length</span><span class="p">:</span><span class="k">sizeof</span><span class="p">(</span><span class="n">textureCoord</span><span class="p">)</span> <span class="n">options</span><span class="o">:</span><span class="n">MTLResourceCPUCacheModeDefaultCache</span><span class="p">];</span>
+    
+    <span class="p">[</span><span class="n">renderEncoder</span> <span class="nf">setVertexBuffer</span><span class="p">:</span><span class="n">textureCoordBuffer</span> <span class="nf">offset</span><span class="p">:</span><span class="mi">0</span> <span class="n">atIndex</span><span class="o">:</span><span class="mi">1</span><span class="p">];</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>这里创建了一个MTLBuffer，并作为序号1的参数传给着色器，对应顶点着色器函数中的textureCoord_array.</p>
+
+<p>之后运行即可看到图片纹理。</p>
+
+<hr />
+<p><img src="https://i.loli.net/2019/06/18/5d07c196a841928080.jpg" alt="Metal03" /></p>
+
+<h3 id="总结">总结</h3>
+<p>在使用MTKTextureLoader时发现它属于MetalKit，和Metal不在同一个framework，MetalKit是为了更方便开发者使用而推出的，并且更加便于和iOS原生的数据交互，例如MTKTextureLoader就可以直接使用CGImage生成纹理，很方便。另外就是Metal的shader语言更加灵活，可以自定义结构体，可以更加灵活的传递各种参数。</p>
+
+<p><a href="https://github.com/kof97500/OpenGLIOSDemo/tree/master/Metal/MetalDemo02">demo地址</a></p>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            
+            <a href="/tag/#/OpenGL" rel="tag"># OpenGL</a>
+          
+            
+            <a href="/tag/#/%E9%9F%B3%E8%A7%86%E9%A2%91" rel="tag"># 音视频</a>
+          
+            
+            <a href="/tag/#/%E7%AC%94%E8%AE%B0" rel="tag"># 笔记</a>
+          
+            
+            <a href="/tag/#/Metal" rel="tag"># Metal</a>
+          
+        </div>
+      
+
+      
+      
+      
+      
+      
+
+      
+      
+        <div class="post-nav" id="post-nav-id">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/metal/2018/10/30/Metal03/" rel="next" title="Metal学习笔记03 渲染视频原始数据">
+                <i class="fa fa-chevron-left"></i> Metal学习笔记03 渲染视频原始数据
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/metal/2018/10/21/Metal01/" rel="prev" title="Metal学习笔记01 渲染一个三角形">
+                Metal学习笔记01 渲染一个三角形 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+      
+
+      
+    </footer>
+  </article>
+
+  <div class="post-spread">
+    
+  </div>
+</div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        
+        
+        
+
+
+
+
+
+
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/assets/images/avatar.gif"
+               alt="Michael" />
+          <p class="site-author-name" itemprop="name">Michael</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+        
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+
+
+
+
+
+
+
+            
+              <div class="post-toc-content">
+    <ol class=nav>
+      <li class="nav-item nav-level-3"> <a class="nav-link" href="#加载图片为纹理"> <span class="nav-number">1</span> <span class="nav-text">加载图片为纹理</span> </a> <ol class="nav-child"> <li class="nav-item nav-level-4"> <a class="nav-link" href="#使用mtltexturedescriptor创建texture"> <span class="nav-number">1.1</span> <span class="nav-text">使用MTLTextureDescriptor创建Texture</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#使用mtktextureloader创建texture"> <span class="nav-number">1.2</span> <span class="nav-text">使用MTKTextureLoader创建Texture</span> </a> </li> </ol> </li> <li class="nav-item nav-level-3"> <a class="nav-link" href="#设置texture为renderencoder的纹理"> <span class="nav-number">2</span> <span class="nav-text">设置texture为renderEncoder的纹理</span> </a> </li> <li class="nav-item nav-level-3"> <a class="nav-link" href="#修改shader"> <span class="nav-number">3</span> <span class="nav-text">修改shader</span> </a> </li> <li class="nav-item nav-level-3"> <a class="nav-link" href="#创建纹理坐标buffer并传入renderencoder"> <span class="nav-number">4</span> <span class="nav-text">创建纹理坐标buffer并传入renderEncoder</span> </a> </li> <li class="nav-item nav-level-3"> <a class="nav-link" href="#总结"> <span class="nav-number">5</span> <span class="nav-text">总结</span> </a> </li>
+    </ol>
+  </div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Michael</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://jekyllrb.com">Jekyll</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/simpleyyt/jekyll-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+   
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/assets/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/assets/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  <script type="text/javascript" src="/assets/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/assets/js/src/post-details.js?v=5.1.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/assets/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+    
+
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+  
+
+  
+  
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
+

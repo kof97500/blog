@@ -1,0 +1,1370 @@
+
+<!doctype html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/assets/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/assets/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/assets/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="OpenGL,音视频,笔记,GPUImage," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Micheal's blog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="之前在一家短视频应用的小创业公司待过，当时领导丢给我几个shader文件和图片，然后叫我用GPUImage把这几个滤镜弄出来，当时看那些shader和GPUImage是一脸懵逼，硬着头皮弄，后来也弄出来了，现在想想当时也没有顺便研究下OpenGL和GPUImage，感觉有点浪费，现在想起来了，之前对OpenGL也有些了解了，就来看看GPUImage的源码吧。">
+<meta name="keywords" content="OpenGL, 音视频, 笔记, GPUImage">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GPUImage源码研究01 研究图片滤镜过程">
+<meta property="og:url" content="http://localhost:4000/gpuimage/2018/05/01/GPUImage01/">
+<meta property="og:site_name" content="Micheal's blog">
+<meta property="og:description" content="之前在一家短视频应用的小创业公司待过，当时领导丢给我几个shader文件和图片，然后叫我用GPUImage把这几个滤镜弄出来，当时看那些shader和GPUImage是一脸懵逼，硬着头皮弄，后来也弄出来了，现在想想当时也没有顺便研究下OpenGL和GPUImage，感觉有点浪费，现在想起来了，之前对OpenGL也有些了解了，就来看看GPUImage的源码吧。">
+<meta property="og:locale" content="zh-Hans">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="GPUImage源码研究01 研究图片滤镜过程">
+<meta name="twitter:description" content="之前在一家短视频应用的小创业公司待过，当时领导丢给我几个shader文件和图片，然后叫我用GPUImage把这几个滤镜弄出来，当时看那些shader和GPUImage是一脸懵逼，硬着头皮弄，后来也弄出来了，现在想想当时也没有顺便研究下OpenGL和GPUImage，感觉有点浪费，现在想起来了，之前对OpenGL也有些了解了，就来看看GPUImage的源码吧。">
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://localhost:4000/"/>
+
+
+
+
+
+  <title>GPUImage源码研究01 研究图片滤镜过程 | Micheal's blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> <div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Micheal's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+<div id="posts" class="posts-expand">
+  
+  
+
+  
+
+  
+  
+  
+
+  <article class="post post-type- " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://localhost:4000/gpuimage/2018/05/01/GPUImage01/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Michael">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="assets/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Micheal's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+          
+          
+            GPUImage源码研究01 研究图片滤镜过程
+          
+        </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-01T00:00:00+08:00">
+                2018-05-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/category/#/GPUImage" itemprop="url" rel="index">
+                    <span itemprop="name">GPUImage</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+            
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <p>之前在一家短视频应用的小创业公司待过，当时领导丢给我几个shader文件和图片，然后叫我用GPUImage把这几个滤镜弄出来，当时看那些shader和GPUImage是一脸懵逼，硬着头皮弄，后来也弄出来了，现在想想当时也没有顺便研究下OpenGL和GPUImage，感觉有点浪费，现在想起来了，之前对OpenGL也有些了解了，就来看看GPUImage的源码吧。</p>
+
+<h3 id="使用滤镜渲染一张图片">使用滤镜渲染一张图片</h3>
+<p>这里直接使用GPUImage github主页提供的图片滤镜代码示例,取得滤镜处理过后的图片后，放到UIImageView上显示。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27</pre></td><td class="code"><pre class="highlight"><code><span class="k">@interface</span> <span class="nc">ViewController</span> <span class="p">()</span>
+<span class="k">@property</span> <span class="p">(</span><span class="n">weak</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">IBOutlet</span> <span class="n">UIImageView</span> <span class="o">*</span><span class="n">filteredImageView</span><span class="p">;</span>
+
+<span class="k">@end</span>
+
+<span class="k">@implementation</span> <span class="nc">ViewController</span>
+
+<span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">viewDidLoad</span> <span class="p">{</span>
+    <span class="p">[</span><span class="n">super</span> <span class="nf">viewDidLoad</span><span class="p">];</span>
+    <span class="c1">// Do any additional setup after loading the view.
+</span>    
+    <span class="n">UIImage</span> <span class="o">*</span><span class="n">inputImage</span> <span class="o">=</span> <span class="p">[</span><span class="n">UIImage</span> <span class="nf">imageWithContentsOfFile</span><span class="p">:[[</span><span class="n">NSBundle</span> <span class="nf">mainBundle</span><span class="p">]</span><span class="nf">pathForResource</span><span class="p">:</span><span class="s">@"container"</span> <span class="nf">ofType</span><span class="p">:</span><span class="s">@"png"</span><span class="p">]];</span>
+    
+    <span class="n">GPUImagePicture</span> <span class="o">*</span><span class="n">stillImageSource</span> <span class="o">=</span> <span class="p">[[</span><span class="n">GPUImagePicture</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithImage</span><span class="p">:</span><span class="n">inputImage</span><span class="p">];</span>
+    <span class="n">GPUImageSepiaFilter</span> <span class="o">*</span><span class="n">stillImageFilter</span> <span class="o">=</span> <span class="p">[[</span><span class="n">GPUImageSepiaFilter</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">init</span><span class="p">];</span>
+    
+    <span class="p">[</span><span class="n">stillImageSource</span> <span class="nf">addTarget</span><span class="p">:</span><span class="n">stillImageFilter</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">stillImageFilter</span> <span class="nf">useNextFrameForImageCapture</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">stillImageSource</span> <span class="nf">processImage</span><span class="p">];</span>
+    
+    <span class="n">UIImage</span> <span class="o">*</span><span class="n">currentFilteredVideoFrame</span> <span class="o">=</span> <span class="p">[</span><span class="n">stillImageFilter</span> <span class="nf">imageFromCurrentFramebuffer</span><span class="p">];</span>
+    
+    <span class="n">self</span><span class="p">.</span><span class="n">filteredImageView</span><span class="p">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">currentFilteredVideoFrame</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+<span class="k">@end</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<h4 id="使用gpuimagepicture加载图片">使用GPUImagePicture加载图片</h4>
+
+<p>首先使用图片创建了一个GPUImagePicture对象。</p>
+
+<h5 id="获取图片位图数据">获取图片位图数据</h5>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="nf">initWithImage</span><span class="p">:(</span><span class="n">UIImage</span> <span class="o">*</span><span class="p">)</span><span class="nv">newImageSource</span><span class="p">;</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">self</span> <span class="o">=</span> <span class="p">[</span><span class="n">self</span> <span class="nf">initWithImage</span><span class="p">:</span><span class="n">newImageSource</span> <span class="nf">smoothlyScaleOutput</span><span class="p">:</span><span class="nb">NO</span><span class="p">]))</span>
+    <span class="p">{</span>
+		<span class="k">return</span> <span class="nb">nil</span><span class="p">;</span>
+    <span class="p">}</span>
+    
+    <span class="k">return</span> <span class="n">self</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="o">-</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="n">initWithImage</span><span class="o">:</span><span class="p">(</span><span class="n">UIImage</span> <span class="o">*</span><span class="p">)</span><span class="n">newImageSource</span> <span class="n">smoothlyScaleOutput</span><span class="o">:</span><span class="p">(</span><span class="n">BOOL</span><span class="p">)</span><span class="n">smoothlyScaleOutput</span><span class="p">;</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">self</span> <span class="nf">initWithCGImage</span><span class="p">:[</span><span class="n">newImageSource</span> <span class="nf">CGImage</span><span class="p">]</span> <span class="nf">smoothlyScaleOutput</span><span class="p">:</span><span class="n">smoothlyScaleOutput</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="o">-</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="n">initWithCGImage</span><span class="o">:</span><span class="p">(</span><span class="n">CGImageRef</span><span class="p">)</span><span class="n">newImageSource</span> <span class="n">smoothlyScaleOutput</span><span class="o">:</span><span class="p">(</span><span class="n">BOOL</span><span class="p">)</span><span class="n">smoothlyScaleOutput</span> <span class="n">removePremultiplication</span><span class="o">:</span><span class="p">(</span><span class="n">BOOL</span><span class="p">)</span><span class="n">removePremultiplication</span>
+<span class="p">{</span>
+	<span class="p">...</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<p>进入init方法,可以看到最终将传入的UIImage的CGImageRef取出，然后调用方法</p>
+
+<div class="highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1</pre></td><td class="code"><pre class="highlight"><code>- (id)initWithCGImage:(CGImageRef)newImageSource smoothlyScaleOutput:(BOOL)smoothlyScaleOutput removePremultiplication:(BOOL)removePremultiplication;
+</code></pre></td></tr></tbody></table></div></div>
+
+<p>后两个参数一个是平滑缩放，另一个字面意思是删除复制前，暂时不明，不过默认都是NO。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="nf">initWithCGImage</span><span class="p">:(</span><span class="n">CGImageRef</span><span class="p">)</span><span class="nv">newImageSource</span> <span class="nf">smoothlyScaleOutput</span><span class="p">:(</span><span class="n">BOOL</span><span class="p">)</span><span class="nv">smoothlyScaleOutput</span> <span class="nf">removePremultiplication</span><span class="p">:(</span><span class="n">BOOL</span><span class="p">)</span><span class="nv">removePremultiplication</span><span class="p">;</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">self</span> <span class="o">=</span> <span class="p">[</span><span class="n">super</span> <span class="nf">init</span><span class="p">]))</span>
+    <span class="p">{</span>
+		<span class="k">return</span> <span class="nb">nil</span><span class="p">;</span>
+    <span class="p">}</span>
+    
+    <span class="n">hasProcessedImage</span> <span class="o">=</span> <span class="nb">NO</span><span class="p">;</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">shouldSmoothlyScaleOutput</span> <span class="o">=</span> <span class="n">smoothlyScaleOutput</span><span class="p">;</span>
+    <span class="n">imageUpdateSemaphore</span> <span class="o">=</span> <span class="n">dispatch_semaphore_create</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+    <span class="n">dispatch_semaphore_signal</span><span class="p">(</span><span class="n">imageUpdateSemaphore</span><span class="p">);</span>
+
+
+    <span class="c1">// TODO: Dispatch this whole thing asynchronously to move image loading off main thread
+</span>    <span class="n">CGFloat</span> <span class="n">widthOfImage</span> <span class="o">=</span> <span class="n">CGImageGetWidth</span><span class="p">(</span><span class="n">newImageSource</span><span class="p">);</span>
+    <span class="n">CGFloat</span> <span class="n">heightOfImage</span> <span class="o">=</span> <span class="n">CGImageGetHeight</span><span class="p">(</span><span class="n">newImageSource</span><span class="p">);</span>
+
+    <span class="c1">// If passed an empty image reference, CGContextDrawImage will fail in future versions of the SDK.
+</span>    <span class="n">NSAssert</span><span class="p">(</span> <span class="n">widthOfImage</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">heightOfImage</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s">@"Passed image must not be empty - it should be at least 1px tall and wide"</span><span class="p">);</span>
+    
+    <span class="n">pixelSizeOfImage</span> <span class="o">=</span> <span class="n">CGSizeMake</span><span class="p">(</span><span class="n">widthOfImage</span><span class="p">,</span> <span class="n">heightOfImage</span><span class="p">);</span>
+    <span class="n">CGSize</span> <span class="n">pixelSizeToUseForTexture</span> <span class="o">=</span> <span class="n">pixelSizeOfImage</span><span class="p">;</span>
+    
+    <span class="n">BOOL</span> <span class="n">shouldRedrawUsingCoreGraphics</span> <span class="o">=</span> <span class="nb">NO</span><span class="p">;</span>
+    
+    <span class="c1">// For now, deal with images larger than the maximum texture size by resizing to be within that limit
+</span>    <span class="n">CGSize</span> <span class="n">scaledImageSizeToFitOnGPU</span> <span class="o">=</span> <span class="p">[</span><span class="n">GPUImageContext</span> <span class="nf">sizeThatFitsWithinATextureForSize</span><span class="p">:</span><span class="n">pixelSizeOfImage</span><span class="p">];</span>
+    <span class="p">...</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>首先初始化对象，创建一个信号量，然后获取宽高，并使用sizeThatFitsWithinATextureForSize来判断是否宽高是否有超出纹理最大限制，如果没有，就返回原来的宽高，如果有，则按比例缩小到纹理最大限制之内。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32<br/>33<br/>34<br/>35<br/>36<br/>37<br/>38</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="nf">initWithCGImage</span><span class="p">:(</span><span class="n">CGImageRef</span><span class="p">)</span><span class="nv">newImageSource</span> <span class="nf">smoothlyScaleOutput</span><span class="p">:(</span><span class="n">BOOL</span><span class="p">)</span><span class="nv">smoothlyScaleOutput</span> <span class="nf">removePremultiplication</span><span class="p">:(</span><span class="n">BOOL</span><span class="p">)</span><span class="nv">removePremultiplication</span>
+<span class="p">{</span>
+	<span class="p">...</span>
+	<span class="n">GLubyte</span> <span class="o">*</span><span class="n">imageData</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="n">CFDataRef</span> <span class="n">dataFromImageDataProvider</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="n">GLenum</span> <span class="n">format</span> <span class="o">=</span> <span class="n">GL_BGRA</span><span class="p">;</span>
+    <span class="n">BOOL</span> <span class="n">isLitteEndian</span> <span class="o">=</span> <span class="nb">YES</span><span class="p">;</span>
+    <span class="n">BOOL</span> <span class="n">alphaFirst</span> <span class="o">=</span> <span class="nb">NO</span><span class="p">;</span>
+    
+    
+    <span class="p">...</span>
+    
+    <span class="n">CGBitmapInfo</span> <span class="n">bitmapInfo</span> <span class="o">=</span> <span class="n">CGImageGetBitmapInfo</span><span class="p">(</span><span class="n">newImageSource</span><span class="p">);</span>
+    <span class="p">...</span>
+    
+    <span class="k">if</span> <span class="p">(</span><span class="n">byteOrderInfo</span> <span class="o">==</span> <span class="n">kCGBitmapByteOrder32Little</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="cm">/* Little endian, for alpha-first we can use this bitmap directly in GL */</span>
+                    <span class="n">CGImageAlphaInfo</span> <span class="n">alphaInfo</span> <span class="o">=</span> <span class="n">bitmapInfo</span> <span class="o">&amp;</span> <span class="n">kCGBitmapAlphaInfoMask</span><span class="p">;</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">alphaInfo</span> <span class="o">!=</span> <span class="n">kCGImageAlphaPremultipliedFirst</span> <span class="o">&amp;&amp;</span> <span class="n">alphaInfo</span> <span class="o">!=</span> <span class="n">kCGImageAlphaFirst</span> <span class="o">&amp;&amp;</span>
+                        <span class="n">alphaInfo</span> <span class="o">!=</span> <span class="n">kCGImageAlphaNoneSkipFirst</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="n">shouldRedrawUsingCoreGraphics</span> <span class="o">=</span> <span class="nb">YES</span><span class="p">;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">byteOrderInfo</span> <span class="o">==</span> <span class="n">kCGBitmapByteOrderDefault</span> <span class="o">||</span> <span class="n">byteOrderInfo</span> <span class="o">==</span> <span class="n">kCGBitmapByteOrder32Big</span><span class="p">)</span> <span class="p">{</span>
+					<span class="n">isLitteEndian</span> <span class="o">=</span> <span class="nb">NO</span><span class="p">;</span>
+                    <span class="cm">/* Big endian, for alpha-last we can use this bitmap directly in GL */</span>
+                    <span class="n">CGImageAlphaInfo</span> <span class="n">alphaInfo</span> <span class="o">=</span> <span class="n">bitmapInfo</span> <span class="o">&amp;</span> <span class="n">kCGBitmapAlphaInfoMask</span><span class="p">;</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">alphaInfo</span> <span class="o">!=</span> <span class="n">kCGImageAlphaPremultipliedLast</span> <span class="o">&amp;&amp;</span> <span class="n">alphaInfo</span> <span class="o">!=</span> <span class="n">kCGImageAlphaLast</span> <span class="o">&amp;&amp;</span>
+                        <span class="n">alphaInfo</span> <span class="o">!=</span> <span class="n">kCGImageAlphaNoneSkipLast</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="n">shouldRedrawUsingCoreGraphics</span> <span class="o">=</span> <span class="nb">YES</span><span class="p">;</span>
+                    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                        <span class="cm">/* Can access directly using GL_RGBA pixel format */</span>
+						<span class="n">premultiplied</span> <span class="o">=</span> <span class="n">alphaInfo</span> <span class="o">==</span> <span class="n">kCGImageAlphaPremultipliedLast</span> <span class="o">||</span> <span class="n">alphaInfo</span> <span class="o">==</span> <span class="n">kCGImageAlphaPremultipliedLast</span><span class="p">;</span>
+						<span class="n">alphaFirst</span> <span class="o">=</span> <span class="n">alphaInfo</span> <span class="o">==</span> <span class="n">kCGImageAlphaFirst</span> <span class="o">||</span> <span class="n">alphaInfo</span> <span class="o">==</span> <span class="n">kCGImageAlphaPremultipliedFirst</span><span class="p">;</span>
+						<span class="n">format</span> <span class="o">=</span> <span class="n">GL_RGBA</span><span class="p">;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>  
+                <span class="p">...</span>
+<span class="p">}</span>  
+</code></pre></td></tr></tbody></table></div></div>
+<p>然后会取出传入图片的bitmapInfo，然后做一系列判断，确认图片格式是RGBA还是ARGB。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="nf">initWithCGImage</span><span class="p">:(</span><span class="n">CGImageRef</span><span class="p">)</span><span class="nv">newImageSource</span> <span class="nf">smoothlyScaleOutput</span><span class="p">:(</span><span class="n">BOOL</span><span class="p">)</span><span class="nv">smoothlyScaleOutput</span> <span class="nf">removePremultiplication</span><span class="p">:(</span><span class="n">BOOL</span><span class="p">)</span><span class="nv">removePremultiplication</span>
+<span class="p">{</span>
+	<span class="p">...</span>
+	<span class="n">dataFromImageDataProvider</span> <span class="o">=</span> <span class="n">CGDataProviderCopyData</span><span class="p">(</span><span class="n">CGImageGetDataProvider</span><span class="p">(</span><span class="n">newImageSource</span><span class="p">));</span>
+    <span class="n">imageData</span> <span class="o">=</span> <span class="p">(</span><span class="n">GLubyte</span> <span class="o">*</span><span class="p">)</span><span class="n">CFDataGetBytePtr</span><span class="p">(</span><span class="n">dataFromImageDataProvider</span><span class="p">);</span>
+ 	<span class="p">...</span>       
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<p>然后将图片的数据拷贝出来。（之中省略一些判断）这样就获得了位图数据。</p>
+
+<h5 id="将图片数据写入纹理缓冲">将图片数据写入纹理缓冲</h5>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20</pre></td><td class="code"><pre class="highlight"><code><span class="n">runSynchronouslyOnVideoProcessingQueue</span><span class="p">(</span><span class="o">^</span><span class="p">{</span>
+        <span class="p">[</span><span class="n">GPUImageContext</span> <span class="nf">useImageProcessingContext</span><span class="p">];</span>
+        
+        <span class="n">outputFramebuffer</span> <span class="o">=</span> <span class="p">[[</span><span class="n">GPUImageContext</span> <span class="nf">sharedFramebufferCache</span><span class="p">]</span> <span class="nf">fetchFramebufferForSize</span><span class="p">:</span><span class="n">pixelSizeToUseForTexture</span> <span class="nf">onlyTexture</span><span class="p">:</span><span class="nb">YES</span><span class="p">];</span>
+        <span class="p">[</span><span class="n">outputFramebuffer</span> <span class="nf">disableReferenceCounting</span><span class="p">];</span>
+
+        <span class="n">glBindTexture</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="p">[</span><span class="n">outputFramebuffer</span> <span class="nf">texture</span><span class="p">]);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">shouldSmoothlyScaleOutput</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">glTexParameteri</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_MIN_FILTER</span><span class="p">,</span> <span class="n">GL_LINEAR_MIPMAP_LINEAR</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="c1">// no need to use self.outputTextureOptions here since pictures need this texture formats and type
+</span>        <span class="n">glTexImage2D</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">GL_RGBA</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">pixelSizeToUseForTexture</span><span class="p">.</span><span class="n">width</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">pixelSizeToUseForTexture</span><span class="p">.</span><span class="n">height</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">GL_UNSIGNED_BYTE</span><span class="p">,</span> <span class="n">imageData</span><span class="p">);</span>
+        
+        <span class="k">if</span> <span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">shouldSmoothlyScaleOutput</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">glGenerateMipmap</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="n">glBindTexture</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="p">});</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>这里使用了一个GPUImage创建的串行队列，然后同步的调用后续的代码。首先设置上下文，GPUImageContext是对EAGLContext的一个封装，创建了一个GPUImage使用的唯一的EAGLContext，然后设置为当前线程的context。然后从framebuffer的缓冲区获取一个可用的framebuffer，这个缓冲区使用类似字典的结构，根据需要的framebuffer的大小和纹理的一些设置选项进行hash计算，然后以hash值为key来获取可用的framebuffer。GPUImageFramebuffer是对OpenGL纹理和帧缓冲的封装，之后就是将图片数据写入这个纹理缓冲。
+picture对象持有这个framebuffer，这样一个GPUImagePicture的初始化过程就完成了。</p>
+
+<h4 id="创建一个gpuimagefilter对象">创建一个GPUImageFilter对象</h4>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21</pre></td><td class="code"><pre class="highlight"><code><span class="k">@implementation</span> <span class="nc">GPUImageSepiaFilter</span>
+
+<span class="k">-</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="n">init</span><span class="p">;</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">self</span> <span class="o">=</span> <span class="p">[</span><span class="n">super</span> <span class="nf">init</span><span class="p">]))</span>
+    <span class="p">{</span>
+		<span class="k">return</span> <span class="nb">nil</span><span class="p">;</span>
+    <span class="p">}</span>
+    
+    <span class="n">self</span><span class="p">.</span><span class="n">intensity</span> <span class="o">=</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">;</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">colorMatrix</span> <span class="o">=</span> <span class="p">(</span><span class="n">GPUMatrix4x4</span><span class="p">){</span>
+        <span class="p">{</span><span class="mi">0</span><span class="p">.</span><span class="mi">3588</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">7044</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">1368</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="p">},</span>
+        <span class="p">{</span><span class="mi">0</span><span class="p">.</span><span class="mi">2990</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5870</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">1140</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="p">},</span>
+        <span class="p">{</span><span class="mi">0</span><span class="p">.</span><span class="mi">2392</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">4696</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0912</span> <span class="p">,</span><span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="p">},</span>
+        <span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">},</span>
+    <span class="p">};</span>
+
+    <span class="k">return</span> <span class="n">self</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">@end</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<p>这里使用了GPUImageSepiaFilter这个滤镜，它继承自GPUImageColorMatrixFilter，它的init方法就是调用了父类的init方法之后，再赋值了两个参数。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="n">init</span><span class="p">;</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">self</span> <span class="o">=</span> <span class="p">[</span><span class="n">super</span> <span class="nf">initWithFragmentShaderFromString</span><span class="p">:</span><span class="n">kGPUImageColorMatrixFragmentShaderString</span><span class="p">]))</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="nb">nil</span><span class="p">;</span>
+    <span class="p">}</span>
+    
+    <span class="n">colorMatrixUniform</span> <span class="o">=</span> <span class="p">[</span><span class="n">filterProgram</span> <span class="nf">uniformIndex</span><span class="p">:</span><span class="s">@"colorMatrix"</span><span class="p">];</span>
+    <span class="n">intensityUniform</span> <span class="o">=</span> <span class="p">[</span><span class="n">filterProgram</span> <span class="nf">uniformIndex</span><span class="p">:</span><span class="s">@"intensity"</span><span class="p">];</span>
+    
+    <span class="n">self</span><span class="p">.</span><span class="n">intensity</span> <span class="o">=</span> <span class="mi">1</span><span class="p">.</span><span class="n">f</span><span class="p">;</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">colorMatrix</span> <span class="o">=</span> <span class="p">(</span><span class="n">GPUMatrix4x4</span><span class="p">){</span>
+        <span class="p">{</span><span class="mi">1</span><span class="p">.</span><span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="n">f</span><span class="p">},</span>
+        <span class="p">{</span><span class="mi">0</span><span class="p">.</span><span class="n">f</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="n">f</span><span class="p">},</span>
+        <span class="p">{</span><span class="mi">0</span><span class="p">.</span><span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="n">f</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="n">f</span><span class="p">},</span>
+        <span class="p">{</span><span class="mi">0</span><span class="p">.</span><span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="n">f</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="n">f</span><span class="p">}</span>
+    <span class="p">};</span>
+    
+    <span class="k">return</span> <span class="n">self</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>再看到GPUImageColorMatrixFilter的init方法，实际上调用了GPUImageColorMatrixFilter的父类GPUImageFilter的initWithFragmentShaderFromString:方法，参数传入一个片段着色器的shader字符串。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="nf">initWithFragmentShaderFromString</span><span class="p">:(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">fragmentShaderString</span><span class="p">;</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">self</span> <span class="o">=</span> <span class="p">[</span><span class="n">self</span> <span class="nf">initWithVertexShaderFromString</span><span class="p">:</span><span class="n">kGPUImageVertexShaderString</span> <span class="nf">fragmentShaderFromString</span><span class="p">:</span><span class="n">fragmentShaderString</span><span class="p">]))</span>
+    <span class="p">{</span>
+		<span class="k">return</span> <span class="nb">nil</span><span class="p">;</span>
+    <span class="p">}</span>
+    
+    <span class="k">return</span> <span class="n">self</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>再看GPUImageFilter的initWithFragmentShaderFromString方法，实际上就是使用了一个默认的kGPUImageVertexShaderString顶点着色器shader，和传入的片段着色器shader，来创建一个filter对象。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="nf">initWithVertexShaderFromString</span><span class="p">:(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">vertexShaderString</span> <span class="nf">fragmentShaderFromString</span><span class="p">:(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">fragmentShaderString</span><span class="p">;</span>
+<span class="p">{</span>
+    <span class="p">...</span>
+
+    <span class="n">runSynchronouslyOnVideoProcessingQueue</span><span class="p">(</span><span class="o">^</span><span class="p">{</span>
+        <span class="p">[</span><span class="n">GPUImageContext</span> <span class="nf">useImageProcessingContext</span><span class="p">];</span>
+
+        <span class="n">filterProgram</span> <span class="o">=</span> <span class="p">[[</span><span class="n">GPUImageContext</span> <span class="nf">sharedImageProcessingContext</span><span class="p">]</span> <span class="nf">programForVertexShaderString</span><span class="p">:</span><span class="n">vertexShaderString</span> <span class="nf">fragmentShaderString</span><span class="p">:</span><span class="n">fragmentShaderString</span><span class="p">];</span>
+        
+       <span class="p">...</span>        
+        <span class="n">filterPositionAttribute</span> <span class="o">=</span> <span class="p">[</span><span class="n">filterProgram</span> <span class="nf">attributeIndex</span><span class="p">:</span><span class="s">@"position"</span><span class="p">];</span>
+        <span class="n">filterTextureCoordinateAttribute</span> <span class="o">=</span> <span class="p">[</span><span class="n">filterProgram</span> <span class="nf">attributeIndex</span><span class="p">:</span><span class="s">@"inputTextureCoordinate"</span><span class="p">];</span>
+        <span class="n">filterInputTextureUniform</span> <span class="o">=</span> <span class="p">[</span><span class="n">filterProgram</span> <span class="nf">uniformIndex</span><span class="p">:</span><span class="s">@"inputImageTexture"</span><span class="p">];</span> <span class="c1">// This does assume a name of "inputImageTexture" for the fragment shader
+</span>        
+        <span class="p">[</span><span class="n">GPUImageContext</span> <span class="nf">setActiveShaderProgram</span><span class="p">:</span><span class="n">filterProgram</span><span class="p">];</span>
+        
+        <span class="n">glEnableVertexAttribArray</span><span class="p">(</span><span class="n">filterPositionAttribute</span><span class="p">);</span>
+        <span class="n">glEnableVertexAttribArray</span><span class="p">(</span><span class="n">filterTextureCoordinateAttribute</span><span class="p">);</span>    
+    <span class="p">});</span>
+    
+    <span class="k">return</span> <span class="n">self</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></td></tr></tbody></table></div></div>
+<p>这里可以看到initWithVertexShaderFromString:fragmentShaderFromString:方法使用全局的GPUImageContext，创建了一个GLProgram，GLProgram是对OpenGL的program的一个封装，它内部实现了顶点着色器和片段着色器的编译、链接，以及program的运行。GPUImageContext中也包含了一个对GLProgram的缓存，使用顶点着色器shader和片段着色器shader字符串拼接的字符串为key。获取了GLProgram后，就获取到顶点着色器和片段着色器的输入参数。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13</pre></td><td class="code"><pre class="highlight"><code><span class="n">NSString</span> <span class="o">*</span><span class="k">const</span> <span class="n">kGPUImageVertexShaderString</span> <span class="o">=</span> <span class="n">SHADER_STRING</span>
+<span class="p">(</span>
+ <span class="n">attribute</span> <span class="n">vec4</span> <span class="n">position</span><span class="p">;</span>
+ <span class="n">attribute</span> <span class="n">vec4</span> <span class="n">inputTextureCoordinate</span><span class="p">;</span>
+ 
+ <span class="n">varying</span> <span class="n">vec2</span> <span class="n">textureCoordinate</span><span class="p">;</span>
+ 
+ <span class="kt">void</span> <span class="nf">main</span><span class="p">()</span>
+ <span class="p">{</span>
+     <span class="n">gl_Position</span> <span class="o">=</span> <span class="n">position</span><span class="p">;</span>
+     <span class="n">textureCoordinate</span> <span class="o">=</span> <span class="n">inputTextureCoordinate</span><span class="p">.</span><span class="n">xy</span><span class="p">;</span>
+ <span class="p">}</span>
+ <span class="p">);</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>接下来看下顶点着色器程序，就是有两个输入，输入顶点和纹理坐标，然后将gl_Position和textureCoordinate传给片段着色器，了解OpenGL后，就会发现渲染视频图片之类的，顶点着色器基本都是这么写。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17</pre></td><td class="code"><pre class="highlight"><code><span class="n">NSString</span> <span class="o">*</span><span class="k">const</span> <span class="n">kGPUImageColorMatrixFragmentShaderString</span> <span class="o">=</span> <span class="n">SHADER_STRING</span>
+<span class="p">(</span>
+ <span class="n">varying</span> <span class="n">highp</span> <span class="n">vec2</span> <span class="n">textureCoordinate</span><span class="p">;</span>
+ 
+ <span class="n">uniform</span> <span class="n">sampler2D</span> <span class="n">inputImageTexture</span><span class="p">;</span>
+ 
+ <span class="n">uniform</span> <span class="n">lowp</span> <span class="n">mat4</span> <span class="n">colorMatrix</span><span class="p">;</span>
+ <span class="n">uniform</span> <span class="n">lowp</span> <span class="kt">float</span> <span class="n">intensity</span><span class="p">;</span>
+ 
+ <span class="kt">void</span> <span class="nf">main</span><span class="p">()</span>
+ <span class="p">{</span>
+     <span class="n">lowp</span> <span class="n">vec4</span> <span class="n">textureColor</span> <span class="o">=</span> <span class="n">texture2D</span><span class="p">(</span><span class="n">inputImageTexture</span><span class="p">,</span> <span class="n">textureCoordinate</span><span class="p">);</span>
+     <span class="n">lowp</span> <span class="n">vec4</span> <span class="n">outputColor</span> <span class="o">=</span> <span class="n">textureColor</span> <span class="o">*</span> <span class="n">colorMatrix</span><span class="p">;</span>
+     
+     <span class="n">gl_FragColor</span> <span class="o">=</span> <span class="p">(</span><span class="n">intensity</span> <span class="o">*</span> <span class="n">outputColor</span><span class="p">)</span> <span class="o">+</span> <span class="p">((</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span> <span class="o">-</span> <span class="n">intensity</span><span class="p">)</span> <span class="o">*</span> <span class="n">textureColor</span><span class="p">);</span>
+ <span class="p">}</span>
+<span class="p">);</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>接下来看GPUImageColorMatrixFilter的片段着色器程序，可以看到除了传入的纹理坐标和纹理输入外，还有两个参数，分别是一个颜色矩阵，和一个表达变化强度的参数，然后实际是计算到纹理原本的颜色和颜色矩阵相乘得到的颜色之后，根据intensity参数得到一个原始颜色和新颜色按一定比例相加的颜色。可以看出GPUImageColorMatrixFilter这个滤镜就是使用颜色矩阵处理纹理的滤镜，而GPUImageSepiaFilter滤镜就是将颜色矩阵换成这个特效专用的矩阵。<br />
+整个filter的初始化过程，就是编译shader、创建progrem、链接并使用的过程。</p>
+
+<h4 id="处理图片过程">处理图片过程</h4>
+
+<h5 id="将滤镜加入gpuimagepicture的targets">将滤镜加入GPUImagePicture的targets</h5>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">addTarget</span><span class="p">:(</span><span class="n">id</span><span class="o">&lt;</span><span class="n">GPUImageInput</span><span class="o">&gt;</span><span class="p">)</span><span class="nv">newTarget</span><span class="p">;</span>
+<span class="p">{</span>
+    <span class="n">NSInteger</span> <span class="n">nextAvailableTextureIndex</span> <span class="o">=</span> <span class="p">[</span><span class="n">newTarget</span> <span class="nf">nextAvailableTextureIndex</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">self</span> <span class="nf">addTarget</span><span class="p">:</span><span class="n">newTarget</span> <span class="nf">atTextureLocation</span><span class="p">:</span><span class="n">nextAvailableTextureIndex</span><span class="p">];</span>
+    
+    <span class="k">if</span> <span class="p">([</span><span class="n">newTarget</span> <span class="nf">shouldIgnoreUpdatesToThisTarget</span><span class="p">])</span>
+    <span class="p">{</span>
+        <span class="n">_targetToIgnoreForUpdates</span> <span class="o">=</span> <span class="n">newTarget</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="o">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">addTarget</span><span class="o">:</span><span class="p">(</span><span class="n">id</span><span class="o">&lt;</span><span class="n">GPUImageInput</span><span class="o">&gt;</span><span class="p">)</span><span class="n">newTarget</span> <span class="n">atTextureLocation</span><span class="o">:</span><span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="n">textureLocation</span><span class="p">;</span>
+<span class="p">{</span>
+    <span class="k">if</span><span class="p">([</span><span class="n">targets</span> <span class="nf">containsObject</span><span class="p">:</span><span class="n">newTarget</span><span class="p">])</span>
+    <span class="p">{</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    
+    <span class="n">cachedMaximumOutputSize</span> <span class="o">=</span> <span class="n">CGSizeZero</span><span class="p">;</span>
+    <span class="n">runSynchronouslyOnVideoProcessingQueue</span><span class="p">(</span><span class="o">^</span><span class="p">{</span>
+        <span class="p">[</span><span class="n">self</span> <span class="nf">setInputFramebufferForTarget</span><span class="p">:</span><span class="n">newTarget</span> <span class="nf">atIndex</span><span class="p">:</span><span class="n">textureLocation</span><span class="p">];</span>
+        <span class="p">[</span><span class="n">targets</span> <span class="nf">addObject</span><span class="p">:</span><span class="n">newTarget</span><span class="p">];</span>
+        <span class="p">[</span><span class="n">targetTextureIndices</span> <span class="nf">addObject</span><span class="p">:[</span><span class="n">NSNumber</span> <span class="nf">numberWithInteger</span><span class="p">:</span><span class="n">textureLocation</span><span class="p">]];</span>
+        
+        <span class="n">allTargetsWantMonochromeData</span> <span class="o">=</span> <span class="n">allTargetsWantMonochromeData</span> <span class="o">&amp;&amp;</span> <span class="p">[</span><span class="n">newTarget</span> <span class="nf">wantsMonochromeInput</span><span class="p">];</span>
+    <span class="p">});</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>GPUImagePicture继承自GPUImageOutput，它有一个targets的数组，里面按顺序存放实现了GPUImageInput协议的对象，形成GPUImage的响应链。当要添加一个target时，会去看这个target的纹理索引，由于GPUImageSepiaFilter是单个纹理的滤镜，所以索引是0。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">addTarget</span><span class="p">:(</span><span class="n">id</span><span class="o">&lt;</span><span class="n">GPUImageInput</span><span class="o">&gt;</span><span class="p">)</span><span class="nv">newTarget</span> <span class="nf">atTextureLocation</span><span class="p">:(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nv">textureLocation</span><span class="p">;</span>
+<span class="p">{</span>
+    <span class="k">if</span><span class="p">([</span><span class="n">targets</span> <span class="nf">containsObject</span><span class="p">:</span><span class="n">newTarget</span><span class="p">])</span>
+    <span class="p">{</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    
+    <span class="n">cachedMaximumOutputSize</span> <span class="o">=</span> <span class="n">CGSizeZero</span><span class="p">;</span>
+    <span class="n">runSynchronouslyOnVideoProcessingQueue</span><span class="p">(</span><span class="o">^</span><span class="p">{</span>
+        <span class="p">[</span><span class="n">self</span> <span class="nf">setInputFramebufferForTarget</span><span class="p">:</span><span class="n">newTarget</span> <span class="nf">atIndex</span><span class="p">:</span><span class="n">textureLocation</span><span class="p">];</span>
+        <span class="p">[</span><span class="n">targets</span> <span class="nf">addObject</span><span class="p">:</span><span class="n">newTarget</span><span class="p">];</span>
+        <span class="p">[</span><span class="n">targetTextureIndices</span> <span class="nf">addObject</span><span class="p">:[</span><span class="n">NSNumber</span> <span class="nf">numberWithInteger</span><span class="p">:</span><span class="n">textureLocation</span><span class="p">]];</span>
+        
+        <span class="n">allTargetsWantMonochromeData</span> <span class="o">=</span> <span class="n">allTargetsWantMonochromeData</span> <span class="o">&amp;&amp;</span> <span class="p">[</span><span class="n">newTarget</span> <span class="nf">wantsMonochromeInput</span><span class="p">];</span>
+    <span class="p">});</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>然后将target存入targets数组，纹理索引存入targetTextureIndices，然后设置当前的outputFramebuffer为这个target的inputFramebuffer。</p>
+
+<h5 id="滤镜处理">滤镜处理</h5>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">useNextFrameForImageCapture</span><span class="p">;</span>
+<span class="p">{</span>
+    <span class="n">usingNextFrameForImageCapture</span> <span class="o">=</span> <span class="nb">YES</span><span class="p">;</span>
+
+    <span class="c1">// Set the semaphore high, if it isn't already
+</span>    <span class="k">if</span> <span class="p">(</span><span class="n">dispatch_semaphore_wait</span><span class="p">(</span><span class="n">imageCaptureSemaphore</span><span class="p">,</span> <span class="n">DISPATCH_TIME_NOW</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>首先给filter一个标记，这个值和后续一些信号量操作有关。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32<br/>33<br/>34<br/>35<br/>36<br/>37</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">processImage</span><span class="p">;</span>
+<span class="p">{</span>
+    <span class="p">[</span><span class="n">self</span> <span class="nf">processImageWithCompletionHandler</span><span class="p">:</span><span class="nb">nil</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="o">-</span> <span class="p">(</span><span class="n">BOOL</span><span class="p">)</span><span class="n">processImageWithCompletionHandler</span><span class="o">:</span><span class="p">(</span><span class="kt">void</span> <span class="p">(</span><span class="o">^</span><span class="p">)(</span><span class="kt">void</span><span class="p">))</span><span class="n">completion</span><span class="p">;</span>
+<span class="p">{</span>
+    <span class="n">hasProcessedImage</span> <span class="o">=</span> <span class="nb">YES</span><span class="p">;</span>
+    
+    <span class="c1">//    dispatch_semaphore_wait(imageUpdateSemaphore, DISPATCH_TIME_FOREVER);
+</span>    
+    <span class="k">if</span> <span class="p">(</span><span class="n">dispatch_semaphore_wait</span><span class="p">(</span><span class="n">imageUpdateSemaphore</span><span class="p">,</span> <span class="n">DISPATCH_TIME_NOW</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="nb">NO</span><span class="p">;</span>
+    <span class="p">}</span>
+    
+    <span class="n">runAsynchronouslyOnVideoProcessingQueue</span><span class="p">(</span><span class="o">^</span><span class="p">{</span>        
+        <span class="k">for</span> <span class="p">(</span><span class="n">id</span><span class="o">&lt;</span><span class="n">GPUImageInput</span><span class="o">&gt;</span> <span class="n">currentTarget</span> <span class="k">in</span> <span class="n">targets</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">NSInteger</span> <span class="n">indexOfObject</span> <span class="o">=</span> <span class="p">[</span><span class="n">targets</span> <span class="nf">indexOfObject</span><span class="p">:</span><span class="n">currentTarget</span><span class="p">];</span>
+            <span class="n">NSInteger</span> <span class="n">textureIndexOfTarget</span> <span class="o">=</span> <span class="p">[[</span><span class="n">targetTextureIndices</span> <span class="nf">objectAtIndex</span><span class="p">:</span><span class="n">indexOfObject</span><span class="p">]</span> <span class="nf">integerValue</span><span class="p">];</span>
+            
+            <span class="p">[</span><span class="n">currentTarget</span> <span class="nf">setCurrentlyReceivingMonochromeInput</span><span class="p">:</span><span class="nb">NO</span><span class="p">];</span>
+            <span class="p">[</span><span class="n">currentTarget</span> <span class="nf">setInputSize</span><span class="p">:</span><span class="n">pixelSizeOfImage</span> <span class="nf">atIndex</span><span class="p">:</span><span class="n">textureIndexOfTarget</span><span class="p">];</span>
+            <span class="p">[</span><span class="n">currentTarget</span> <span class="nf">setInputFramebuffer</span><span class="p">:</span><span class="n">outputFramebuffer</span> <span class="nf">atIndex</span><span class="p">:</span><span class="n">textureIndexOfTarget</span><span class="p">];</span>
+            <span class="p">[</span><span class="n">currentTarget</span> <span class="nf">newFrameReadyAtTime</span><span class="p">:</span><span class="n">kCMTimeIndefinite</span> <span class="nf">atIndex</span><span class="p">:</span><span class="n">textureIndexOfTarget</span><span class="p">];</span>
+        <span class="p">}</span>
+        
+        <span class="n">dispatch_semaphore_signal</span><span class="p">(</span><span class="n">imageUpdateSemaphore</span><span class="p">);</span>
+        
+        <span class="k">if</span> <span class="p">(</span><span class="n">completion</span> <span class="o">!=</span> <span class="nb">nil</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">completion</span><span class="p">();</span>
+        <span class="p">}</span>
+    <span class="p">});</span>
+    
+    <span class="k">return</span> <span class="nb">YES</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>首先根据信号量判断是否等待，如果等待直接返回。然后遍历所有target，将outputFramebuffer传给target。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32<br/>33<br/>34<br/>35<br/>36<br/>37<br/>38<br/>39<br/>40<br/>41<br/>42<br/>43<br/>44<br/>45<br/>46<br/>47<br/>48<br/>49<br/>50<br/>51<br/>52</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">newFrameReadyAtTime</span><span class="p">:(</span><span class="n">CMTime</span><span class="p">)</span><span class="nv">frameTime</span> <span class="nf">atIndex</span><span class="p">:(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nv">textureIndex</span><span class="p">;</span>
+<span class="p">{</span>
+    <span class="k">static</span> <span class="k">const</span> <span class="n">GLfloat</span> <span class="n">imageVertices</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">-</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span>
+        <span class="o">-</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span>  <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span>  <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span>
+    <span class="p">};</span>
+    
+    <span class="p">[</span><span class="n">self</span> <span class="nf">renderToTextureWithVertices</span><span class="p">:</span><span class="n">imageVertices</span> <span class="nf">textureCoordinates</span><span class="p">:[[</span><span class="n">self</span> <span class="nf">class</span><span class="p">]</span> <span class="nf">textureCoordinatesForRotation</span><span class="p">:</span><span class="n">inputRotation</span><span class="p">]];</span>
+
+    <span class="p">[</span><span class="n">self</span> <span class="nf">informTargetsAboutNewFrameAtTime</span><span class="p">:</span><span class="n">frameTime</span><span class="p">];</span>
+<span class="p">}</span>
+<span class="o">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">renderToTextureWithVertices</span><span class="o">:</span><span class="p">(</span><span class="k">const</span> <span class="n">GLfloat</span> <span class="o">*</span><span class="p">)</span><span class="n">vertices</span> <span class="n">textureCoordinates</span><span class="o">:</span><span class="p">(</span><span class="k">const</span> <span class="n">GLfloat</span> <span class="o">*</span><span class="p">)</span><span class="n">textureCoordinates</span><span class="p">;</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">preventRendering</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="p">[</span><span class="n">firstInputFramebuffer</span> <span class="nf">unlock</span><span class="p">];</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    
+    <span class="p">[</span><span class="n">GPUImageContext</span> <span class="nf">setActiveShaderProgram</span><span class="p">:</span><span class="n">filterProgram</span><span class="p">];</span>
+
+    <span class="n">outputFramebuffer</span> <span class="o">=</span> <span class="p">[[</span><span class="n">GPUImageContext</span> <span class="nf">sharedFramebufferCache</span><span class="p">]</span> <span class="nf">fetchFramebufferForSize</span><span class="p">:[</span><span class="n">self</span> <span class="nf">sizeOfFBO</span><span class="p">]</span> <span class="nf">textureOptions</span><span class="p">:</span><span class="n">self</span><span class="p">.</span><span class="n">outputTextureOptions</span> <span class="n">onlyTexture</span><span class="o">:</span><span class="nb">NO</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">outputFramebuffer</span> <span class="nf">activateFramebuffer</span><span class="p">];</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">usingNextFrameForImageCapture</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="p">[</span><span class="n">outputFramebuffer</span> <span class="nf">lock</span><span class="p">];</span>
+    <span class="p">}</span>
+
+    <span class="p">[</span><span class="n">self</span> <span class="nf">setUniformsForProgramAtIndex</span><span class="p">:</span><span class="mi">0</span><span class="p">];</span>
+    
+    <span class="n">glClearColor</span><span class="p">(</span><span class="n">backgroundColorRed</span><span class="p">,</span> <span class="n">backgroundColorGreen</span><span class="p">,</span> <span class="n">backgroundColorBlue</span><span class="p">,</span> <span class="n">backgroundColorAlpha</span><span class="p">);</span>
+    <span class="n">glClear</span><span class="p">(</span><span class="n">GL_COLOR_BUFFER_BIT</span><span class="p">);</span>
+
+	<span class="n">glActiveTexture</span><span class="p">(</span><span class="n">GL_TEXTURE2</span><span class="p">);</span>
+	<span class="n">glBindTexture</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="p">[</span><span class="n">firstInputFramebuffer</span> <span class="nf">texture</span><span class="p">]);</span>
+	
+	<span class="n">glUniform1i</span><span class="p">(</span><span class="n">filterInputTextureUniform</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>	
+
+    <span class="n">glVertexAttribPointer</span><span class="p">(</span><span class="n">filterPositionAttribute</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">GL_FLOAT</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">vertices</span><span class="p">);</span>
+	<span class="n">glVertexAttribPointer</span><span class="p">(</span><span class="n">filterTextureCoordinateAttribute</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">GL_FLOAT</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">textureCoordinates</span><span class="p">);</span>
+    
+    <span class="n">glDrawArrays</span><span class="p">(</span><span class="n">GL_TRIANGLE_STRIP</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">);</span>
+    
+    <span class="p">[</span><span class="n">firstInputFramebuffer</span> <span class="nf">unlock</span><span class="p">];</span>
+    
+    <span class="k">if</span> <span class="p">(</span><span class="n">usingNextFrameForImageCapture</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">dispatch_semaphore_signal</span><span class="p">(</span><span class="n">imageCaptureSemaphore</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>这里filter传入顶点和纹理坐标，然后取得filter的outputFramebuffer，绑定这个buffer的帧缓冲，将从picture得到的buffer的纹理绑定和绘制，这样帧缓冲中就有了渲染后的数据。后面filter还会检查它的targets数组中是否有内容，有的话也会执行类似过程。</p>
+
+<h4 id="将图片从framebuffer中取出">将图片从framebuffer中取出</h4>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n">CGImageRef</span><span class="p">)</span><span class="n">newCGImageFromCurrentlyProcessedOutput</span>
+<span class="p">{</span>
+    <span class="c1">// Give it three seconds to process, then abort if they forgot to set up the image capture properly
+</span>    <span class="kt">double</span> <span class="n">timeoutForImageCapture</span> <span class="o">=</span> <span class="mi">3</span><span class="p">.</span><span class="mi">0</span><span class="p">;</span>
+    <span class="n">dispatch_time_t</span> <span class="n">convertedTimeout</span> <span class="o">=</span> <span class="n">dispatch_time</span><span class="p">(</span><span class="n">DISPATCH_TIME_NOW</span><span class="p">,</span> <span class="n">timeoutForImageCapture</span> <span class="o">*</span> <span class="n">NSEC_PER_SEC</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">dispatch_semaphore_wait</span><span class="p">(</span><span class="n">imageCaptureSemaphore</span><span class="p">,</span> <span class="n">convertedTimeout</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">GPUImageFramebuffer</span><span class="o">*</span> <span class="n">framebuffer</span> <span class="o">=</span> <span class="p">[</span><span class="n">self</span> <span class="nf">framebufferForOutput</span><span class="p">];</span>
+    
+    <span class="n">usingNextFrameForImageCapture</span> <span class="o">=</span> <span class="nb">NO</span><span class="p">;</span>
+    <span class="n">dispatch_semaphore_signal</span><span class="p">(</span><span class="n">imageCaptureSemaphore</span><span class="p">);</span>
+    
+    <span class="n">CGImageRef</span> <span class="n">image</span> <span class="o">=</span> <span class="p">[</span><span class="n">framebuffer</span> <span class="nf">newCGImageFromFramebufferContents</span><span class="p">];</span>
+    <span class="k">return</span> <span class="n">image</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></td></tr></tbody></table></div></div>
+<p>这里就是使用filter的outputFramebuffer生成CGImage。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32<br/>33<br/>34</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n">CGImageRef</span><span class="p">)</span><span class="n">newCGImageFromFramebufferContents</span><span class="p">;</span>
+<span class="p">{</span>
+	<span class="p">...</span>
+	<span class="n">__block</span> <span class="n">CGImageRef</span> <span class="n">cgImageFromBytes</span><span class="p">;</span>
+    
+    <span class="n">runSynchronouslyOnVideoProcessingQueue</span><span class="p">(</span><span class="o">^</span><span class="p">{</span>
+        <span class="p">[</span><span class="n">GPUImageContext</span> <span class="nf">useImageProcessingContext</span><span class="p">];</span>
+        
+        <span class="n">NSUInteger</span> <span class="n">totalBytesForImage</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">_size</span><span class="p">.</span><span class="n">width</span> <span class="o">*</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">_size</span><span class="p">.</span><span class="n">height</span> <span class="o">*</span> <span class="mi">4</span><span class="p">;</span>
+        <span class="c1">// It appears that the width of a texture must be padded out to be a multiple of 8 (32 bytes) if reading from it using a texture cache
+</span>        
+        <span class="n">GLubyte</span> <span class="o">*</span><span class="n">rawImagePixels</span><span class="p">;</span>
+        
+        <span class="n">CGDataProviderRef</span> <span class="n">dataProvider</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+        
+   		<span class="p">...</span>
+   		<span class="p">[</span><span class="n">self</span> <span class="nf">activateFramebuffer</span><span class="p">];</span>
+       <span class="n">rawImagePixels</span> <span class="o">=</span> <span class="p">(</span><span class="n">GLubyte</span> <span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">totalBytesForImage</span><span class="p">);</span>
+       <span class="n">glReadPixels</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">_size</span><span class="p">.</span><span class="n">width</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">_size</span><span class="p">.</span><span class="n">height</span><span class="p">,</span> <span class="n">GL_RGBA</span><span class="p">,</span> <span class="n">GL_UNSIGNED_BYTE</span><span class="p">,</span> <span class="n">rawImagePixels</span><span class="p">);</span>
+       <span class="n">dataProvider</span> <span class="o">=</span> <span class="n">CGDataProviderCreateWithData</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="n">rawImagePixels</span><span class="p">,</span> <span class="n">totalBytesForImage</span><span class="p">,</span> <span class="n">dataProviderReleaseCallback</span><span class="p">);</span>
+       <span class="p">[</span><span class="n">self</span> <span class="nf">unlock</span><span class="p">];</span> <span class="c1">// Don't need to keep this around anymore
+</span>            
+        <span class="p">...</span>
+        <span class="n">cgImageFromBytes</span> <span class="o">=</span> <span class="n">CGImageCreate</span><span class="p">((</span><span class="kt">int</span><span class="p">)</span><span class="n">_size</span><span class="p">.</span><span class="n">width</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">_size</span><span class="p">.</span><span class="n">height</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">_size</span><span class="p">.</span><span class="n">width</span><span class="p">,</span> <span class="n">defaultRGBColorSpace</span><span class="p">,</span> <span class="n">kCGBitmapByteOrderDefault</span> <span class="o">|</span> <span class="n">kCGImageAlphaLast</span><span class="p">,</span> <span class="n">dataProvider</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NO</span><span class="p">,</span> <span class="n">kCGRenderingIntentDefault</span><span class="p">);</span>
+        
+        <span class="p">...</span>
+        <span class="c1">// Capture image with current device orientation
+</span>        <span class="n">CGDataProviderRelease</span><span class="p">(</span><span class="n">dataProvider</span><span class="p">);</span>
+        <span class="n">CGColorSpaceRelease</span><span class="p">(</span><span class="n">defaultRGBColorSpace</span><span class="p">);</span>
+        
+    <span class="p">});</span>
+	<span class="p">...</span>
+	
+<span class="p">}</span>               
+</code></pre></td></tr></tbody></table></div></div>
+<p>这个方法就是绑定这个framebuffer的帧缓冲，然后使用glReadPixels函数获取到帧缓冲中的数据，然后使用数据生成CGImage返回。至此整个滤镜处理流程完毕。</p>
+
+<h3 id="总结">总结</h3>
+<p>整个处理过程中，GPUImagePicture接收图片数据并写入纹理并创建帧缓冲，GPUImageFilter负责编译、链接着色器程序，并将顶点、纹理坐标数据和图像传送到着色器，然后再有GPUImageFramebuffer将帧缓冲中的数据取出。<br />
+整个源码看下来，觉得不愧是老牌图形处理库，将OpenGL封装的很好，并且设计响应链很巧妙，GPUImageFilter即是继承自GPUImageOutput，又实现了GPUImageInput协议，是的filter既可以做输入、又可以做输出。<br />
+也有一些还不太确定的地方，例如filter中信号量的作用，就没太看明白，可能处理单张图片的时候还体现不出作用，后续还要继续研究。</p>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            
+            <a href="/tag/#/OpenGL" rel="tag"># OpenGL</a>
+          
+            
+            <a href="/tag/#/%E9%9F%B3%E8%A7%86%E9%A2%91" rel="tag"># 音视频</a>
+          
+            
+            <a href="/tag/#/%E7%AC%94%E8%AE%B0" rel="tag"># 笔记</a>
+          
+            
+            <a href="/tag/#/GPUImage" rel="tag"># GPUImage</a>
+          
+        </div>
+      
+
+      
+      
+      
+      
+      
+
+      
+      
+        <div class="post-nav" id="post-nav-id">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/gpuimage/2018/06/02/GPUImage02/" rel="next" title="GPUImage源码研究02 研究采集视频滤镜">
+                <i class="fa fa-chevron-left"></i> GPUImage源码研究02 研究采集视频滤镜
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/opengl/2018/04/14/OpenGLiOS04/" rel="prev" title="OpenGL ES iOS笔记04 使用AVSampleBufferDisplayLayer渲染视频">
+                OpenGL ES iOS笔记04 使用AVSampleBufferDisplayLayer渲染视频 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+      
+
+      
+    </footer>
+  </article>
+
+  <div class="post-spread">
+    
+  </div>
+</div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        
+        
+        
+
+
+
+
+
+
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/assets/images/avatar.gif"
+               alt="Michael" />
+          <p class="site-author-name" itemprop="name">Michael</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+        
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+
+
+
+
+
+
+
+            
+              <div class="post-toc-content">
+    <ol class=nav>
+      <li class="nav-item nav-level-3"> <a class="nav-link" href="#使用滤镜渲染一张图片"> <span class="nav-number">1</span> <span class="nav-text">使用滤镜渲染一张图片</span> </a> <ol class="nav-child"> <li class="nav-item nav-level-4"> <a class="nav-link" href="#使用gpuimagepicture加载图片"> <span class="nav-number">1.1</span> <span class="nav-text">使用GPUImagePicture加载图片</span> </a> <ol class="nav-child"> <li class="nav-item nav-level-5"> <a class="nav-link" href="#获取图片位图数据"> <span class="nav-number">1.1.1</span> <span class="nav-text">获取图片位图数据</span> </a> </li> <li class="nav-item nav-level-5"> <a class="nav-link" href="#将图片数据写入纹理缓冲"> <span class="nav-number">1.1.2</span> <span class="nav-text">将图片数据写入纹理缓冲</span> </a> </li> </ol> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#创建一个gpuimagefilter对象"> <span class="nav-number">1.2</span> <span class="nav-text">创建一个GPUImageFilter对象</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#处理图片过程"> <span class="nav-number">1.3</span> <span class="nav-text">处理图片过程</span> </a> <ol class="nav-child"> <li class="nav-item nav-level-5"> <a class="nav-link" href="#将滤镜加入gpuimagepicture的targets"> <span class="nav-number">1.3.1</span> <span class="nav-text">将滤镜加入GPUImagePicture的targets</span> </a> </li> <li class="nav-item nav-level-5"> <a class="nav-link" href="#滤镜处理"> <span class="nav-number">1.3.2</span> <span class="nav-text">滤镜处理</span> </a> </li> </ol> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#将图片从framebuffer中取出"> <span class="nav-number">1.4</span> <span class="nav-text">将图片从framebuffer中取出</span> </a> </li> </ol> </li> <li class="nav-item nav-level-3"> <a class="nav-link" href="#总结"> <span class="nav-number">2</span> <span class="nav-text">总结</span> </a> </li>
+    </ol>
+  </div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Michael</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://jekyllrb.com">Jekyll</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/simpleyyt/jekyll-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+   
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/assets/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/assets/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  <script type="text/javascript" src="/assets/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/assets/js/src/post-details.js?v=5.1.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/assets/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+    
+
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+  
+
+  
+  
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
+

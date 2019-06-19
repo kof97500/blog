@@ -1,0 +1,1317 @@
+
+<!doctype html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/assets/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/assets/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/assets/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="OpenGL,音视频,笔记,GPUImage,Metal," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Micheal's blog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="GPUImage是使用OpenGL进行滤镜处理的框架，作者后续开发了使用swift+OpenGL的GPUImage2，后续又有基于Metal的GPUImage3，之前学习了下Metal的一些基本使用，这次来学习下GPUImage3的源码。">
+<meta name="keywords" content="OpenGL, 音视频, 笔记, GPUImage, Metal">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GPUImage3源码研究 研究视频滤镜过程">
+<meta property="og:url" content="http://localhost:4000/gpuimage/2018/11/07/GPUImage3_01/">
+<meta property="og:site_name" content="Micheal's blog">
+<meta property="og:description" content="GPUImage是使用OpenGL进行滤镜处理的框架，作者后续开发了使用swift+OpenGL的GPUImage2，后续又有基于Metal的GPUImage3，之前学习了下Metal的一些基本使用，这次来学习下GPUImage3的源码。">
+<meta property="og:locale" content="zh-Hans">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="GPUImage3源码研究 研究视频滤镜过程">
+<meta name="twitter:description" content="GPUImage是使用OpenGL进行滤镜处理的框架，作者后续开发了使用swift+OpenGL的GPUImage2，后续又有基于Metal的GPUImage3，之前学习了下Metal的一些基本使用，这次来学习下GPUImage3的源码。">
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://localhost:4000/"/>
+
+
+
+
+
+  <title>GPUImage3源码研究 研究视频滤镜过程 | Micheal's blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> <div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Micheal's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+<div id="posts" class="posts-expand">
+  
+  
+
+  
+
+  
+  
+  
+
+  <article class="post post-type- " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://localhost:4000/gpuimage/2018/11/07/GPUImage3_01/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Michael">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="assets/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Micheal's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+          
+          
+            GPUImage3源码研究 研究视频滤镜过程
+          
+        </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-07T00:00:00+08:00">
+                2018-11-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/category/#/GPUImage" itemprop="url" rel="index">
+                    <span itemprop="name">GPUImage</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+            
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <p>GPUImage是使用OpenGL进行滤镜处理的框架，作者后续开发了使用swift+OpenGL的GPUImage2，后续又有基于Metal的GPUImage3，之前学习了下Metal的一些基本使用，这次来学习下GPUImage3的源码。</p>
+
+<h3 id="采集视频经过滤镜渲染至界面">采集视频经过滤镜渲染至界面</h3>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25</pre></td><td class="code"><pre class="highlight"><code><span class="kd">import</span> <span class="kt">UIKit</span>
+<span class="kd">import</span> <span class="kt">GPUImage</span>
+<span class="kd">import</span> <span class="kt">AVFoundation</span>
+
+<span class="kd">class</span> <span class="kt">ViewController</span><span class="p">:</span> <span class="kt">UIViewController</span> <span class="p">{</span>
+
+    <span class="kd">@IBOutlet</span> <span class="k">weak</span> <span class="k">var</span> <span class="nv">renderView</span><span class="p">:</span> <span class="kt">RenderView</span><span class="o">!</span>
+    
+    <span class="k">var</span> <span class="nv">camera</span><span class="p">:</span><span class="kt">Camera</span><span class="o">!</span>
+    <span class="k">override</span> <span class="kd">func</span> <span class="nf">viewDidLoad</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">super</span><span class="o">.</span><span class="nf">viewDidLoad</span><span class="p">()</span>
+        <span class="c1">// Do any additional setup after loading the view.</span>
+        
+        <span class="k">do</span> <span class="p">{</span>
+            <span class="n">camera</span> <span class="o">=</span> <span class="k">try</span> <span class="kt">Camera</span><span class="p">(</span><span class="nv">sessionPreset</span><span class="p">:</span><span class="o">.</span><span class="n">hd1280x720</span><span class="p">,</span> <span class="nv">cameraDevice</span><span class="p">:</span> <span class="kc">nil</span><span class="p">,</span> <span class="nv">location</span><span class="p">:</span> <span class="o">.</span><span class="n">frontFacing</span><span class="p">,</span> <span class="nv">captureAsYUV</span><span class="p">:</span> <span class="kc">true</span><span class="p">)</span>
+            <span class="k">let</span> <span class="nv">filter</span> <span class="o">=</span> <span class="kt">SketchFilter</span><span class="p">()</span>
+            <span class="n">camera</span> <span class="o">--&gt;</span> <span class="n">filter</span> <span class="o">--&gt;</span> <span class="n">renderView</span>
+            <span class="n">camera</span><span class="o">.</span><span class="nf">startCapture</span><span class="p">()</span>
+        <span class="p">}</span> <span class="k">catch</span> <span class="p">{</span>
+            <span class="nf">fatalError</span><span class="p">(</span><span class="s">"Could not initialize rendering pipeline: </span><span class="se">\(</span><span class="n">error</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>这段代码创建了一个Camera对象，一个滤镜对象，以及在Storyboard上添加的一个RenderView，然后使用–&gt;这个运算符将三者作为一个响应链。</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5</pre></td><td class="code"><pre class="highlight"><code><span class="k">infix</span> <span class="k">operator</span> <span class="o">--&gt;</span> <span class="p">:</span> <span class="kt">AdditionPrecedence</span>
+<span class="kd">@discardableResult</span> <span class="kd">public</span> <span class="kd">func</span> <span class="o">--&gt;&lt;</span><span class="kt">T</span><span class="p">:</span><span class="kt">ImageConsumer</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">source</span><span class="p">:</span><span class="kt">ImageSource</span><span class="p">,</span> <span class="nv">destination</span><span class="p">:</span><span class="kt">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">T</span> <span class="p">{</span>
+    <span class="n">source</span><span class="o">.</span><span class="nf">addTarget</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">destination</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>–&gt;实际上是一个自定义运算符，它将右边的对象添加到左边对象的targets中，然后返回右边的对象，这样可以连续使用。
+<a href="http://ios.jobbole.com/89422/">swift自定义运算符</a></p>
+
+<h3 id="分析代码">分析代码</h3>
+
+<h4 id="camera对象">Camera对象</h4>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32<br/>33<br/>34<br/>35<br/>36<br/>37<br/>38<br/>39<br/>40<br/>41<br/>42<br/>43</pre></td><td class="code"><pre class="highlight"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">sessionPreset</span><span class="p">:</span><span class="kt">AVCaptureSession</span><span class="o">.</span><span class="kt">Preset</span><span class="p">,</span> <span class="nv">cameraDevice</span><span class="p">:</span><span class="kt">AVCaptureDevice</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span> <span class="nv">location</span><span class="p">:</span><span class="kt">PhysicalCameraLocation</span> <span class="o">=</span> <span class="o">.</span><span class="n">backFacing</span><span class="p">,</span> <span class="nv">captureAsYUV</span><span class="p">:</span><span class="kt">Bool</span> <span class="o">=</span> <span class="kc">true</span><span class="p">)</span> <span class="k">throws</span> <span class="p">{</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">location</span> <span class="o">=</span> <span class="n">location</span>
+        
+        <span class="k">self</span><span class="o">.</span><span class="n">captureSession</span> <span class="o">=</span> <span class="kt">AVCaptureSession</span><span class="p">()</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">captureSession</span><span class="o">.</span><span class="nf">beginConfiguration</span><span class="p">()</span>
+        
+        <span class="k">self</span><span class="o">.</span><span class="n">captureAsYUV</span> <span class="o">=</span> <span class="n">captureAsYUV</span>
+        
+        <span class="k">if</span> <span class="k">let</span> <span class="nv">cameraDevice</span> <span class="o">=</span> <span class="n">cameraDevice</span> <span class="p">{</span>
+            <span class="k">self</span><span class="o">.</span><span class="n">inputCamera</span> <span class="o">=</span> <span class="n">cameraDevice</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="k">let</span> <span class="nv">device</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="nf">device</span><span class="p">()</span> <span class="p">{</span>
+                <span class="k">self</span><span class="o">.</span><span class="n">inputCamera</span> <span class="o">=</span> <span class="n">device</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="k">self</span><span class="o">.</span><span class="n">videoInput</span> <span class="o">=</span> <span class="kc">nil</span>
+                <span class="k">self</span><span class="o">.</span><span class="n">videoOutput</span> <span class="o">=</span> <span class="kc">nil</span>
+                <span class="k">self</span><span class="o">.</span><span class="n">inputCamera</span> <span class="o">=</span> <span class="kc">nil</span>
+                <span class="k">self</span><span class="o">.</span><span class="n">yuvConversionRenderPipelineState</span> <span class="o">=</span> <span class="kc">nil</span>
+                <span class="k">super</span><span class="o">.</span><span class="nf">init</span><span class="p">()</span>
+                <span class="k">throw</span> <span class="kt">CameraError</span><span class="p">()</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        
+        <span class="k">do</span> <span class="p">{</span>
+            <span class="k">self</span><span class="o">.</span><span class="n">videoInput</span> <span class="o">=</span> <span class="k">try</span> <span class="kt">AVCaptureDeviceInput</span><span class="p">(</span><span class="nv">device</span><span class="p">:</span><span class="n">inputCamera</span><span class="p">)</span>
+        <span class="p">}</span> <span class="k">catch</span> <span class="p">{</span>
+            <span class="k">self</span><span class="o">.</span><span class="n">videoInput</span> <span class="o">=</span> <span class="kc">nil</span>
+            <span class="k">self</span><span class="o">.</span><span class="n">videoOutput</span> <span class="o">=</span> <span class="kc">nil</span>
+            <span class="k">self</span><span class="o">.</span><span class="n">yuvConversionRenderPipelineState</span> <span class="o">=</span> <span class="kc">nil</span>
+            <span class="k">super</span><span class="o">.</span><span class="nf">init</span><span class="p">()</span>
+            <span class="k">throw</span> <span class="n">error</span>
+        <span class="p">}</span>
+        
+        <span class="k">if</span> <span class="p">(</span><span class="n">captureSession</span><span class="o">.</span><span class="nf">canAddInput</span><span class="p">(</span><span class="n">videoInput</span><span class="p">))</span> <span class="p">{</span>
+            <span class="n">captureSession</span><span class="o">.</span><span class="nf">addInput</span><span class="p">(</span><span class="n">videoInput</span><span class="p">)</span>
+        <span class="p">}</span>
+        
+        <span class="c1">// Add the video frame output</span>
+        <span class="n">videoOutput</span> <span class="o">=</span> <span class="kt">AVCaptureVideoDataOutput</span><span class="p">()</span>
+        <span class="n">videoOutput</span><span class="o">.</span><span class="n">alwaysDiscardsLateVideoFrames</span> <span class="o">=</span> <span class="kc">false</span>
+		
+		<span class="o">...</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>这里首先创建了一些视频采集所需要的对象，如AVCaptureSession等。</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31</pre></td><td class="code"><pre class="highlight"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">sessionPreset</span><span class="p">:</span><span class="kt">AVCaptureSession</span><span class="o">.</span><span class="kt">Preset</span><span class="p">,</span> <span class="nv">cameraDevice</span><span class="p">:</span><span class="kt">AVCaptureDevice</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span> <span class="nv">location</span><span class="p">:</span><span class="kt">PhysicalCameraLocation</span> <span class="o">=</span> <span class="o">.</span><span class="n">backFacing</span><span class="p">,</span> <span class="nv">captureAsYUV</span><span class="p">:</span><span class="kt">Bool</span> <span class="o">=</span> <span class="kc">true</span><span class="p">)</span> <span class="k">throws</span> <span class="p">{</span>
+		<span class="o">...</span>
+		<span class="k">if</span> <span class="n">captureAsYUV</span> <span class="p">{</span>
+            <span class="n">supportsFullYUVRange</span> <span class="o">=</span> <span class="kc">false</span>
+            <span class="k">let</span> <span class="nv">supportedPixelFormats</span> <span class="o">=</span> <span class="n">videoOutput</span><span class="o">.</span><span class="n">availableVideoPixelFormatTypes</span>
+            <span class="k">for</span> <span class="n">currentPixelFormat</span> <span class="k">in</span> <span class="n">supportedPixelFormats</span> <span class="p">{</span>
+                <span class="k">if</span> <span class="p">((</span><span class="n">currentPixelFormat</span> <span class="k">as</span> <span class="kt">NSNumber</span><span class="p">)</span><span class="o">.</span><span class="n">int32Value</span> <span class="o">==</span> <span class="kt">Int32</span><span class="p">(</span><span class="n">kCVPixelFormatType_420YpCbCr8BiPlanarFullRange</span><span class="p">))</span> <span class="p">{</span>
+                    <span class="n">supportsFullYUVRange</span> <span class="o">=</span> <span class="kc">true</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">supportsFullYUVRange</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nf">let</span> <span class="p">(</span><span class="n">pipelineState</span><span class="p">,</span> <span class="n">lookupTable</span><span class="p">)</span> <span class="o">=</span> <span class="nf">generateRenderPipelineState</span><span class="p">(</span><span class="nv">device</span><span class="p">:</span><span class="n">sharedMetalRenderingDevice</span><span class="p">,</span> <span class="nv">vertexFunctionName</span><span class="p">:</span><span class="s">"twoInputVertex"</span><span class="p">,</span> <span class="nv">fragmentFunctionName</span><span class="p">:</span><span class="s">"yuvConversionFullRangeFragment"</span><span class="p">,</span> <span class="nv">operationName</span><span class="p">:</span><span class="s">"YUVToRGB"</span><span class="p">)</span>
+                <span class="k">self</span><span class="o">.</span><span class="n">yuvConversionRenderPipelineState</span> <span class="o">=</span> <span class="n">pipelineState</span>
+                <span class="k">self</span><span class="o">.</span><span class="n">yuvLookupTable</span> <span class="o">=</span> <span class="n">lookupTable</span>
+                <span class="n">videoOutput</span><span class="o">.</span><span class="n">videoSettings</span> <span class="o">=</span> <span class="p">[</span><span class="n">kCVPixelBufferMetalCompatibilityKey</span> <span class="k">as</span> <span class="kt">String</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+                                             <span class="n">kCVPixelBufferPixelFormatTypeKey</span> <span class="k">as</span> <span class="kt">String</span><span class="p">:</span><span class="kt">NSNumber</span><span class="p">(</span><span class="nv">value</span><span class="p">:</span><span class="kt">Int32</span><span class="p">(</span><span class="n">kCVPixelFormatType_420YpCbCr8BiPlanarFullRange</span><span class="p">))]</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="nf">let</span> <span class="p">(</span><span class="n">pipelineState</span><span class="p">,</span> <span class="n">lookupTable</span><span class="p">)</span> <span class="o">=</span> <span class="nf">generateRenderPipelineState</span><span class="p">(</span><span class="nv">device</span><span class="p">:</span><span class="n">sharedMetalRenderingDevice</span><span class="p">,</span> <span class="nv">vertexFunctionName</span><span class="p">:</span><span class="s">"twoInputVertex"</span><span class="p">,</span> <span class="nv">fragmentFunctionName</span><span class="p">:</span><span class="s">"yuvConversionVideoRangeFragment"</span><span class="p">,</span> <span class="nv">operationName</span><span class="p">:</span><span class="s">"YUVToRGB"</span><span class="p">)</span>
+                <span class="k">self</span><span class="o">.</span><span class="n">yuvConversionRenderPipelineState</span> <span class="o">=</span> <span class="n">pipelineState</span>
+                <span class="k">self</span><span class="o">.</span><span class="n">yuvLookupTable</span> <span class="o">=</span> <span class="n">lookupTable</span>
+                <span class="n">videoOutput</span><span class="o">.</span><span class="n">videoSettings</span> <span class="o">=</span> <span class="p">[</span><span class="n">kCVPixelBufferMetalCompatibilityKey</span> <span class="k">as</span> <span class="kt">String</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+                                             <span class="n">kCVPixelBufferPixelFormatTypeKey</span> <span class="k">as</span> <span class="kt">String</span><span class="p">:</span><span class="kt">NSNumber</span><span class="p">(</span><span class="nv">value</span><span class="p">:</span><span class="kt">Int32</span><span class="p">(</span><span class="n">kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange</span><span class="p">))]</span>
+            <span class="p">}</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="k">self</span><span class="o">.</span><span class="n">yuvConversionRenderPipelineState</span> <span class="o">=</span> <span class="kc">nil</span>
+            <span class="n">videoOutput</span><span class="o">.</span><span class="n">videoSettings</span> <span class="o">=</span> <span class="p">[</span><span class="n">kCVPixelBufferMetalCompatibilityKey</span> <span class="k">as</span> <span class="kt">String</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+                                         <span class="n">kCVPixelBufferPixelFormatTypeKey</span> <span class="k">as</span> <span class="kt">String</span><span class="p">:</span><span class="kt">NSNumber</span><span class="p">(</span><span class="nv">value</span><span class="p">:</span><span class="kt">Int32</span><span class="p">(</span><span class="n">kCVPixelFormatType_32BGRA</span><span class="p">))]</span>
+        <span class="p">}</span>
+		
+		<span class="o">...</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>这里根据设置的是否采集yuv标记，来设置采集的视频数据格式，如果是采集yuv，还需要判断是否是全范围的yuv（fullRange）,设置完毕后，如果是yuv格式，还会创建一个用于转换yuv到rgb的MTLRenderPipelineState,sharedMetalRenderingDevice是一个全局的设备，是对MTLDevice的一个封装，里面包含了MTLCommandQueue、MTLLibrary。如果是采集rgba，则直接设置视频格式。</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15</pre></td><td class="code"><pre class="highlight"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">sessionPreset</span><span class="p">:</span><span class="kt">AVCaptureSession</span><span class="o">.</span><span class="kt">Preset</span><span class="p">,</span> <span class="nv">cameraDevice</span><span class="p">:</span><span class="kt">AVCaptureDevice</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span> <span class="nv">location</span><span class="p">:</span><span class="kt">PhysicalCameraLocation</span> <span class="o">=</span> <span class="o">.</span><span class="n">backFacing</span><span class="p">,</span> <span class="nv">captureAsYUV</span><span class="p">:</span><span class="kt">Bool</span> <span class="o">=</span> <span class="kc">true</span><span class="p">)</span> <span class="k">throws</span> <span class="p">{</span>
+		<span class="o">...</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">captureSession</span><span class="o">.</span><span class="nf">canAddOutput</span><span class="p">(</span><span class="n">videoOutput</span><span class="p">))</span> <span class="p">{</span>
+            <span class="n">captureSession</span><span class="o">.</span><span class="nf">addOutput</span><span class="p">(</span><span class="n">videoOutput</span><span class="p">)</span>
+        <span class="p">}</span>
+        
+        <span class="n">captureSession</span><span class="o">.</span><span class="n">sessionPreset</span> <span class="o">=</span> <span class="n">sessionPreset</span>
+        <span class="n">captureSession</span><span class="o">.</span><span class="nf">commitConfiguration</span><span class="p">()</span>
+        
+        <span class="k">super</span><span class="o">.</span><span class="nf">init</span><span class="p">()</span>
+        
+        <span class="k">let</span> <span class="nv">_</span> <span class="o">=</span> <span class="kt">CVMetalTextureCacheCreate</span><span class="p">(</span><span class="n">kCFAllocatorDefault</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="n">sharedMetalRenderingDevice</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">videoTextureCache</span><span class="p">)</span>
+
+        <span class="n">videoOutput</span><span class="o">.</span><span class="nf">setSampleBufferDelegate</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="nv">queue</span><span class="p">:</span><span class="n">cameraProcessingQueue</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>最后创建了一个Metal的纹理缓存。</p>
+
+<h4 id="滤镜对象">滤镜对象</h4>
+
+<p>这里使用的SketchFilter滤镜，它是继承自TextureSamplingOperation的子类，TextureSamplingOperation继承自BasicOperation，BasicOperation遵循了ImageProcessingOperation协议。ImageProcessingOperation协议又遵循了ImageConsumer，ImageSource，表明BasicOperation既可以是图像数据的来源，也可以是消费者，这样就可以构成响应链的一环。</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9</pre></td><td class="code"><pre class="highlight"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">vertexFunctionName</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span> <span class="nv">fragmentFunctionName</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="nv">numberOfInputs</span><span class="p">:</span> <span class="kt">UInt</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="nv">operationName</span><span class="p">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="kd">#file</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">maximumInputs</span> <span class="o">=</span> <span class="n">numberOfInputs</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">operationName</span> <span class="o">=</span> <span class="n">operationName</span>
+        
+        <span class="k">let</span> <span class="nv">concreteVertexFunctionName</span> <span class="o">=</span> <span class="n">vertexFunctionName</span> <span class="p">??</span> <span class="nf">defaultVertexFunctionNameForInputs</span><span class="p">(</span><span class="n">numberOfInputs</span><span class="p">)</span>
+        <span class="nf">let</span> <span class="p">(</span><span class="n">pipelineState</span><span class="p">,</span> <span class="n">lookupTable</span><span class="p">)</span> <span class="o">=</span> <span class="nf">generateRenderPipelineState</span><span class="p">(</span><span class="nv">device</span><span class="p">:</span><span class="n">sharedMetalRenderingDevice</span><span class="p">,</span> <span class="nv">vertexFunctionName</span><span class="p">:</span><span class="n">concreteVertexFunctionName</span><span class="p">,</span> <span class="nv">fragmentFunctionName</span><span class="p">:</span><span class="n">fragmentFunctionName</span><span class="p">,</span> <span class="nv">operationName</span><span class="p">:</span><span class="n">operationName</span><span class="p">)</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">renderPipelineState</span> <span class="o">=</span> <span class="n">pipelineState</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">uniformSettings</span> <span class="o">=</span> <span class="kt">ShaderUniformSettings</span><span class="p">(</span><span class="nv">uniformLookupTable</span><span class="p">:</span><span class="n">lookupTable</span><span class="p">)</span>
+    <span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<p>这里是BasicOperation的初始化函数，首先根据外部传入一个输入（纹理）数量，默认是1，使用operationName保存执行对象的文件路径，用于记录错误信息。然后判断是否传入顶点着色器函数名，没有的话根据输入来确定默认的顶点着色器函数名。之后根据传入的片段着色器函数名和顶点着色器函数名创建一个用于滤镜处理的MTLRenderPipelineState。</p>
+
+<h4 id="renderview">RenderView</h4>
+
+<p>RenderView是继承自MTKView，并且遵守了了ImageConsumer协议，使它可以作为数据的消费者，响应链的终点。</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24</pre></td><td class="code"><pre class="highlight"><code><span class="kd">public</span> <span class="k">override</span> <span class="nf">init</span><span class="p">(</span><span class="n">frame</span> <span class="nv">frameRect</span><span class="p">:</span> <span class="kt">CGRect</span><span class="p">,</span> <span class="nv">device</span><span class="p">:</span> <span class="kt">MTLDevice</span><span class="p">?)</span> <span class="p">{</span>
+        <span class="k">super</span><span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">frame</span><span class="p">:</span> <span class="n">frameRect</span><span class="p">,</span> <span class="nv">device</span><span class="p">:</span> <span class="n">sharedMetalRenderingDevice</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        
+        <span class="nf">commonInit</span><span class="p">()</span>
+    <span class="p">}</span>
+    
+    <span class="kd">public</span> <span class="kd">required</span> <span class="nf">init</span><span class="p">(</span><span class="nv">coder</span><span class="p">:</span> <span class="kt">NSCoder</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">super</span><span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">coder</span><span class="p">:</span> <span class="n">coder</span><span class="p">)</span>
+        
+        <span class="nf">commonInit</span><span class="p">()</span>
+    <span class="p">}</span>
+    
+    <span class="kd">private</span> <span class="kd">func</span> <span class="nf">commonInit</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">framebufferOnly</span> <span class="o">=</span> <span class="kc">false</span>
+        <span class="n">autoResizeDrawable</span> <span class="o">=</span> <span class="kc">true</span>
+        
+        <span class="k">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">sharedMetalRenderingDevice</span><span class="o">.</span><span class="n">device</span>
+        
+        <span class="nf">let</span> <span class="p">(</span><span class="n">pipelineState</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="nf">generateRenderPipelineState</span><span class="p">(</span><span class="nv">device</span><span class="p">:</span><span class="n">sharedMetalRenderingDevice</span><span class="p">,</span> <span class="nv">vertexFunctionName</span><span class="p">:</span><span class="s">"oneInputVertex"</span><span class="p">,</span> <span class="nv">fragmentFunctionName</span><span class="p">:</span><span class="s">"passthroughFragment"</span><span class="p">,</span> <span class="nv">operationName</span><span class="p">:</span><span class="s">"RenderView"</span><span class="p">)</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">renderPipelineState</span> <span class="o">=</span> <span class="n">pipelineState</span>
+        
+        <span class="n">enableSetNeedsDisplay</span> <span class="o">=</span> <span class="kc">false</span>
+        <span class="n">isPaused</span> <span class="o">=</span> <span class="kc">true</span>
+    <span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>RenderView初始化时也创建了一个用于渲染数据的MTLRenderPipelineState。</p>
+
+<h4 id="创建mtlrenderpipelinestate">创建MTLRenderPipelineState</h4>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32<br/>33<br/>34<br/>35</pre></td><td class="code"><pre class="highlight"><code><span class="kd">func</span> <span class="nf">generateRenderPipelineState</span><span class="p">(</span><span class="nv">device</span><span class="p">:</span><span class="kt">MetalRenderingDevice</span><span class="p">,</span> <span class="nv">vertexFunctionName</span><span class="p">:</span><span class="kt">String</span><span class="p">,</span> <span class="nv">fragmentFunctionName</span><span class="p">:</span><span class="kt">String</span><span class="p">,</span> <span class="nv">operationName</span><span class="p">:</span><span class="kt">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="kt">MTLRenderPipelineState</span><span class="p">,</span> <span class="p">[</span><span class="kt">String</span><span class="p">:(</span><span class="kt">Int</span><span class="p">,</span> <span class="kt">MTLDataType</span><span class="p">)])</span> <span class="p">{</span>
+    <span class="k">guard</span> <span class="k">let</span> <span class="nv">vertexFunction</span> <span class="o">=</span> <span class="n">device</span><span class="o">.</span><span class="n">shaderLibrary</span><span class="o">.</span><span class="nf">makeFunction</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="n">vertexFunctionName</span><span class="p">)</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nf">fatalError</span><span class="p">(</span><span class="s">"</span><span class="se">\(</span><span class="n">operationName</span><span class="se">)</span><span class="s">: could not compile vertex function </span><span class="se">\(</span><span class="n">vertexFunctionName</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+    <span class="p">}</span>
+    
+    <span class="k">guard</span> <span class="k">let</span> <span class="nv">fragmentFunction</span> <span class="o">=</span> <span class="n">device</span><span class="o">.</span><span class="n">shaderLibrary</span><span class="o">.</span><span class="nf">makeFunction</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="n">fragmentFunctionName</span><span class="p">)</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nf">fatalError</span><span class="p">(</span><span class="s">"</span><span class="se">\(</span><span class="n">operationName</span><span class="se">)</span><span class="s">: could not compile fragment function </span><span class="se">\(</span><span class="n">fragmentFunctionName</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+    <span class="p">}</span>
+    
+    <span class="k">let</span> <span class="nv">descriptor</span> <span class="o">=</span> <span class="kt">MTLRenderPipelineDescriptor</span><span class="p">()</span>
+    <span class="n">descriptor</span><span class="o">.</span><span class="n">colorAttachments</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">pixelFormat</span> <span class="o">=</span> <span class="kt">MTLPixelFormat</span><span class="o">.</span><span class="n">bgra8Unorm</span>
+    <span class="n">descriptor</span><span class="o">.</span><span class="n">rasterSampleCount</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">descriptor</span><span class="o">.</span><span class="n">vertexFunction</span> <span class="o">=</span> <span class="n">vertexFunction</span>
+    <span class="n">descriptor</span><span class="o">.</span><span class="n">fragmentFunction</span> <span class="o">=</span> <span class="n">fragmentFunction</span>
+    
+    <span class="k">do</span> <span class="p">{</span>
+        <span class="k">var</span> <span class="nv">reflection</span><span class="p">:</span><span class="kt">MTLAutoreleasedRenderPipelineReflection</span><span class="p">?</span>
+        <span class="k">let</span> <span class="nv">pipelineState</span> <span class="o">=</span> <span class="k">try</span> <span class="n">device</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="nf">makeRenderPipelineState</span><span class="p">(</span><span class="nv">descriptor</span><span class="p">:</span> <span class="n">descriptor</span><span class="p">,</span> <span class="nv">options</span><span class="p">:</span> <span class="p">[</span><span class="o">.</span><span class="n">bufferTypeInfo</span><span class="p">,</span> <span class="o">.</span><span class="n">argumentInfo</span><span class="p">],</span> <span class="nv">reflection</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">reflection</span><span class="p">)</span>
+
+        <span class="k">var</span> <span class="nv">uniformLookupTable</span><span class="p">:[</span><span class="kt">String</span><span class="p">:(</span><span class="kt">Int</span><span class="p">,</span> <span class="kt">MTLDataType</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[:]</span>
+        <span class="k">if</span> <span class="k">let</span> <span class="nv">fragmentArguments</span> <span class="o">=</span> <span class="n">reflection</span><span class="p">?</span><span class="o">.</span><span class="n">fragmentArguments</span> <span class="p">{</span>
+            <span class="k">for</span> <span class="n">fragmentArgument</span> <span class="k">in</span> <span class="n">fragmentArguments</span> <span class="k">where</span> <span class="n">fragmentArgument</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="o">.</span><span class="n">buffer</span> <span class="p">{</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">fragmentArgument</span><span class="o">.</span><span class="n">bufferDataType</span> <span class="o">==</span> <span class="o">.</span><span class="kd">struct</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="k">for</span> <span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">uniform</span><span class="p">)</span> <span class="k">in</span> <span class="n">fragmentArgument</span><span class="o">.</span><span class="n">bufferStructType</span><span class="o">.</span><span class="n">members</span><span class="o">.</span><span class="nf">enumerated</span><span class="p">()</span> <span class="p">{</span>
+                        <span class="n">uniformLookupTable</span><span class="p">[</span><span class="n">uniform</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">uniform</span><span class="o">.</span><span class="n">dataType</span><span class="p">)</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        
+        <span class="nf">return</span> <span class="p">(</span><span class="n">pipelineState</span><span class="p">,</span> <span class="n">uniformLookupTable</span><span class="p">)</span>
+    <span class="p">}</span> <span class="k">catch</span> <span class="p">{</span>
+        <span class="nf">fatalError</span><span class="p">(</span><span class="s">"Could not create render pipeline state for vertex:</span><span class="se">\(</span><span class="n">vertexFunctionName</span><span class="se">)</span><span class="s">, fragment:</span><span class="se">\(</span><span class="n">fragmentFunctionName</span><span class="se">)</span><span class="s">, error:</span><span class="se">\(</span><span class="n">error</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>在创建MTLRenderPipelineState的函数中，首先创建顶点着色器和片段着色器两个MTLFunction，然后创建一个管道状态描述器（MTLRenderPipelineDescriptor），给这个描述器设置函数。然后使用全局的MTLDevice，创建管道状态（MTLRenderPipelineState），最后使用MTLRenderPipelineReflection获取片段着色器参数，将类型为buffer的参数存到一个字典中，再将管道状态和参数字典返回。</p>
+
+<h4 id="camera采集到视频数据后的处理">Camera采集到视频数据后的处理</h4>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13</pre></td><td class="code"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">captureOutput</span><span class="p">(</span><span class="n">_</span> <span class="nv">output</span><span class="p">:</span> <span class="kt">AVCaptureOutput</span><span class="p">,</span> <span class="n">didOutput</span> <span class="nv">sampleBuffer</span><span class="p">:</span> <span class="kt">CMSampleBuffer</span><span class="p">,</span> <span class="n">from</span> <span class="nv">connection</span><span class="p">:</span> <span class="kt">AVCaptureConnection</span><span class="p">)</span> <span class="p">{</span>
+		<span class="o">...</span>
+		<span class="k">let</span> <span class="nv">cameraFrame</span> <span class="o">=</span> <span class="kt">CMSampleBufferGetImageBuffer</span><span class="p">(</span><span class="n">sampleBuffer</span><span class="p">)</span><span class="o">!</span>
+        <span class="k">let</span> <span class="nv">bufferWidth</span> <span class="o">=</span> <span class="kt">CVPixelBufferGetWidth</span><span class="p">(</span><span class="n">cameraFrame</span><span class="p">)</span>
+        <span class="k">let</span> <span class="nv">bufferHeight</span> <span class="o">=</span> <span class="kt">CVPixelBufferGetHeight</span><span class="p">(</span><span class="n">cameraFrame</span><span class="p">)</span>
+        <span class="k">let</span> <span class="nv">_</span> <span class="o">=</span> <span class="kt">CMSampleBufferGetPresentationTimeStamp</span><span class="p">(</span><span class="n">sampleBuffer</span><span class="p">)</span>
+        
+        <span class="kt">CVPixelBufferLockBaseAddress</span><span class="p">(</span><span class="n">cameraFrame</span><span class="p">,</span> <span class="kt">CVPixelBufferLockFlags</span><span class="p">(</span><span class="nv">rawValue</span><span class="p">:</span><span class="kt">CVOptionFlags</span><span class="p">(</span><span class="mi">0</span><span class="p">)))</span>
+		
+		<span class="n">cameraFrameProcessingQueue</span><span class="o">.</span><span class="n">async</span> <span class="p">{</span>
+			<span class="o">...</span>
+		<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>在视频数据的回调中，首先取得CMSampleBuffer的pixelBuffer，然后取得宽高。</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32<br/>33<br/>34<br/>35<br/>36<br/>37<br/>38<br/>39<br/>40<br/>41<br/>42<br/>43<br/>44<br/>45<br/>46<br/>47<br/>48<br/>49<br/>50<br/>51<br/>52<br/>53<br/>54<br/>55<br/>56<br/>57<br/>58<br/>59<br/>60<br/>61<br/>62</pre></td><td class="code"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">captureOutput</span><span class="p">(</span><span class="n">_</span> <span class="nv">output</span><span class="p">:</span> <span class="kt">AVCaptureOutput</span><span class="p">,</span> <span class="n">didOutput</span> <span class="nv">sampleBuffer</span><span class="p">:</span> <span class="kt">CMSampleBuffer</span><span class="p">,</span> <span class="n">from</span> <span class="nv">connection</span><span class="p">:</span> <span class="kt">AVCaptureConnection</span><span class="p">)</span> <span class="p">{</span>
+        
+       <span class="o">...</span>
+        <span class="n">cameraFrameProcessingQueue</span><span class="o">.</span><span class="n">async</span> <span class="p">{</span>
+            <span class="k">self</span><span class="o">.</span><span class="n">delegate</span><span class="p">?</span><span class="o">.</span><span class="nf">didCaptureBuffer</span><span class="p">(</span><span class="n">sampleBuffer</span><span class="p">)</span>
+            <span class="kt">CVPixelBufferUnlockBaseAddress</span><span class="p">(</span><span class="n">cameraFrame</span><span class="p">,</span> <span class="kt">CVPixelBufferLockFlags</span><span class="p">(</span><span class="nv">rawValue</span><span class="p">:</span><span class="kt">CVOptionFlags</span><span class="p">(</span><span class="mi">0</span><span class="p">)))</span>
+            
+            <span class="k">let</span> <span class="nv">texture</span><span class="p">:</span><span class="kt">Texture</span><span class="p">?</span>
+            <span class="k">if</span> <span class="k">self</span><span class="o">.</span><span class="n">captureAsYUV</span> <span class="p">{</span>
+                <span class="k">var</span> <span class="nv">luminanceTextureRef</span><span class="p">:</span><span class="kt">CVMetalTexture</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span>
+                <span class="k">var</span> <span class="nv">chrominanceTextureRef</span><span class="p">:</span><span class="kt">CVMetalTexture</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span>
+                <span class="c1">// Luminance plane</span>
+                <span class="k">let</span> <span class="nv">_</span> <span class="o">=</span> <span class="kt">CVMetalTextureCacheCreateTextureFromImage</span><span class="p">(</span><span class="n">kCFAllocatorDefault</span><span class="p">,</span> <span class="k">self</span><span class="o">.</span><span class="n">videoTextureCache</span><span class="o">!</span><span class="p">,</span> <span class="n">cameraFrame</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="o">.</span><span class="n">r8Unorm</span><span class="p">,</span> <span class="n">bufferWidth</span><span class="p">,</span> <span class="n">bufferHeight</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">luminanceTextureRef</span><span class="p">)</span>
+                <span class="c1">// Chrominance plane</span>
+                <span class="k">let</span> <span class="nv">_</span> <span class="o">=</span> <span class="kt">CVMetalTextureCacheCreateTextureFromImage</span><span class="p">(</span><span class="n">kCFAllocatorDefault</span><span class="p">,</span> <span class="k">self</span><span class="o">.</span><span class="n">videoTextureCache</span><span class="o">!</span><span class="p">,</span> <span class="n">cameraFrame</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="o">.</span><span class="n">rg8Unorm</span><span class="p">,</span> <span class="n">bufferWidth</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">bufferHeight</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">chrominanceTextureRef</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="k">let</span> <span class="nv">concreteLuminanceTextureRef</span> <span class="o">=</span> <span class="n">luminanceTextureRef</span><span class="p">,</span> <span class="k">let</span> <span class="nv">concreteChrominanceTextureRef</span> <span class="o">=</span> <span class="n">chrominanceTextureRef</span><span class="p">,</span>
+                    <span class="k">let</span> <span class="nv">luminanceTexture</span> <span class="o">=</span> <span class="kt">CVMetalTextureGetTexture</span><span class="p">(</span><span class="n">concreteLuminanceTextureRef</span><span class="p">),</span> <span class="k">let</span> <span class="nv">chrominanceTexture</span> <span class="o">=</span> <span class="kt">CVMetalTextureGetTexture</span><span class="p">(</span><span class="n">concreteChrominanceTextureRef</span><span class="p">)</span> <span class="p">{</span>
+                    
+                    <span class="k">let</span> <span class="nv">conversionMatrix</span><span class="p">:</span><span class="kt">Matrix3x3</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="k">self</span><span class="o">.</span><span class="n">supportsFullYUVRange</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="n">conversionMatrix</span> <span class="o">=</span> <span class="n">colorConversionMatrix601FullRangeDefault</span>
+                    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                        <span class="n">conversionMatrix</span> <span class="o">=</span> <span class="n">colorConversionMatrix601Default</span>
+                    <span class="p">}</span>
+                    
+                    <span class="k">let</span> <span class="nv">outputWidth</span><span class="p">:</span><span class="kt">Int</span>
+                    <span class="k">let</span> <span class="nv">outputHeight</span><span class="p">:</span><span class="kt">Int</span>
+                    <span class="k">if</span> <span class="k">self</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="nf">imageOrientation</span><span class="p">()</span><span class="o">.</span><span class="nf">rotationNeeded</span><span class="p">(</span><span class="nv">for</span><span class="p">:</span><span class="o">.</span><span class="n">portrait</span><span class="p">)</span><span class="o">.</span><span class="nf">flipsDimensions</span><span class="p">()</span> <span class="p">{</span>
+                        <span class="n">outputWidth</span> <span class="o">=</span> <span class="n">bufferHeight</span>
+                        <span class="n">outputHeight</span> <span class="o">=</span> <span class="n">bufferWidth</span>
+                    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                        <span class="n">outputWidth</span> <span class="o">=</span> <span class="n">bufferWidth</span>
+                        <span class="n">outputHeight</span> <span class="o">=</span> <span class="n">bufferHeight</span>
+                    <span class="p">}</span>
+                    <span class="k">let</span> <span class="nv">outputTexture</span> <span class="o">=</span> <span class="kt">Texture</span><span class="p">(</span><span class="nv">device</span><span class="p">:</span><span class="n">sharedMetalRenderingDevice</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="nv">orientation</span><span class="p">:</span><span class="o">.</span><span class="n">portrait</span><span class="p">,</span> <span class="nv">width</span><span class="p">:</span><span class="n">outputWidth</span><span class="p">,</span> <span class="nv">height</span><span class="p">:</span><span class="n">outputHeight</span><span class="p">)</span>
+                    
+                    <span class="nf">convertYUVToRGB</span><span class="p">(</span><span class="nv">pipelineState</span><span class="p">:</span><span class="k">self</span><span class="o">.</span><span class="n">yuvConversionRenderPipelineState</span><span class="o">!</span><span class="p">,</span> <span class="nv">lookupTable</span><span class="p">:</span><span class="k">self</span><span class="o">.</span><span class="n">yuvLookupTable</span><span class="p">,</span>
+                                    <span class="nv">luminanceTexture</span><span class="p">:</span><span class="kt">Texture</span><span class="p">(</span><span class="nv">orientation</span><span class="p">:</span> <span class="k">self</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="nf">imageOrientation</span><span class="p">(),</span> <span class="nv">texture</span><span class="p">:</span><span class="n">luminanceTexture</span><span class="p">),</span>
+                                    <span class="nv">chrominanceTexture</span><span class="p">:</span><span class="kt">Texture</span><span class="p">(</span><span class="nv">orientation</span><span class="p">:</span> <span class="k">self</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="nf">imageOrientation</span><span class="p">(),</span> <span class="nv">texture</span><span class="p">:</span><span class="n">chrominanceTexture</span><span class="p">),</span>
+                                    <span class="nv">resultTexture</span><span class="p">:</span><span class="n">outputTexture</span><span class="p">,</span> <span class="nv">colorConversionMatrix</span><span class="p">:</span><span class="n">conversionMatrix</span><span class="p">)</span>
+                    <span class="n">texture</span> <span class="o">=</span> <span class="n">outputTexture</span>
+                <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                    <span class="n">texture</span> <span class="o">=</span> <span class="kc">nil</span>
+                <span class="p">}</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="k">var</span> <span class="nv">textureRef</span><span class="p">:</span><span class="kt">CVMetalTexture</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span>
+                <span class="k">let</span> <span class="nv">_</span> <span class="o">=</span> <span class="kt">CVMetalTextureCacheCreateTextureFromImage</span><span class="p">(</span><span class="n">kCFAllocatorDefault</span><span class="p">,</span> <span class="k">self</span><span class="o">.</span><span class="n">videoTextureCache</span><span class="o">!</span><span class="p">,</span> <span class="n">cameraFrame</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="o">.</span><span class="n">bgra8Unorm</span><span class="p">,</span> <span class="n">bufferWidth</span><span class="p">,</span> <span class="n">bufferHeight</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">textureRef</span><span class="p">)</span>
+                <span class="k">if</span> <span class="k">let</span> <span class="nv">concreteTexture</span> <span class="o">=</span> <span class="n">textureRef</span><span class="p">,</span> <span class="k">let</span> <span class="nv">cameraTexture</span> <span class="o">=</span> <span class="kt">CVMetalTextureGetTexture</span><span class="p">(</span><span class="n">concreteTexture</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="n">texture</span> <span class="o">=</span> <span class="kt">Texture</span><span class="p">(</span><span class="nv">orientation</span><span class="p">:</span> <span class="k">self</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="nf">imageOrientation</span><span class="p">(),</span> <span class="nv">texture</span><span class="p">:</span> <span class="n">cameraTexture</span><span class="p">)</span>
+                <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                    <span class="n">texture</span> <span class="o">=</span> <span class="kc">nil</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            
+            <span class="k">if</span> <span class="n">texture</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+                <span class="k">self</span><span class="o">.</span><span class="nf">updateTargetsWithTexture</span><span class="p">(</span><span class="n">texture</span><span class="o">!</span><span class="p">)</span>
+            <span class="p">}</span>
+
+            <span class="o">...</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<p>接下来判断是否是yuv数据，如果是，则创建两个纹理，存放y通道和uv通道，并且确定一个转换矩阵，之后调用convertYUVToRGB方法，将数据转换为RGB然后写入outputTexture。如果是RGBA数据，则直接写入纹理。之后将纹理传给响应链的下一环进行处理。</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32<br/>33<br/>34<br/>35<br/>36<br/>37<br/>38<br/>39<br/>40<br/>41<br/>42<br/>43<br/>44<br/>45<br/>46<br/>47<br/>48<br/>49<br/>50<br/>51<br/>52<br/>53<br/>54</pre></td><td class="code"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">convertYUVToRGB</span><span class="p">(</span><span class="nv">pipelineState</span><span class="p">:</span><span class="kt">MTLRenderPipelineState</span><span class="p">,</span> <span class="nv">lookupTable</span><span class="p">:[</span><span class="kt">String</span><span class="p">:(</span><span class="kt">Int</span><span class="p">,</span> <span class="kt">MTLDataType</span><span class="p">)],</span> <span class="nv">luminanceTexture</span><span class="p">:</span><span class="kt">Texture</span><span class="p">,</span> <span class="nv">chrominanceTexture</span><span class="p">:</span><span class="kt">Texture</span><span class="p">,</span> <span class="nv">secondChrominanceTexture</span><span class="p">:</span><span class="kt">Texture</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span> <span class="nv">resultTexture</span><span class="p">:</span><span class="kt">Texture</span><span class="p">,</span> <span class="nv">colorConversionMatrix</span><span class="p">:</span><span class="kt">Matrix3x3</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">uniformSettings</span> <span class="o">=</span> <span class="kt">ShaderUniformSettings</span><span class="p">(</span><span class="nv">uniformLookupTable</span><span class="p">:</span><span class="n">lookupTable</span><span class="p">)</span>
+    <span class="n">uniformSettings</span><span class="p">[</span><span class="s">"colorConversionMatrix"</span><span class="p">]</span> <span class="o">=</span> <span class="n">colorConversionMatrix</span>
+    
+    <span class="k">guard</span> <span class="k">let</span> <span class="nv">commandBuffer</span> <span class="o">=</span> <span class="n">sharedMetalRenderingDevice</span><span class="o">.</span><span class="n">commandQueue</span><span class="o">.</span><span class="nf">makeCommandBuffer</span><span class="p">()</span> <span class="k">else</span> <span class="p">{</span><span class="k">return</span><span class="p">}</span>
+    
+    <span class="k">let</span> <span class="nv">inputTextures</span><span class="p">:[</span><span class="kt">UInt</span><span class="p">:</span><span class="kt">Texture</span><span class="p">]</span>
+    <span class="k">if</span> <span class="k">let</span> <span class="nv">secondChrominanceTexture</span> <span class="o">=</span> <span class="n">secondChrominanceTexture</span> <span class="p">{</span>
+        <span class="n">inputTextures</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">luminanceTexture</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="n">chrominanceTexture</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="n">secondChrominanceTexture</span><span class="p">]</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">inputTextures</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">luminanceTexture</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="n">chrominanceTexture</span><span class="p">]</span>
+    <span class="p">}</span>
+    
+    <span class="n">commandBuffer</span><span class="o">.</span><span class="nf">renderQuad</span><span class="p">(</span><span class="nv">pipelineState</span><span class="p">:</span><span class="n">pipelineState</span><span class="p">,</span> <span class="nv">uniformSettings</span><span class="p">:</span><span class="n">uniformSettings</span><span class="p">,</span> <span class="nv">inputTextures</span><span class="p">:</span><span class="n">inputTextures</span><span class="p">,</span> <span class="nv">useNormalizedTextureCoordinates</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span> <span class="nv">outputTexture</span><span class="p">:</span><span class="n">resultTexture</span><span class="p">)</span>
+    <span class="n">commandBuffer</span><span class="o">.</span><span class="nf">commit</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">renderQuad</span><span class="p">(</span><span class="nv">pipelineState</span><span class="p">:</span><span class="kt">MTLRenderPipelineState</span><span class="p">,</span> <span class="nv">uniformSettings</span><span class="p">:</span><span class="kt">ShaderUniformSettings</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span> <span class="nv">inputTextures</span><span class="p">:[</span><span class="kt">UInt</span><span class="p">:</span><span class="kt">Texture</span><span class="p">],</span> <span class="nv">useNormalizedTextureCoordinates</span><span class="p">:</span><span class="kt">Bool</span> <span class="o">=</span> <span class="kc">true</span><span class="p">,</span> <span class="nv">imageVertices</span><span class="p">:[</span><span class="kt">Float</span><span class="p">]</span> <span class="o">=</span> <span class="n">standardImageVertices</span><span class="p">,</span> <span class="nv">outputTexture</span><span class="p">:</span><span class="kt">Texture</span><span class="p">,</span> <span class="nv">outputOrientation</span><span class="p">:</span><span class="kt">ImageOrientation</span> <span class="o">=</span> <span class="o">.</span><span class="n">portrait</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">vertexBuffer</span> <span class="o">=</span> <span class="n">sharedMetalRenderingDevice</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="nf">makeBuffer</span><span class="p">(</span><span class="nv">bytes</span><span class="p">:</span> <span class="n">imageVertices</span><span class="p">,</span>
+                                                                        <span class="nv">length</span><span class="p">:</span> <span class="n">imageVertices</span><span class="o">.</span><span class="n">count</span> <span class="o">*</span> <span class="kt">MemoryLayout</span><span class="o">&lt;</span><span class="kt">Float</span><span class="o">&gt;.</span><span class="n">size</span><span class="p">,</span>
+                                                                        <span class="nv">options</span><span class="p">:</span> <span class="p">[])</span><span class="o">!</span>
+        <span class="n">vertexBuffer</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="s">"Vertices"</span>
+        
+        
+        <span class="k">let</span> <span class="nv">renderPass</span> <span class="o">=</span> <span class="kt">MTLRenderPassDescriptor</span><span class="p">()</span>
+        <span class="n">renderPass</span><span class="o">.</span><span class="n">colorAttachments</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">texture</span> <span class="o">=</span> <span class="n">outputTexture</span><span class="o">.</span><span class="n">texture</span>
+        <span class="n">renderPass</span><span class="o">.</span><span class="n">colorAttachments</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">clearColor</span> <span class="o">=</span> <span class="kt">MTLClearColorMake</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">renderPass</span><span class="o">.</span><span class="n">colorAttachments</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">storeAction</span> <span class="o">=</span> <span class="o">.</span><span class="n">store</span>
+        <span class="n">renderPass</span><span class="o">.</span><span class="n">colorAttachments</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">loadAction</span> <span class="o">=</span> <span class="o">.</span><span class="n">clear</span>
+        
+        <span class="k">guard</span> <span class="k">let</span> <span class="nv">renderEncoder</span> <span class="o">=</span> <span class="k">self</span><span class="o">.</span><span class="nf">makeRenderCommandEncoder</span><span class="p">(</span><span class="nv">descriptor</span><span class="p">:</span> <span class="n">renderPass</span><span class="p">)</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nf">fatalError</span><span class="p">(</span><span class="s">"Could not create render encoder"</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="n">renderEncoder</span><span class="o">.</span><span class="nf">setFrontFacing</span><span class="p">(</span><span class="o">.</span><span class="n">counterClockwise</span><span class="p">)</span>
+        <span class="n">renderEncoder</span><span class="o">.</span><span class="nf">setRenderPipelineState</span><span class="p">(</span><span class="n">pipelineState</span><span class="p">)</span>
+        <span class="n">renderEncoder</span><span class="o">.</span><span class="nf">setVertexBuffer</span><span class="p">(</span><span class="n">vertexBuffer</span><span class="p">,</span> <span class="nv">offset</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="nv">index</span><span class="p">:</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">textureIndex</span> <span class="k">in</span> <span class="mi">0</span><span class="o">..&lt;</span><span class="n">inputTextures</span><span class="o">.</span><span class="n">count</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="nv">currentTexture</span> <span class="o">=</span> <span class="n">inputTextures</span><span class="p">[</span><span class="kt">UInt</span><span class="p">(</span><span class="n">textureIndex</span><span class="p">)]</span><span class="o">!</span>
+            
+            <span class="k">let</span> <span class="nv">inputTextureCoordinates</span> <span class="o">=</span> <span class="n">currentTexture</span><span class="o">.</span><span class="nf">textureCoordinates</span><span class="p">(</span><span class="nv">for</span><span class="p">:</span><span class="n">outputOrientation</span><span class="p">,</span> <span class="nv">normalized</span><span class="p">:</span><span class="n">useNormalizedTextureCoordinates</span><span class="p">)</span>
+            <span class="k">let</span> <span class="nv">textureBuffer</span> <span class="o">=</span> <span class="n">sharedMetalRenderingDevice</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="nf">makeBuffer</span><span class="p">(</span><span class="nv">bytes</span><span class="p">:</span> <span class="n">inputTextureCoordinates</span><span class="p">,</span>
+                                                                             <span class="nv">length</span><span class="p">:</span> <span class="n">inputTextureCoordinates</span><span class="o">.</span><span class="n">count</span> <span class="o">*</span> <span class="kt">MemoryLayout</span><span class="o">&lt;</span><span class="kt">Float</span><span class="o">&gt;.</span><span class="n">size</span><span class="p">,</span>
+                                                                             <span class="nv">options</span><span class="p">:</span> <span class="p">[])</span><span class="o">!</span>
+            <span class="n">textureBuffer</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="s">"Texture Coordinates"</span>
+
+            <span class="n">renderEncoder</span><span class="o">.</span><span class="nf">setVertexBuffer</span><span class="p">(</span><span class="n">textureBuffer</span><span class="p">,</span> <span class="nv">offset</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="nv">index</span><span class="p">:</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">textureIndex</span><span class="p">)</span>
+            <span class="n">renderEncoder</span><span class="o">.</span><span class="nf">setFragmentTexture</span><span class="p">(</span><span class="n">currentTexture</span><span class="o">.</span><span class="n">texture</span><span class="p">,</span> <span class="nv">index</span><span class="p">:</span> <span class="n">textureIndex</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="n">uniformSettings</span><span class="p">?</span><span class="o">.</span><span class="nf">restoreShaderSettings</span><span class="p">(</span><span class="nv">renderEncoder</span><span class="p">:</span> <span class="n">renderEncoder</span><span class="p">)</span>
+        <span class="n">renderEncoder</span><span class="o">.</span><span class="nf">drawPrimitives</span><span class="p">(</span><span class="nv">type</span><span class="p">:</span> <span class="o">.</span><span class="n">triangleStrip</span><span class="p">,</span> <span class="nv">vertexStart</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="nv">vertexCount</span><span class="p">:</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="n">renderEncoder</span><span class="o">.</span><span class="nf">endEncoding</span><span class="p">()</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>在convertYUVToRGB中，首先创建了一个commandBuffer，然后将纹理存入一个字典中，再调用commandBuffer的一个扩展方法，renderQuad，最后提交commandBuffer，开始真正的渲染过程。</p>
+
+<p>在renderQuad方法中，首先根据顶点坐标创建了一个MTLBuffer ，然后创建一个MTLRenderPassDescriptor，将输出的纹理作为colorAttachments[0]的纹理，表示将渲染的结果写入这个纹理。之后创建一个renderEncoder，设置顶点buffer。然后遍历输入纹理字典，将y通道和uv通道的纹理按索引传入renderEncoder。之后再将uniform参数字典遍历，将相应的参数写入renderEncoder。最后调用绘制函数。</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5</pre></td><td class="code"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">updateTargetsWithTexture</span><span class="p">(</span><span class="n">_</span> <span class="nv">texture</span><span class="p">:</span><span class="kt">Texture</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span> <span class="k">in</span> <span class="n">targets</span> <span class="p">{</span>
+            <span class="n">target</span><span class="o">.</span><span class="nf">newTextureAvailable</span><span class="p">(</span><span class="n">texture</span><span class="p">,</span> <span class="nv">fromSourceIndex</span><span class="p">:</span><span class="n">index</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>在采集的纹理转换好之后，Camera会调用updateTargetsWithTexture方法，遍历所有的targets，将纹理传给target。target会调用newTextureAvailable方法。</p>
+
+<h4 id="filter的newtextureavailable">filter的newTextureAvailable</h4>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28</pre></td><td class="code"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">newTextureAvailable</span><span class="p">(</span><span class="n">_</span> <span class="nv">texture</span><span class="p">:</span> <span class="kt">Texture</span><span class="p">,</span> <span class="nv">fromSourceIndex</span><span class="p">:</span> <span class="kt">UInt</span><span class="p">)</span> <span class="p">{</span>
+        <span class="o">...</span>
+        
+        <span class="n">inputTextures</span><span class="p">[</span><span class="n">fromSourceIndex</span><span class="p">]</span> <span class="o">=</span> <span class="n">texture</span>
+
+        <span class="o">...</span>
+        
+        <span class="k">if</span> <span class="p">(</span><span class="kt">UInt</span><span class="p">(</span><span class="n">inputTextures</span><span class="o">.</span><span class="n">count</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">maximumInputs</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="nv">outputWidth</span><span class="p">:</span><span class="kt">Int</span>
+            <span class="k">let</span> <span class="nv">outputHeight</span><span class="p">:</span><span class="kt">Int</span>
+            
+            <span class="k">let</span> <span class="nv">firstInputTexture</span> <span class="o">=</span> <span class="n">inputTextures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">!</span>
+            <span class="k">if</span> <span class="n">firstInputTexture</span><span class="o">.</span><span class="n">orientation</span><span class="o">.</span><span class="nf">rotationNeeded</span><span class="p">(</span><span class="nv">for</span><span class="p">:</span><span class="o">.</span><span class="n">portrait</span><span class="p">)</span><span class="o">.</span><span class="nf">flipsDimensions</span><span class="p">()</span> <span class="p">{</span>
+                <span class="n">outputWidth</span> <span class="o">=</span> <span class="n">firstInputTexture</span><span class="o">.</span><span class="n">texture</span><span class="o">.</span><span class="n">height</span>
+                <span class="n">outputHeight</span> <span class="o">=</span> <span class="n">firstInputTexture</span><span class="o">.</span><span class="n">texture</span><span class="o">.</span><span class="n">width</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="n">outputWidth</span> <span class="o">=</span> <span class="n">firstInputTexture</span><span class="o">.</span><span class="n">texture</span><span class="o">.</span><span class="n">width</span>
+                <span class="n">outputHeight</span> <span class="o">=</span> <span class="n">firstInputTexture</span><span class="o">.</span><span class="n">texture</span><span class="o">.</span><span class="n">height</span>
+            <span class="p">}</span>
+
+            <span class="k">if</span> <span class="n">uniformSettings</span><span class="o">.</span><span class="n">usesAspectRatio</span> <span class="p">{</span>
+                <span class="k">let</span> <span class="nv">outputRotation</span> <span class="o">=</span> <span class="n">firstInputTexture</span><span class="o">.</span><span class="n">orientation</span><span class="o">.</span><span class="nf">rotationNeeded</span><span class="p">(</span><span class="nv">for</span><span class="p">:</span><span class="o">.</span><span class="n">portrait</span><span class="p">)</span>
+                <span class="n">uniformSettings</span><span class="p">[</span><span class="s">"aspectRatio"</span><span class="p">]</span> <span class="o">=</span> <span class="n">firstInputTexture</span><span class="o">.</span><span class="nf">aspectRatio</span><span class="p">(</span><span class="nv">for</span><span class="p">:</span> <span class="n">outputRotation</span><span class="p">)</span>
+            <span class="p">}</span>
+            
+            <span class="o">...</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>这里收先将传入的texture写入输入纹理数组。然后判断输入纹理数量是否超出最大限制，超出就什么都不做。然后根据纹理的宽高、缩放方式等，算出一个输出的宽高。</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31</pre></td><td class="code"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">newTextureAvailable</span><span class="p">(</span><span class="n">_</span> <span class="nv">texture</span><span class="p">:</span> <span class="kt">Texture</span><span class="p">,</span> <span class="nv">fromSourceIndex</span><span class="p">:</span> <span class="kt">UInt</span><span class="p">)</span> <span class="p">{</span>
+        <span class="o">...</span>
+        
+	<span class="k">guard</span> <span class="k">let</span> <span class="nv">commandBuffer</span> <span class="o">=</span> <span class="n">sharedMetalRenderingDevice</span><span class="o">.</span><span class="n">commandQueue</span><span class="o">.</span><span class="nf">makeCommandBuffer</span><span class="p">()</span> <span class="k">else</span> <span class="p">{</span><span class="k">return</span><span class="p">}</span>
+
+            <span class="k">let</span> <span class="nv">outputTexture</span> <span class="o">=</span> <span class="kt">Texture</span><span class="p">(</span><span class="nv">device</span><span class="p">:</span><span class="n">sharedMetalRenderingDevice</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="nv">orientation</span><span class="p">:</span> <span class="o">.</span><span class="n">portrait</span><span class="p">,</span> <span class="nv">width</span><span class="p">:</span> <span class="n">outputWidth</span><span class="p">,</span> <span class="nv">height</span><span class="p">:</span> <span class="n">outputHeight</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="k">let</span> <span class="nv">alternateRenderingFunction</span> <span class="o">=</span> <span class="n">metalPerformanceShaderPathway</span><span class="p">,</span> <span class="n">useMetalPerformanceShaders</span> <span class="p">{</span>
+                <span class="k">var</span> <span class="nv">rotatedInputTextures</span><span class="p">:</span> <span class="p">[</span><span class="kt">UInt</span><span class="p">:</span><span class="kt">Texture</span><span class="p">]</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">firstInputTexture</span><span class="o">.</span><span class="n">orientation</span><span class="o">.</span><span class="nf">rotationNeeded</span><span class="p">(</span><span class="nv">for</span><span class="p">:</span><span class="o">.</span><span class="n">portrait</span><span class="p">)</span> <span class="o">!=</span> <span class="o">.</span><span class="n">noRotation</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="k">let</span> <span class="nv">rotationOutputTexture</span> <span class="o">=</span> <span class="kt">Texture</span><span class="p">(</span><span class="nv">device</span><span class="p">:</span><span class="n">sharedMetalRenderingDevice</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="nv">orientation</span><span class="p">:</span> <span class="o">.</span><span class="n">portrait</span><span class="p">,</span> <span class="nv">width</span><span class="p">:</span> <span class="n">outputWidth</span><span class="p">,</span> <span class="nv">height</span><span class="p">:</span> <span class="n">outputHeight</span><span class="p">)</span>
+                    <span class="k">guard</span> <span class="k">let</span> <span class="nv">rotationCommandBuffer</span> <span class="o">=</span> <span class="n">sharedMetalRenderingDevice</span><span class="o">.</span><span class="n">commandQueue</span><span class="o">.</span><span class="nf">makeCommandBuffer</span><span class="p">()</span> <span class="k">else</span> <span class="p">{</span><span class="k">return</span><span class="p">}</span>
+                    <span class="n">rotationCommandBuffer</span><span class="o">.</span><span class="nf">renderQuad</span><span class="p">(</span><span class="nv">pipelineState</span><span class="p">:</span> <span class="n">sharedMetalRenderingDevice</span><span class="o">.</span><span class="n">passthroughRenderState</span><span class="p">,</span> <span class="nv">uniformSettings</span><span class="p">:</span> <span class="n">uniformSettings</span><span class="p">,</span> <span class="nv">inputTextures</span><span class="p">:</span> <span class="n">inputTextures</span><span class="p">,</span> <span class="nv">useNormalizedTextureCoordinates</span><span class="p">:</span> <span class="n">useNormalizedTextureCoordinates</span><span class="p">,</span> <span class="nv">outputTexture</span><span class="p">:</span> <span class="n">rotationOutputTexture</span><span class="p">)</span>
+                    <span class="n">rotationCommandBuffer</span><span class="o">.</span><span class="nf">commit</span><span class="p">()</span>
+                    <span class="n">rotatedInputTextures</span> <span class="o">=</span> <span class="n">inputTextures</span>
+                    <span class="n">rotatedInputTextures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">rotationOutputTexture</span>
+                <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                    <span class="n">rotatedInputTextures</span> <span class="o">=</span> <span class="n">inputTextures</span>
+                <span class="p">}</span>
+                <span class="nf">alternateRenderingFunction</span><span class="p">(</span><span class="n">commandBuffer</span><span class="p">,</span> <span class="n">rotatedInputTextures</span><span class="p">,</span> <span class="n">outputTexture</span><span class="p">)</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="nf">internalRenderFunction</span><span class="p">(</span><span class="nv">commandBuffer</span><span class="p">:</span> <span class="n">commandBuffer</span><span class="p">,</span> <span class="nv">outputTexture</span><span class="p">:</span> <span class="n">outputTexture</span><span class="p">)</span>
+            <span class="p">}</span>
+            <span class="n">commandBuffer</span><span class="o">.</span><span class="nf">commit</span><span class="p">()</span>
+            
+            <span class="nf">updateTargetsWithTexture</span><span class="p">(</span><span class="n">outputTexture</span><span class="p">)</span>
+<span class="p">}</span>	
+
+<span class="kd">func</span> <span class="nf">internalRenderFunction</span><span class="p">(</span><span class="nv">commandBuffer</span><span class="p">:</span> <span class="kt">MTLCommandBuffer</span><span class="p">,</span> <span class="nv">outputTexture</span><span class="p">:</span> <span class="kt">Texture</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">commandBuffer</span><span class="o">.</span><span class="nf">renderQuad</span><span class="p">(</span><span class="nv">pipelineState</span><span class="p">:</span> <span class="n">renderPipelineState</span><span class="p">,</span> <span class="nv">uniformSettings</span><span class="p">:</span> <span class="n">uniformSettings</span><span class="p">,</span> <span class="nv">inputTextures</span><span class="p">:</span> <span class="n">inputTextures</span><span class="p">,</span> <span class="nv">useNormalizedTextureCoordinates</span><span class="p">:</span> <span class="n">useNormalizedTextureCoordinates</span><span class="p">,</span> <span class="nv">outputTexture</span><span class="p">:</span> <span class="n">outputTexture</span><span class="p">)</span>
+    <span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>然后创建一个commandBuffer和一个用于接受输出的纹理对象。之后判断是否有一个替代的渲染函数，默认没有，然后执行默认的渲染函数，实际就是执行commandBuffer的renderQuad函数。然后提交commandBuffer，执行渲染。最后再寻找响应链的下一个target，将输出的纹理传给它。</p>
+
+<h4 id="renderview的newtextureavailable">RenderView的newTextureAvailable</h4>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17</pre></td><td class="code"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">newTextureAvailable</span><span class="p">(</span><span class="n">_</span> <span class="nv">texture</span><span class="p">:</span><span class="kt">Texture</span><span class="p">,</span> <span class="nv">fromSourceIndex</span><span class="p">:</span><span class="kt">UInt</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">drawableSize</span> <span class="o">=</span> <span class="kt">CGSize</span><span class="p">(</span><span class="nv">width</span><span class="p">:</span> <span class="n">texture</span><span class="o">.</span><span class="n">texture</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="nv">height</span><span class="p">:</span> <span class="n">texture</span><span class="o">.</span><span class="n">texture</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
+        <span class="n">currentTexture</span> <span class="o">=</span> <span class="n">texture</span>
+        <span class="k">self</span><span class="o">.</span><span class="nf">draw</span><span class="p">()</span>
+    <span class="p">}</span>
+    
+    <span class="kd">public</span> <span class="k">override</span> <span class="kd">func</span> <span class="nf">draw</span><span class="p">(</span><span class="n">_</span> <span class="nv">rect</span><span class="p">:</span><span class="kt">CGRect</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="k">let</span> <span class="nv">currentDrawable</span> <span class="o">=</span> <span class="k">self</span><span class="o">.</span><span class="n">currentDrawable</span><span class="p">,</span> <span class="k">let</span> <span class="nv">imageTexture</span> <span class="o">=</span> <span class="n">currentTexture</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="nv">commandBuffer</span> <span class="o">=</span> <span class="n">sharedMetalRenderingDevice</span><span class="o">.</span><span class="n">commandQueue</span><span class="o">.</span><span class="nf">makeCommandBuffer</span><span class="p">()</span>
+            
+            <span class="k">let</span> <span class="nv">outputTexture</span> <span class="o">=</span> <span class="kt">Texture</span><span class="p">(</span><span class="nv">orientation</span><span class="p">:</span> <span class="o">.</span><span class="n">portrait</span><span class="p">,</span> <span class="nv">texture</span><span class="p">:</span> <span class="n">currentDrawable</span><span class="o">.</span><span class="n">texture</span><span class="p">)</span>
+            <span class="n">commandBuffer</span><span class="p">?</span><span class="o">.</span><span class="nf">renderQuad</span><span class="p">(</span><span class="nv">pipelineState</span><span class="p">:</span> <span class="n">renderPipelineState</span><span class="p">,</span> <span class="nv">inputTextures</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">imageTexture</span><span class="p">],</span> <span class="nv">outputTexture</span><span class="p">:</span> <span class="n">outputTexture</span><span class="p">)</span>
+            
+            <span class="n">commandBuffer</span><span class="p">?</span><span class="o">.</span><span class="nf">present</span><span class="p">(</span><span class="n">currentDrawable</span><span class="p">)</span>
+            <span class="n">commandBuffer</span><span class="p">?</span><span class="o">.</span><span class="nf">commit</span><span class="p">()</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<p>这里调用draw方法，然后在draw方法中也是创建commandBuffer，然后调用commandBuffer的renderQuad方法，不过输出的纹理使用的是currentDrawable的纹理，它是MTKView的属性用于渲染显示。</p>
+
+<h3 id="总结">总结</h3>
+
+<p>GPUImage3也是和GPUImage类似的滤镜链处理，每个滤镜链上的对象都有一个MTLRenderPipelineState，用于做各自的滤镜处理。输入和输出被抽象成两个协议ImageSource和ImageConsumer，每次渲染时会生成一个commandBuffer然后提交渲染命令。感觉这种响应链的模式很值得学习。同时也觉得Metal的代码比OpenGL要简练一些，更符合iOS开发者的习惯。</p>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            
+            <a href="/tag/#/OpenGL" rel="tag"># OpenGL</a>
+          
+            
+            <a href="/tag/#/%E9%9F%B3%E8%A7%86%E9%A2%91" rel="tag"># 音视频</a>
+          
+            
+            <a href="/tag/#/%E7%AC%94%E8%AE%B0" rel="tag"># 笔记</a>
+          
+            
+            <a href="/tag/#/GPUImage" rel="tag"># GPUImage</a>
+          
+            
+            <a href="/tag/#/Metal" rel="tag"># Metal</a>
+          
+        </div>
+      
+
+      
+      
+      
+      
+      
+
+      
+      
+        <div class="post-nav" id="post-nav-id">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/ffmpeg/2019/01/10/ffmpeg01/" rel="next" title="记ffmpeg在iOS10下硬编码视频崩溃问题">
+                <i class="fa fa-chevron-left"></i> 记ffmpeg在iOS10下硬编码视频崩溃问题
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/metal/2018/10/30/Metal03/" rel="prev" title="Metal学习笔记03 渲染视频原始数据">
+                Metal学习笔记03 渲染视频原始数据 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+      
+
+      
+    </footer>
+  </article>
+
+  <div class="post-spread">
+    
+  </div>
+</div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        
+        
+        
+
+
+
+
+
+
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/assets/images/avatar.gif"
+               alt="Michael" />
+          <p class="site-author-name" itemprop="name">Michael</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+        
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+
+
+
+
+
+
+
+            
+              <div class="post-toc-content">
+    <ol class=nav>
+      <li class="nav-item nav-level-3"> <a class="nav-link" href="#采集视频经过滤镜渲染至界面"> <span class="nav-number">1</span> <span class="nav-text">采集视频经过滤镜渲染至界面</span> </a> </li> <li class="nav-item nav-level-3"> <a class="nav-link" href="#分析代码"> <span class="nav-number">2</span> <span class="nav-text">分析代码</span> </a> <ol class="nav-child"> <li class="nav-item nav-level-4"> <a class="nav-link" href="#camera对象"> <span class="nav-number">2.1</span> <span class="nav-text">Camera对象</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#滤镜对象"> <span class="nav-number">2.2</span> <span class="nav-text">滤镜对象</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#renderview"> <span class="nav-number">2.3</span> <span class="nav-text">RenderView</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#创建mtlrenderpipelinestate"> <span class="nav-number">2.4</span> <span class="nav-text">创建MTLRenderPipelineState</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#camera采集到视频数据后的处理"> <span class="nav-number">2.5</span> <span class="nav-text">Camera采集到视频数据后的处理</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#filter的newtextureavailable"> <span class="nav-number">2.6</span> <span class="nav-text">filter的newTextureAvailable</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#renderview的newtextureavailable"> <span class="nav-number">2.7</span> <span class="nav-text">RenderView的newTextureAvailable</span> </a> </li> </ol> </li> <li class="nav-item nav-level-3"> <a class="nav-link" href="#总结"> <span class="nav-number">3</span> <span class="nav-text">总结</span> </a> </li>
+    </ol>
+  </div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Michael</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://jekyllrb.com">Jekyll</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/simpleyyt/jekyll-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+   
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/assets/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/assets/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  <script type="text/javascript" src="/assets/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/assets/js/src/post-details.js?v=5.1.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/assets/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+    
+
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+  
+
+  
+  
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
+

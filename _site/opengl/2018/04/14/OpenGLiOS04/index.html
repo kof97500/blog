@@ -1,0 +1,1122 @@
+
+<!doctype html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/assets/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/assets/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/assets/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="OpenGL,音视频,笔记,AVSampleBufferDisplayLayer," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Micheal's blog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="上一篇笔记">
+<meta name="keywords" content="OpenGL, 音视频, 笔记, AVSampleBufferDisplayLayer">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenGL ES iOS笔记04 使用AVSampleBufferDisplayLayer渲染视频">
+<meta property="og:url" content="http://localhost:4000/opengl/2018/04/14/OpenGLiOS04/">
+<meta property="og:site_name" content="Micheal's blog">
+<meta property="og:description" content="上一篇笔记">
+<meta property="og:locale" content="zh-Hans">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OpenGL ES iOS笔记04 使用AVSampleBufferDisplayLayer渲染视频">
+<meta name="twitter:description" content="上一篇笔记">
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://localhost:4000/"/>
+
+
+
+
+
+  <title>OpenGL ES iOS笔记04 使用AVSampleBufferDisplayLayer渲染视频 | Micheal's blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> <div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Micheal's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+<div id="posts" class="posts-expand">
+  
+  
+
+  
+
+  
+  
+  
+
+  <article class="post post-type- " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://localhost:4000/opengl/2018/04/14/OpenGLiOS04/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Michael">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="assets/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Micheal's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+          
+          
+            OpenGL ES iOS笔记04 使用AVSampleBufferDisplayLayer渲染视频
+          
+        </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-14T00:00:00+08:00">
+                2018-04-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/category/#/OpenGL" itemprop="url" rel="index">
+                    <span itemprop="name">OpenGL</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+            
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <p><a href="https://kof97500.github.io/opengl/2018/04/08/OpenGLiOS03/">上一篇笔记</a></p>
+
+<p>使用OpenGL渲染视频数据需要了解OpenGL的各种操作、函数调用，不是很符合OC习惯，如果只是简单的渲染显示功能，也可以使用苹果在iOS8中新推出的AVSampleBufferDisplayLayer类。</p>
+
+<p>这里还是以iOS设备摄像头采集的数据做显示。</p>
+
+<h3 id="创建avsamplebufferdisplaylayer">创建AVSampleBufferDisplayLayer</h3>
+
+<p>根据名字可以知道AVSampleBufferDisplayLayer是CALayer的子类，因此可以添加到UIView的layer上，这里创建一个新的View，用于以AVSampleBufferDisplayLayer渲染视频。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32<br/>33<br/>34<br/>35</pre></td><td class="code"><pre class="highlight"><code><span class="k">@interface</span> <span class="nc">LYRSampleBufferDisplayView</span> <span class="p">()</span>
+<span class="k">@property</span><span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span><span class="n">strong</span><span class="p">)</span><span class="n">AVSampleBufferDisplayLayer</span><span class="o">*</span><span class="n">displayLayer</span><span class="p">;</span>
+<span class="k">@end</span>
+<span class="k">@implementation</span> <span class="nc">LYRSampleBufferDisplayView</span>
+
+<span class="k">-</span><span class="p">(</span><span class="n">instancetype</span><span class="p">)</span><span class="nf">initWithFrame</span><span class="p">:(</span><span class="n">CGRect</span><span class="p">)</span><span class="nv">frame</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">self</span> <span class="o">=</span> <span class="p">[</span><span class="n">super</span> <span class="nf">initWithFrame</span><span class="p">:</span><span class="n">frame</span><span class="p">])</span> <span class="p">{</span>
+        <span class="p">[</span><span class="n">self</span> <span class="nf">createLayer</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">self</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">-</span><span class="p">(</span><span class="n">instancetype</span><span class="p">)</span><span class="nf">initWithCoder</span><span class="p">:(</span><span class="n">NSCoder</span> <span class="o">*</span><span class="p">)</span><span class="nv">aDecoder</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">self</span> <span class="o">=</span> <span class="p">[</span><span class="n">super</span> <span class="nf">initWithCoder</span><span class="p">:</span><span class="n">aDecoder</span><span class="p">])</span> <span class="p">{</span>
+        <span class="p">[</span><span class="n">self</span> <span class="nf">createLayer</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">self</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">layoutSubviews</span>
+<span class="p">{</span>
+    <span class="p">[</span><span class="n">super</span> <span class="nf">layoutSubviews</span><span class="p">];</span>
+    <span class="c1">//由于layer的frame改变时会有隐式的动画，所以需要手动禁止
+</span>    <span class="p">[</span><span class="n">CATransaction</span> <span class="nf">setDisableActions</span><span class="p">:</span><span class="nb">YES</span><span class="p">];</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">displayLayer</span><span class="p">.</span><span class="n">frame</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">bounds</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="o">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">createLayer</span>
+<span class="p">{</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">displayLayer</span> <span class="o">=</span> <span class="p">[</span><span class="n">AVSampleBufferDisplayLayer</span> <span class="nf">layer</span><span class="p">];</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">displayLayer</span><span class="p">.</span><span class="n">videoGravity</span> <span class="o">=</span> <span class="n">AVLayerVideoGravityResizeAspectFill</span><span class="p">;</span>
+    <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">layer</span> <span class="nf">addSublayer</span><span class="p">:</span><span class="n">self</span><span class="p">.</span><span class="n">displayLayer</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="k">@end</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<h3 id="渲染显示cmsamplebuffer">渲染显示CMSampleBuffer</h3>
+
+<p>AVSampleBufferDisplayLayer中有方法</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">enqueueSampleBuffer</span><span class="p">:(</span><span class="n">CMSampleBufferRef</span><span class="p">)</span><span class="nv">sampleBuffer</span><span class="p">;</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>对于从videoDataOutput中得到的数据，可以直接传入并显示。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">captureOutput</span><span class="p">:(</span><span class="n">AVCaptureOutput</span> <span class="o">*</span><span class="p">)</span><span class="nv">output</span> <span class="nf">didOutputSampleBuffer</span><span class="p">:(</span><span class="n">CMSampleBufferRef</span><span class="p">)</span><span class="nv">sampleBuffer</span> <span class="nf">fromConnection</span><span class="p">:(</span><span class="n">AVCaptureConnection</span> <span class="o">*</span><span class="p">)</span><span class="nv">connection</span>
+<span class="p">{</span>
+    <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">renderView</span> <span class="nf">enqueueSampleBuffer</span><span class="p">:</span><span class="n">sampleBuffer</span><span class="p">];</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>运行程序，即可看到显示的画面。</p>
+
+<h3 id="渲染普通的buffer数据">渲染普通的buffer数据</h3>
+
+<p>当然，一般真正的应用场景中，是不会直接有CMSampleBuffer用来显示的，例如使用ffmpeg解码后的数据，一般是存放在AVFrame的结构体中，*data指针，因此，需要将buffer包装成CMSampleBuffer来给AVSampleBufferDisplayLayer显示。这里先使用RGBA的数据格式。</p>
+
+<h4 id="使用cvpixelbufferpool获取cvpixelbuffer">使用CVPixelBufferPool获取CVPixelBuffer</h4>
+
+<p>创建CMSampleBuffer，需要CVPixelBuffer，这里使用CVPixelBufferPool，这样由缓存池决定创建和销毁CVPixelBuffer，不用关心CVPixelBuffer导致的内存问题。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4</pre></td><td class="code"><pre class="highlight"><code><span class="k">@interface</span> <span class="nc">LYRSampleBufferDisplayView</span> <span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">CVPixelBufferPoolRef</span> <span class="n">_pixelBufferPool</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>这里创建一个方法，参数包括RGBA数据buffer指针，视频的宽高</p>
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">displayWithRGBBuffer</span><span class="p">:(</span><span class="kt">uint8_t</span><span class="o">*</span><span class="p">)</span><span class="nv">displayWithRGBBuffer</span> <span class="nf">linesize</span><span class="p">:(</span><span class="kt">int</span><span class="p">)</span><span class="nv">lineSize</span> <span class="nf">width</span><span class="p">:(</span><span class="kt">int</span><span class="p">)</span><span class="nv">width</span> <span class="nf">height</span><span class="p">:(</span><span class="kt">int</span><span class="p">)</span><span class="nv">height</span>
+<span class="p">{</span>
+    <span class="n">CVReturn</span> <span class="n">theError</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">_pixelBufferPool</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">CVPixelBufferPoolFlush</span><span class="p">(</span><span class="n">_pixelBufferPool</span><span class="p">,</span> <span class="n">kCVPixelBufferPoolFlushExcessBuffers</span><span class="p">);</span>
+        <span class="n">CVPixelBufferPoolRelease</span><span class="p">(</span><span class="n">_pixelBufferPool</span><span class="p">);</span>
+            <span class="n">_pixelBufferPool</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="p">}</span>
+    
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">_pixelBufferPool</span><span class="p">){</span>
+        <span class="n">NSMutableDictionary</span><span class="o">*</span> <span class="n">attributes</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableDictionary</span> <span class="nf">dictionary</span><span class="p">];</span>
+        <span class="c1">//        kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange nv12
+</span>        <span class="p">[</span><span class="n">attributes</span> <span class="nf">setObject</span><span class="p">:[</span><span class="n">NSNumber</span> <span class="nf">numberWithInt</span><span class="p">:</span><span class="n">kCVPixelFormatType_32BGRA</span><span class="p">]</span> <span class="nf">forKey</span><span class="p">:(</span><span class="n">NSString</span><span class="o">*</span><span class="p">)</span><span class="n">kCVPixelBufferPixelFormatTypeKey</span><span class="p">];</span>
+        <span class="p">[</span><span class="n">attributes</span> <span class="nf">setObject</span><span class="p">:[</span><span class="n">NSNumber</span> <span class="nf">numberWithInt</span><span class="p">:</span><span class="n">width</span><span class="p">]</span> <span class="nf">forKey</span><span class="p">:</span> <span class="p">(</span><span class="n">NSString</span><span class="o">*</span><span class="p">)</span><span class="n">kCVPixelBufferWidthKey</span><span class="p">];</span>
+        <span class="p">[</span><span class="n">attributes</span> <span class="nf">setObject</span><span class="p">:[</span><span class="n">NSNumber</span> <span class="nf">numberWithInt</span><span class="p">:</span><span class="n">height</span><span class="p">]</span> <span class="nf">forKey</span><span class="p">:</span> <span class="p">(</span><span class="n">NSString</span><span class="o">*</span><span class="p">)</span><span class="n">kCVPixelBufferHeightKey</span><span class="p">];</span>
+        <span class="p">[</span><span class="n">attributes</span> <span class="nf">setObject</span><span class="p">:</span><span class="err">@</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span> <span class="nf">forKey</span><span class="p">:(</span><span class="n">NSString</span><span class="o">*</span><span class="p">)</span><span class="n">kCVPixelBufferBytesPerRowAlignmentKey</span><span class="p">];</span>
+        <span class="p">[</span><span class="n">attributes</span> <span class="nf">setObject</span><span class="p">:[</span><span class="n">NSDictionary</span> <span class="nf">dictionary</span><span class="p">]</span> <span class="nf">forKey</span><span class="p">:(</span><span class="n">NSString</span><span class="o">*</span><span class="p">)</span><span class="n">kCVPixelBufferIOSurfacePropertiesKey</span><span class="p">];</span>
+        <span class="n">theError</span> <span class="o">=</span> <span class="n">CVPixelBufferPoolCreate</span><span class="p">(</span><span class="n">kCFAllocatorDefault</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="p">(</span><span class="n">__bridge</span> <span class="n">CFDictionaryRef</span><span class="p">)</span> <span class="n">attributes</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">_pixelBufferPool</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">theError</span> <span class="o">!=</span> <span class="n">kCVReturnSuccess</span><span class="p">){</span>
+            <span class="n">NSLog</span><span class="p">(</span><span class="s">@"CVPixelBufferPoolCreate Failed"</span><span class="p">);</span>
+            <span class="n">_pixelBufferPool</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>这里根据视频宽高和视频格式创建了一个CVPixelBufferPool。需要注意的是kCVPixelBufferBytesPerRowAlignmentKey这个参数，这个参数实际上是设置行宽（linesize/BytesPerRow）的基准而不是真正的行宽。真正的行宽会根据设置的宽高和视频格式决定，例如32BGRA的linesize一般是width*4。</p>
+
+<h4 id="创建cvpixelbuffer并将视频数据传入">创建CVPixelBuffer，并将视频数据传入</h4>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">displayWithRGBBuffer</span><span class="p">:(</span><span class="kt">uint8_t</span><span class="o">*</span><span class="p">)</span><span class="nv">displayWithRGBBuffer</span> <span class="nf">width</span><span class="p">:(</span><span class="kt">int</span><span class="p">)</span><span class="nv">width</span> <span class="nf">height</span><span class="p">:(</span><span class="kt">int</span><span class="p">)</span><span class="nv">height</span>
+<span class="p">{</span>
+	<span class="p">...</span>
+	<span class="n">CVPixelBufferRef</span> <span class="n">pixelBuffer</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">;</span>
+    <span class="n">theError</span> <span class="o">=</span> <span class="n">CVPixelBufferPoolCreatePixelBuffer</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="n">_pixelBufferPool</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">pixelBuffer</span><span class="p">);</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">theError</span> <span class="o">!=</span> <span class="n">kCVReturnSuccess</span><span class="p">){</span>
+        <span class="n">NSLog</span><span class="p">(</span><span class="s">@"CVPixelBufferPoolCreatePixelBuffer Failed"</span><span class="p">);</span>
+        <span class="n">pixelBuffer</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    
+    <span class="n">CVPixelBufferLockBaseAddress</span><span class="p">(</span><span class="n">pixelBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    
+    <span class="kt">void</span><span class="o">*</span><span class="n">base</span> <span class="o">=</span> <span class="n">CVPixelBufferGetBaseAddress</span><span class="p">(</span><span class="n">pixelBuffer</span><span class="p">);</span>
+    
+    <span class="c1">//将数据拷贝到base
+</span>    <span class="n">memcpy</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">RGBBuffer</span><span class="p">,</span> <span class="n">width</span> <span class="o">*</span> <span class="n">height</span> <span class="o">*</span><span class="mi">4</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">base</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">CVPixelBufferUnlockBaseAddress</span><span class="p">(</span><span class="n">pixelBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<h4 id="使用cvpixelbuffer创建cmsamplebuffer并显示数据">使用CVPixelBuffer创建CMSampleBuffer并显示数据</h4>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">displayPixelBuffer</span><span class="p">:(</span><span class="n">CVPixelBufferRef</span><span class="p">)</span> <span class="n">pixelBuffer</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">pixelBuffer</span><span class="p">){</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    
+    <span class="c1">//不设置具体时间信息
+</span>    <span class="n">CMSampleTimingInfo</span> <span class="n">timing</span> <span class="o">=</span> <span class="p">{</span><span class="n">kCMTimeInvalid</span><span class="p">,</span> <span class="n">kCMTimeInvalid</span><span class="p">,</span> <span class="n">kCMTimeInvalid</span><span class="p">};</span>
+    <span class="c1">//获取视频信息
+</span>    <span class="n">CMVideoFormatDescriptionRef</span> <span class="n">videoInfo</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="n">OSStatus</span> <span class="n">result</span> <span class="o">=</span> <span class="n">CMVideoFormatDescriptionCreateForImageBuffer</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="n">pixelBuffer</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">videoInfo</span><span class="p">);</span>
+    <span class="n">NSParameterAssert</span><span class="p">(</span><span class="n">result</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">videoInfo</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">);</span>
+    
+    <span class="n">CMSampleBufferRef</span> <span class="n">sampleBuffer</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">CMSampleBufferCreateForImageBuffer</span><span class="p">(</span><span class="n">kCFAllocatorDefault</span><span class="p">,</span><span class="n">pixelBuffer</span><span class="p">,</span> <span class="nb">true</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">videoInfo</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">timing</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sampleBuffer</span><span class="p">);</span>
+    <span class="n">NSParameterAssert</span><span class="p">(</span><span class="n">result</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">sampleBuffer</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="n">CFRelease</span><span class="p">(</span><span class="n">pixelBuffer</span><span class="p">);</span>
+    <span class="n">CFRelease</span><span class="p">(</span><span class="n">videoInfo</span><span class="p">);</span>
+    
+    <span class="n">CFArrayRef</span> <span class="n">attachments</span> <span class="o">=</span> <span class="n">CMSampleBufferGetSampleAttachmentsArray</span><span class="p">(</span><span class="n">sampleBuffer</span><span class="p">,</span> <span class="nb">YES</span><span class="p">);</span>
+    <span class="n">CFMutableDictionaryRef</span> <span class="n">dict</span> <span class="o">=</span> <span class="p">(</span><span class="n">CFMutableDictionaryRef</span><span class="p">)</span><span class="n">CFArrayGetValueAtIndex</span><span class="p">(</span><span class="n">attachments</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="n">CFDictionarySetValue</span><span class="p">(</span><span class="n">dict</span><span class="p">,</span> <span class="n">kCMSampleAttachmentKey_DisplayImmediately</span><span class="p">,</span> <span class="n">kCFBooleanTrue</span><span class="p">);</span>
+    
+    <span class="c1">//这里是处理进入后台后layer失效问题
+</span>    <span class="k">if</span> <span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">displayLayer</span><span class="p">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">AVQueuedSampleBufferRenderingStatusFailed</span><span class="p">)</span> <span class="p">{</span>
+        <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">displayLayer</span> <span class="nf">flush</span><span class="p">];</span>
+    <span class="p">}</span>
+    
+    <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">displayLayer</span> <span class="nf">enqueueSampleBuffer</span><span class="p">:</span><span class="n">sampleBuffer</span><span class="p">];</span>
+    <span class="n">CFRelease</span><span class="p">(</span><span class="n">sampleBuffer</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<p>这样就完成了整个过程，接下来在采集数据的地方修改，将rgba数据传给渲染view。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">captureOutput</span><span class="p">:(</span><span class="n">AVCaptureOutput</span> <span class="o">*</span><span class="p">)</span><span class="nv">output</span> <span class="nf">didOutputSampleBuffer</span><span class="p">:(</span><span class="n">CMSampleBufferRef</span><span class="p">)</span><span class="nv">sampleBuffer</span> <span class="nf">fromConnection</span><span class="p">:(</span><span class="n">AVCaptureConnection</span> <span class="o">*</span><span class="p">)</span><span class="nv">connection</span>
+<span class="p">{</span>
+    
+    
+    
+    <span class="n">CVImageBufferRef</span> <span class="n">imageBuffer</span> <span class="o">=</span> <span class="n">CMSampleBufferGetImageBuffer</span><span class="p">(</span><span class="n">sampleBuffer</span><span class="p">);</span>
+    
+    <span class="k">if</span><span class="p">(</span><span class="n">CVPixelBufferLockBaseAddress</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="n">kCVReturnSuccess</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">UInt8</span> <span class="o">*</span><span class="n">rgbBuffer</span> <span class="o">=</span> <span class="p">(</span><span class="n">UInt8</span> <span class="o">*</span><span class="p">)</span><span class="n">CVPixelBufferGetBaseAddress</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">);</span>
+        
+        <span class="kt">size_t</span> <span class="n">width</span> <span class="o">=</span> <span class="n">CVPixelBufferGetWidth</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">);</span>
+        <span class="kt">size_t</span> <span class="n">height</span> <span class="o">=</span> <span class="n">CVPixelBufferGetHeight</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">);</span>
+        
+        <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">renderView</span> <span class="nf">displayWithRGBBuffer</span><span class="p">:</span><span class="n">rgbBuffer</span> <span class="nf">width</span><span class="p">:</span><span class="n">width</span> <span class="n">height</span><span class="o">:</span><span class="n">height</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="n">CVPixelBufferUnlockBaseAddress</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>之后运行程序，就可以看到采集的视频。</p>
+
+<h3 id="渲染nv12格式的数据">渲染NV12格式的数据</h3>
+
+<p>这里步骤和RGBA类似，就是创建CVPixelBufferPool时格式设置为NV12，拷贝数据的时候需要两路分量都拷贝。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32<br/>33<br/>34<br/>35<br/>36<br/>37<br/>38<br/>39<br/>40<br/>41<br/>42<br/>43<br/>44<br/>45<br/>46<br/>47<br/>48<br/>49<br/>50<br/>51<br/>52</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">displayWithNV12yBuffer</span><span class="p">:(</span><span class="kt">uint8_t</span><span class="o">*</span><span class="p">)</span><span class="nv">yBuffer</span> <span class="nf">uvBuffer</span><span class="p">:(</span><span class="kt">uint8_t</span><span class="o">*</span><span class="p">)</span><span class="nv">uvBuffer</span> <span class="nf">width</span><span class="p">:(</span><span class="kt">int</span><span class="p">)</span><span class="nv">width</span> <span class="nf">height</span><span class="p">:(</span><span class="kt">int</span><span class="p">)</span><span class="nv">height</span>
+<span class="p">{</span>
+    <span class="n">CVReturn</span> <span class="n">theError</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">_pixelBufferPool</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">CVPixelBufferPoolFlush</span><span class="p">(</span><span class="n">_pixelBufferPool</span><span class="p">,</span> <span class="n">kCVPixelBufferPoolFlushExcessBuffers</span><span class="p">);</span>
+        <span class="n">CVPixelBufferPoolRelease</span><span class="p">(</span><span class="n">_pixelBufferPool</span><span class="p">);</span>
+        <span class="n">_pixelBufferPool</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="p">}</span>
+    
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">_pixelBufferPool</span><span class="p">){</span>
+        <span class="n">NSMutableDictionary</span><span class="o">*</span> <span class="n">attributes</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableDictionary</span> <span class="nf">dictionary</span><span class="p">];</span>
+        <span class="p">[</span><span class="n">attributes</span> <span class="nf">setObject</span><span class="p">:[</span><span class="n">NSNumber</span> <span class="nf">numberWithInt</span><span class="p">:</span><span class="n">kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange</span><span class="p">]</span> <span class="nf">forKey</span><span class="p">:(</span><span class="n">NSString</span><span class="o">*</span><span class="p">)</span><span class="n">kCVPixelBufferPixelFormatTypeKey</span><span class="p">];</span>
+        <span class="p">[</span><span class="n">attributes</span> <span class="nf">setObject</span><span class="p">:[</span><span class="n">NSNumber</span> <span class="nf">numberWithInt</span><span class="p">:</span><span class="n">width</span><span class="p">]</span> <span class="nf">forKey</span><span class="p">:</span> <span class="p">(</span><span class="n">NSString</span><span class="o">*</span><span class="p">)</span><span class="n">kCVPixelBufferWidthKey</span><span class="p">];</span>
+        <span class="p">[</span><span class="n">attributes</span> <span class="nf">setObject</span><span class="p">:[</span><span class="n">NSNumber</span> <span class="nf">numberWithInt</span><span class="p">:</span><span class="n">height</span><span class="p">]</span> <span class="nf">forKey</span><span class="p">:</span> <span class="p">(</span><span class="n">NSString</span><span class="o">*</span><span class="p">)</span><span class="n">kCVPixelBufferHeightKey</span><span class="p">];</span>
+        <span class="p">[</span><span class="n">attributes</span> <span class="nf">setObject</span><span class="p">:</span><span class="err">@</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span> <span class="nf">forKey</span><span class="p">:(</span><span class="n">NSString</span><span class="o">*</span><span class="p">)</span><span class="n">kCVPixelBufferBytesPerRowAlignmentKey</span><span class="p">];</span>
+        <span class="p">[</span><span class="n">attributes</span> <span class="nf">setObject</span><span class="p">:[</span><span class="n">NSDictionary</span> <span class="nf">dictionary</span><span class="p">]</span> <span class="nf">forKey</span><span class="p">:(</span><span class="n">NSString</span><span class="o">*</span><span class="p">)</span><span class="n">kCVPixelBufferIOSurfacePropertiesKey</span><span class="p">];</span>
+        <span class="n">theError</span> <span class="o">=</span> <span class="n">CVPixelBufferPoolCreate</span><span class="p">(</span><span class="n">kCFAllocatorDefault</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="p">(</span><span class="n">__bridge</span> <span class="n">CFDictionaryRef</span><span class="p">)</span> <span class="n">attributes</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">_pixelBufferPool</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">theError</span> <span class="o">!=</span> <span class="n">kCVReturnSuccess</span><span class="p">){</span>
+            <span class="n">NSLog</span><span class="p">(</span><span class="s">@"CVPixelBufferPoolCreate Failed"</span><span class="p">);</span>
+            <span class="n">_pixelBufferPool</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    
+    <span class="n">CVPixelBufferRef</span> <span class="n">pixelBuffer</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">;</span>
+    <span class="n">theError</span> <span class="o">=</span> <span class="n">CVPixelBufferPoolCreatePixelBuffer</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="n">_pixelBufferPool</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">pixelBuffer</span><span class="p">);</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">theError</span> <span class="o">!=</span> <span class="n">kCVReturnSuccess</span><span class="p">){</span>
+        <span class="n">NSLog</span><span class="p">(</span><span class="s">@"CVPixelBufferPoolCreatePixelBuffer Failed"</span><span class="p">);</span>
+        <span class="n">pixelBuffer</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    
+    <span class="n">CVPixelBufferLockBaseAddress</span><span class="p">(</span><span class="n">pixelBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="c1">//取得buffer中存储视频数据的指针 根据通道序号取，0是y分量，1是uv分量
+</span>    <span class="kt">void</span><span class="o">*</span><span class="n">y_base</span> <span class="o">=</span> <span class="n">CVPixelBufferGetBaseAddressOfPlane</span><span class="p">(</span><span class="n">pixelBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    
+    <span class="c1">//将数据拷贝到base
+</span>    <span class="n">memcpy</span><span class="p">(</span><span class="n">y_base</span><span class="p">,</span> <span class="n">yBuffer</span><span class="p">,</span> <span class="n">width</span> <span class="o">*</span> <span class="n">height</span> <span class="o">*</span><span class="mi">1</span><span class="p">);</span><span class="c1">//y通道的数据大小为宽乘以高
+</span>    <span class="k">if</span> <span class="p">(</span><span class="n">y_base</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">CVPixelBufferUnlockBaseAddress</span><span class="p">(</span><span class="n">pixelBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    
+    <span class="kt">void</span><span class="o">*</span><span class="n">uv_base</span> <span class="o">=</span> <span class="n">CVPixelBufferGetBaseAddressOfPlane</span><span class="p">(</span><span class="n">pixelBuffer</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+    
+    <span class="n">memcpy</span><span class="p">(</span><span class="n">uv_base</span><span class="p">,</span> <span class="n">uvBuffer</span><span class="p">,</span> <span class="n">width</span> <span class="o">*</span> <span class="n">height</span> <span class="o">*</span><span class="mi">0</span><span class="p">.</span><span class="mi">5</span><span class="p">);</span><span class="c1">//uv通道的数据大小为宽乘以高的一半
+</span>    
+    <span class="n">CVPixelBufferUnlockBaseAddress</span><span class="p">(</span><span class="n">pixelBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    
+    <span class="p">[</span><span class="n">self</span> <span class="nf">displayPixelBuffer</span><span class="p">:</span><span class="n">pixelBuffer</span><span class="p">];</span>
+    
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<p>调用时先修改采集格式，然后依次取出两个分量buffer即可。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">captureOutput</span><span class="p">:(</span><span class="n">AVCaptureOutput</span> <span class="o">*</span><span class="p">)</span><span class="nv">output</span> <span class="nf">didOutputSampleBuffer</span><span class="p">:(</span><span class="n">CMSampleBufferRef</span><span class="p">)</span><span class="nv">sampleBuffer</span> <span class="nf">fromConnection</span><span class="p">:(</span><span class="n">AVCaptureConnection</span> <span class="o">*</span><span class="p">)</span><span class="nv">connection</span>
+<span class="p">{</span>
+    <span class="n">CVImageBufferRef</span> <span class="n">imageBuffer</span> <span class="o">=</span> <span class="n">CMSampleBufferGetImageBuffer</span><span class="p">(</span><span class="n">sampleBuffer</span><span class="p">);</span>
+    
+    <span class="k">if</span><span class="p">(</span><span class="n">CVPixelBufferLockBaseAddress</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="n">kCVReturnSuccess</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">//图像宽度（像素）
+</span>        <span class="kt">size_t</span> <span class="n">pixelWidth</span> <span class="o">=</span> <span class="n">CVPixelBufferGetWidth</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">);</span>
+        <span class="c1">//图像高度（像素）
+</span>        <span class="kt">size_t</span> <span class="n">pixelHeight</span> <span class="o">=</span> <span class="n">CVPixelBufferGetHeight</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">);</span>
+        <span class="c1">//获取CVImageBufferRef中的y数据
+</span>        <span class="kt">uint8_t</span> <span class="o">*</span><span class="n">y_frame</span> <span class="o">=</span> <span class="n">CVPixelBufferGetBaseAddressOfPlane</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+        <span class="c1">//获取CMVImageBufferRef中的uv数据
+</span>        <span class="kt">uint8_t</span> <span class="o">*</span><span class="n">uv_frame</span> <span class="o">=</span> <span class="n">CVPixelBufferGetBaseAddressOfPlane</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+        
+        <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">renderView</span> <span class="nf">displayWithNV12yBuffer</span><span class="p">:</span><span class="n">y_frame</span> <span class="nf">uvBuffer</span><span class="p">:</span><span class="n">uv_frame</span> <span class="n">width</span><span class="o">:</span><span class="n">pixelWidth</span> <span class="n">height</span><span class="o">:</span><span class="n">pixelHeight</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="n">CVPixelBufferUnlockBaseAddress</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<h3 id="渲染yuv420p">渲染yuv420p</h3>
+
+<p>渲染yuv420p和上面类似，可以将CVPixelBufferPool的格式设置为kCVPixelFormatType_420YpCbCr8Planar，然后CVPixelBuffer依次拷贝进3个分量即可，这里就不放代码了。需要注意的是，直接使用yuv420p显示，实测在ios10是无法显示的，而在ios11.3以下的ios11系统，显示有问题，画面会一闪一闪的，因此在低版本适配时需要转换成NV12格式进行显示，转换方法可以使用上一篇提到的libyuv。</p>
+
+<h3 id="总结">总结</h3>
+
+<p>虽然AVSampleBufferDisplayLayer使用起来相对简单，但实际由于每次都有memcpy的操作，所以性能会有损失，再加上直接渲染yuv的版本限制，我个人更倾向使用OpenGL渲染的方式。</p>
+
+<p><a href="https://github.com/kof97500/OpenGLIOSDemo/tree/master/OpenGLDemo04">demo地址</a></p>
+
+<p>参考：<br />
+<a href="https://blog.csdn.net/fernandowei/article/details/52179631">在iOS端使用AVSampleBufferDisplayLayer进行视频渲染</a></p>
+
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            
+            <a href="/tag/#/OpenGL" rel="tag"># OpenGL</a>
+          
+            
+            <a href="/tag/#/%E9%9F%B3%E8%A7%86%E9%A2%91" rel="tag"># 音视频</a>
+          
+            
+            <a href="/tag/#/%E7%AC%94%E8%AE%B0" rel="tag"># 笔记</a>
+          
+            
+            <a href="/tag/#/AVSampleBufferDisplayLayer" rel="tag"># AVSampleBufferDisplayLayer</a>
+          
+        </div>
+      
+
+      
+      
+      
+      
+      
+
+      
+      
+        <div class="post-nav" id="post-nav-id">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/gpuimage/2018/05/01/GPUImage01/" rel="next" title="GPUImage源码研究01 研究图片滤镜过程">
+                <i class="fa fa-chevron-left"></i> GPUImage源码研究01 研究图片滤镜过程
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/opengl/2018/04/08/OpenGLiOS03/" rel="prev" title="OpenGL ES iOS笔记03 渲染视频">
+                OpenGL ES iOS笔记03 渲染视频 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+      
+
+      
+    </footer>
+  </article>
+
+  <div class="post-spread">
+    
+  </div>
+</div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        
+        
+        
+
+
+
+
+
+
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/assets/images/avatar.gif"
+               alt="Michael" />
+          <p class="site-author-name" itemprop="name">Michael</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+        
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+
+
+
+
+
+
+
+            
+              <div class="post-toc-content">
+    <ol class=nav>
+      <li class="nav-item nav-level-3"> <a class="nav-link" href="#创建avsamplebufferdisplaylayer"> <span class="nav-number">1</span> <span class="nav-text">创建AVSampleBufferDisplayLayer</span> </a> </li> <li class="nav-item nav-level-3"> <a class="nav-link" href="#渲染显示cmsamplebuffer"> <span class="nav-number">2</span> <span class="nav-text">渲染显示CMSampleBuffer</span> </a> </li> <li class="nav-item nav-level-3"> <a class="nav-link" href="#渲染普通的buffer数据"> <span class="nav-number">3</span> <span class="nav-text">渲染普通的buffer数据</span> </a> <ol class="nav-child"> <li class="nav-item nav-level-4"> <a class="nav-link" href="#使用cvpixelbufferpool获取cvpixelbuffer"> <span class="nav-number">3.1</span> <span class="nav-text">使用CVPixelBufferPool获取CVPixelBuffer</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#创建cvpixelbuffer并将视频数据传入"> <span class="nav-number">3.2</span> <span class="nav-text">创建CVPixelBuffer，并将视频数据传入</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#使用cvpixelbuffer创建cmsamplebuffer并显示数据"> <span class="nav-number">3.3</span> <span class="nav-text">使用CVPixelBuffer创建CMSampleBuffer并显示数据</span> </a> </li> </ol> </li> <li class="nav-item nav-level-3"> <a class="nav-link" href="#渲染nv12格式的数据"> <span class="nav-number">4</span> <span class="nav-text">渲染NV12格式的数据</span> </a> </li> <li class="nav-item nav-level-3"> <a class="nav-link" href="#渲染yuv420p"> <span class="nav-number">5</span> <span class="nav-text">渲染yuv420p</span> </a> </li> <li class="nav-item nav-level-3"> <a class="nav-link" href="#总结"> <span class="nav-number">6</span> <span class="nav-text">总结</span> </a> </li>
+    </ol>
+  </div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Michael</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://jekyllrb.com">Jekyll</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/simpleyyt/jekyll-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+   
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/assets/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/assets/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  <script type="text/javascript" src="/assets/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/assets/js/src/post-details.js?v=5.1.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/assets/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+    
+
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+  
+
+  
+  
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
+

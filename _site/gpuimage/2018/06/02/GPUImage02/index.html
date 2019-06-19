@@ -1,0 +1,1410 @@
+
+<!doctype html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/assets/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/assets/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/assets/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="OpenGL,音视频,笔记,GPUImage," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Micheal's blog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="上一篇笔记">
+<meta name="keywords" content="OpenGL, 音视频, 笔记, GPUImage">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GPUImage源码研究02 研究采集视频滤镜">
+<meta property="og:url" content="http://localhost:4000/gpuimage/2018/06/02/GPUImage02/">
+<meta property="og:site_name" content="Micheal's blog">
+<meta property="og:description" content="上一篇笔记">
+<meta property="og:locale" content="zh-Hans">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="GPUImage源码研究02 研究采集视频滤镜">
+<meta name="twitter:description" content="上一篇笔记">
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://localhost:4000/"/>
+
+
+
+
+
+  <title>GPUImage源码研究02 研究采集视频滤镜 | Micheal's blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> <div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Micheal's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+<div id="posts" class="posts-expand">
+  
+  
+
+  
+
+  
+  
+  
+
+  <article class="post post-type- " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://localhost:4000/gpuimage/2018/06/02/GPUImage02/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Michael">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="assets/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Micheal's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+          
+          
+            GPUImage源码研究02 研究采集视频滤镜
+          
+        </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-06-02T00:00:00+08:00">
+                2018-06-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/category/#/GPUImage" itemprop="url" rel="index">
+                    <span itemprop="name">GPUImage</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+            
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <p><a href="https://kof97500.github.io/gpuimage/2018/05/01/GPUImage01/">上一篇笔记</a></p>
+
+<p>这次来研究下GPUImage采集视频滤镜的处理。</p>
+
+<h3 id="使用滤镜渲染采集视频">使用滤镜渲染采集视频</h3>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">viewDidLoad</span> <span class="p">{</span>
+    <span class="p">[</span><span class="n">super</span> <span class="nf">viewDidLoad</span><span class="p">];</span>
+    <span class="c1">// Do any additional setup after loading the view.
+</span>    
+    
+    <span class="n">GPUImageVideoCamera</span> <span class="o">*</span><span class="n">videoCamera</span> <span class="o">=</span> <span class="p">[[</span><span class="n">GPUImageVideoCamera</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithSessionPreset</span><span class="p">:</span><span class="n">AVCaptureSessionPreset640x480</span> <span class="nf">cameraPosition</span><span class="p">:</span><span class="n">AVCaptureDevicePositionFront</span><span class="p">];</span>
+    <span class="n">videoCamera</span><span class="p">.</span><span class="n">outputImageOrientation</span> <span class="o">=</span> <span class="n">UIInterfaceOrientationPortrait</span><span class="p">;</span>
+    
+    <span class="n">GPUImageSketchFilter</span> <span class="o">*</span><span class="n">customFilter</span> <span class="o">=</span> <span class="p">[[</span><span class="n">GPUImageSketchFilter</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">init</span><span class="p">];</span>
+    <span class="n">GPUImageView</span> <span class="o">*</span><span class="n">filteredVideoView</span> <span class="o">=</span> <span class="p">[[</span><span class="n">GPUImageView</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithFrame</span><span class="p">:</span><span class="n">self</span><span class="p">.</span><span class="n">view</span><span class="p">.</span><span class="n">bounds</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">view</span> <span class="nf">addSubview</span><span class="p">:</span><span class="n">filteredVideoView</span><span class="p">];</span>
+    <span class="c1">// Add the view somewhere so it's visible
+</span>    
+    <span class="p">[</span><span class="n">videoCamera</span> <span class="nf">addTarget</span><span class="p">:</span><span class="n">customFilter</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">customFilter</span> <span class="nf">addTarget</span><span class="p">:</span><span class="n">filteredVideoView</span><span class="p">];</span>
+    
+    <span class="p">[</span><span class="n">videoCamera</span> <span class="nf">startCameraCapture</span><span class="p">];</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">videoCamera</span> <span class="o">=</span> <span class="n">videoCamera</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<p>这里使用GPUImageVideoCamera来作为输入源，然后添加一个滤镜，再添加一个GPUImageView输出显示。</p>
+
+<h4 id="使用gpuimagevideocamera采集视频数据">使用GPUImageVideoCamera采集视频数据</h4>
+
+<h5 id="初始化方法">初始化方法</h5>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="nf">initWithSessionPreset</span><span class="p">:(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">sessionPreset</span> <span class="nf">cameraPosition</span><span class="p">:(</span><span class="n">AVCaptureDevicePosition</span><span class="p">)</span><span class="nv">cameraPosition</span><span class="p">;</span> 
+<span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">self</span> <span class="o">=</span> <span class="p">[</span><span class="n">super</span> <span class="nf">init</span><span class="p">]))</span>
+    <span class="p">{</span>
+		<span class="k">return</span> <span class="nb">nil</span><span class="p">;</span>
+    <span class="p">}</span>
+    
+   	<span class="p">...</span>
+	<span class="c1">// Create the capture session
+</span>	<span class="n">_captureSession</span> <span class="o">=</span> <span class="p">[[</span><span class="n">AVCaptureSession</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">init</span><span class="p">];</span>
+	
+    <span class="p">[</span><span class="n">_captureSession</span> <span class="nf">beginConfiguration</span><span class="p">];</span>
+    
+	<span class="c1">// Add the video input	
+</span>	<span class="n">NSError</span> <span class="o">*</span><span class="n">error</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">;</span>
+	<span class="n">videoInput</span> <span class="o">=</span> <span class="p">[[</span><span class="n">AVCaptureDeviceInput</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithDevice</span><span class="p">:</span><span class="n">_inputCamera</span> <span class="nf">error</span><span class="p">:</span><span class="o">&amp;</span><span class="n">error</span><span class="p">];</span>
+	<span class="k">if</span> <span class="p">([</span><span class="n">_captureSession</span> <span class="nf">canAddInput</span><span class="p">:</span><span class="n">videoInput</span><span class="p">])</span> 
+	<span class="p">{</span>
+		<span class="p">[</span><span class="n">_captureSession</span> <span class="nf">addInput</span><span class="p">:</span><span class="n">videoInput</span><span class="p">];</span>
+	<span class="p">}</span>
+	
+	<span class="c1">// Add the video frame output	
+</span>	<span class="n">videoOutput</span> <span class="o">=</span> <span class="p">[[</span><span class="n">AVCaptureVideoDataOutput</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">init</span><span class="p">];</span>
+	<span class="p">[</span><span class="n">videoOutput</span> <span class="nf">setAlwaysDiscardsLateVideoFrames</span><span class="p">:</span><span class="nb">NO</span><span class="p">];</span>
+	<span class="p">...</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>首先创建了AVCaptureSession以及相关的输入输出。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32<br/>33</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="nf">initWithSessionPreset</span><span class="p">:(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">sessionPreset</span> <span class="nf">cameraPosition</span><span class="p">:(</span><span class="n">AVCaptureDevicePosition</span><span class="p">)</span><span class="nv">cameraPosition</span><span class="p">;</span> 
+<span class="p">{</span>
+   	<span class="p">...</span>
+<span class="c1">//    if (captureAsYUV &amp;&amp; [GPUImageContext deviceSupportsRedTextures])
+</span>    <span class="k">if</span> <span class="p">(</span><span class="n">captureAsYUV</span> <span class="o">&amp;&amp;</span> <span class="p">[</span><span class="n">GPUImageContext</span> <span class="nf">supportsFastTextureUpload</span><span class="p">])</span>
+    <span class="p">{</span>
+        <span class="n">BOOL</span> <span class="n">supportsFullYUVRange</span> <span class="o">=</span> <span class="nb">NO</span><span class="p">;</span>
+        <span class="n">NSArray</span> <span class="o">*</span><span class="n">supportedPixelFormats</span> <span class="o">=</span> <span class="n">videoOutput</span><span class="p">.</span><span class="n">availableVideoCVPixelFormatTypes</span><span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">NSNumber</span> <span class="o">*</span><span class="n">currentPixelFormat</span> <span class="k">in</span> <span class="n">supportedPixelFormats</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">if</span> <span class="p">([</span><span class="n">currentPixelFormat</span> <span class="nf">intValue</span><span class="p">]</span> <span class="o">==</span> <span class="n">kCVPixelFormatType_420YpCbCr8BiPlanarFullRange</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">supportsFullYUVRange</span> <span class="o">=</span> <span class="nb">YES</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        
+        <span class="k">if</span> <span class="p">(</span><span class="n">supportsFullYUVRange</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="p">[</span><span class="n">videoOutput</span> <span class="nf">setVideoSettings</span><span class="p">:[</span><span class="n">NSDictionary</span> <span class="nf">dictionaryWithObject</span><span class="p">:[</span><span class="n">NSNumber</span> <span class="nf">numberWithInt</span><span class="p">:</span><span class="n">kCVPixelFormatType_420YpCbCr8BiPlanarFullRange</span><span class="p">]</span> <span class="nf">forKey</span><span class="p">:(</span><span class="n">id</span><span class="p">)</span><span class="n">kCVPixelBufferPixelFormatTypeKey</span><span class="p">]];</span>
+            <span class="n">isFullYUVRange</span> <span class="o">=</span> <span class="nb">YES</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">else</span>
+        <span class="p">{</span>
+            <span class="p">[</span><span class="n">videoOutput</span> <span class="nf">setVideoSettings</span><span class="p">:[</span><span class="n">NSDictionary</span> <span class="nf">dictionaryWithObject</span><span class="p">:[</span><span class="n">NSNumber</span> <span class="nf">numberWithInt</span><span class="p">:</span><span class="n">kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange</span><span class="p">]</span> <span class="nf">forKey</span><span class="p">:(</span><span class="n">id</span><span class="p">)</span><span class="n">kCVPixelBufferPixelFormatTypeKey</span><span class="p">]];</span>
+            <span class="n">isFullYUVRange</span> <span class="o">=</span> <span class="nb">NO</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">else</span>
+    <span class="p">{</span>
+        <span class="p">[</span><span class="n">videoOutput</span> <span class="nf">setVideoSettings</span><span class="p">:[</span><span class="n">NSDictionary</span> <span class="nf">dictionaryWithObject</span><span class="p">:[</span><span class="n">NSNumber</span> <span class="nf">numberWithInt</span><span class="p">:</span><span class="n">kCVPixelFormatType_32BGRA</span><span class="p">]</span> <span class="nf">forKey</span><span class="p">:(</span><span class="n">id</span><span class="p">)</span><span class="n">kCVPixelBufferPixelFormatTypeKey</span><span class="p">]];</span>
+    <span class="p">}</span>
+	<span class="p">...</span>
+ <span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>然后设置采集输出的数据类型，默认是kCVPixelFormatType_420YpCbCr8BiPlanarFullRange的。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32<br/>33<br/>34<br/>35<br/>36<br/>37<br/>38<br/>39<br/>40<br/>41<br/>42<br/>43<br/>44<br/>45<br/>46<br/>47<br/>48<br/>49<br/>50<br/>51<br/>52<br/>53<br/>54<br/>55<br/>56<br/>57<br/>58</pre></td><td class="code"><pre class="highlight"><code> <span class="k">-</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="nf">initWithSessionPreset</span><span class="p">:(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">sessionPreset</span> <span class="nf">cameraPosition</span><span class="p">:(</span><span class="n">AVCaptureDevicePosition</span><span class="p">)</span><span class="nv">cameraPosition</span><span class="p">;</span> 
+<span class="p">{</span>
+   	<span class="p">...</span>
+    <span class="n">runSynchronouslyOnVideoProcessingQueue</span><span class="p">(</span><span class="o">^</span><span class="p">{</span>
+        
+        <span class="k">if</span> <span class="p">(</span><span class="n">captureAsYUV</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="p">[</span><span class="n">GPUImageContext</span> <span class="nf">useImageProcessingContext</span><span class="p">];</span>
+            <span class="c1">//            if ([GPUImageContext deviceSupportsRedTextures])
+</span>            <span class="c1">//            {
+</span>            <span class="c1">//                yuvConversionProgram = [[GPUImageContext sharedImageProcessingContext] programForVertexShaderString:kGPUImageVertexShaderString fragmentShaderString:kGPUImageYUVVideoRangeConversionForRGFragmentShaderString];
+</span>            <span class="c1">//            }
+</span>            <span class="c1">//            else
+</span>            <span class="c1">//            {
+</span>            <span class="k">if</span> <span class="p">(</span><span class="n">isFullYUVRange</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">yuvConversionProgram</span> <span class="o">=</span> <span class="p">[[</span><span class="n">GPUImageContext</span> <span class="nf">sharedImageProcessingContext</span><span class="p">]</span> <span class="nf">programForVertexShaderString</span><span class="p">:</span><span class="n">kGPUImageVertexShaderString</span> <span class="nf">fragmentShaderString</span><span class="p">:</span><span class="n">kGPUImageYUVFullRangeConversionForLAFragmentShaderString</span><span class="p">];</span>
+            <span class="p">}</span>
+            <span class="k">else</span>
+            <span class="p">{</span>
+                <span class="n">yuvConversionProgram</span> <span class="o">=</span> <span class="p">[[</span><span class="n">GPUImageContext</span> <span class="nf">sharedImageProcessingContext</span><span class="p">]</span> <span class="nf">programForVertexShaderString</span><span class="p">:</span><span class="n">kGPUImageVertexShaderString</span> <span class="nf">fragmentShaderString</span><span class="p">:</span><span class="n">kGPUImageYUVVideoRangeConversionForLAFragmentShaderString</span><span class="p">];</span>
+            <span class="p">}</span>
+
+            <span class="c1">//            }
+</span>            
+            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">yuvConversionProgram</span><span class="p">.</span><span class="n">initialized</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="p">[</span><span class="n">yuvConversionProgram</span> <span class="nf">addAttribute</span><span class="p">:</span><span class="s">@"position"</span><span class="p">];</span>
+                <span class="p">[</span><span class="n">yuvConversionProgram</span> <span class="nf">addAttribute</span><span class="p">:</span><span class="s">@"inputTextureCoordinate"</span><span class="p">];</span>
+                
+                <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">[</span><span class="n">yuvConversionProgram</span> <span class="nf">link</span><span class="p">])</span>
+                <span class="p">{</span>
+                    <span class="n">NSString</span> <span class="o">*</span><span class="n">progLog</span> <span class="o">=</span> <span class="p">[</span><span class="n">yuvConversionProgram</span> <span class="nf">programLog</span><span class="p">];</span>
+                    <span class="n">NSLog</span><span class="p">(</span><span class="s">@"Program link log: %@"</span><span class="p">,</span> <span class="n">progLog</span><span class="p">);</span>
+                    <span class="n">NSString</span> <span class="o">*</span><span class="n">fragLog</span> <span class="o">=</span> <span class="p">[</span><span class="n">yuvConversionProgram</span> <span class="nf">fragmentShaderLog</span><span class="p">];</span>
+                    <span class="n">NSLog</span><span class="p">(</span><span class="s">@"Fragment shader compile log: %@"</span><span class="p">,</span> <span class="n">fragLog</span><span class="p">);</span>
+                    <span class="n">NSString</span> <span class="o">*</span><span class="n">vertLog</span> <span class="o">=</span> <span class="p">[</span><span class="n">yuvConversionProgram</span> <span class="nf">vertexShaderLog</span><span class="p">];</span>
+                    <span class="n">NSLog</span><span class="p">(</span><span class="s">@"Vertex shader compile log: %@"</span><span class="p">,</span> <span class="n">vertLog</span><span class="p">);</span>
+                    <span class="n">yuvConversionProgram</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">;</span>
+                    <span class="n">NSAssert</span><span class="p">(</span><span class="nb">NO</span><span class="p">,</span> <span class="s">@"Filter shader link failed"</span><span class="p">);</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            
+            <span class="n">yuvConversionPositionAttribute</span> <span class="o">=</span> <span class="p">[</span><span class="n">yuvConversionProgram</span> <span class="nf">attributeIndex</span><span class="p">:</span><span class="s">@"position"</span><span class="p">];</span>
+            <span class="n">yuvConversionTextureCoordinateAttribute</span> <span class="o">=</span> <span class="p">[</span><span class="n">yuvConversionProgram</span> <span class="nf">attributeIndex</span><span class="p">:</span><span class="s">@"inputTextureCoordinate"</span><span class="p">];</span>
+            <span class="n">yuvConversionLuminanceTextureUniform</span> <span class="o">=</span> <span class="p">[</span><span class="n">yuvConversionProgram</span> <span class="nf">uniformIndex</span><span class="p">:</span><span class="s">@"luminanceTexture"</span><span class="p">];</span>
+            <span class="n">yuvConversionChrominanceTextureUniform</span> <span class="o">=</span> <span class="p">[</span><span class="n">yuvConversionProgram</span> <span class="nf">uniformIndex</span><span class="p">:</span><span class="s">@"chrominanceTexture"</span><span class="p">];</span>
+            <span class="n">yuvConversionMatrixUniform</span> <span class="o">=</span> <span class="p">[</span><span class="n">yuvConversionProgram</span> <span class="nf">uniformIndex</span><span class="p">:</span><span class="s">@"colorConversionMatrix"</span><span class="p">];</span>
+            
+            <span class="p">[</span><span class="n">GPUImageContext</span> <span class="nf">setActiveShaderProgram</span><span class="p">:</span><span class="n">yuvConversionProgram</span><span class="p">];</span>
+            
+            <span class="n">glEnableVertexAttribArray</span><span class="p">(</span><span class="n">yuvConversionPositionAttribute</span><span class="p">);</span>
+            <span class="n">glEnableVertexAttribArray</span><span class="p">(</span><span class="n">yuvConversionTextureCoordinateAttribute</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">});</span>
+	
+	<span class="p">...</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>接下来判断是否采集NV12数据，如果采集的话，会创建一个OpenGL的program，用于后续将采集到的NV12数据转换为RGBA。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27</pre></td><td class="code"><pre class="highlight"><code>    
+    <span class="p">[</span><span class="n">videoOutput</span> <span class="nf">setSampleBufferDelegate</span><span class="p">:</span><span class="n">self</span> <span class="nf">queue</span><span class="p">:</span><span class="n">cameraProcessingQueue</span><span class="p">];</span>
+	<span class="k">if</span> <span class="p">([</span><span class="n">_captureSession</span> <span class="nf">canAddOutput</span><span class="p">:</span><span class="n">videoOutput</span><span class="p">])</span>
+	<span class="p">{</span>
+		<span class="p">[</span><span class="n">_captureSession</span> <span class="nf">addOutput</span><span class="p">:</span><span class="n">videoOutput</span><span class="p">];</span>
+	<span class="p">}</span>
+	<span class="k">else</span>
+	<span class="p">{</span>
+		<span class="n">NSLog</span><span class="p">(</span><span class="s">@"Couldn't add video output"</span><span class="p">);</span>
+        <span class="k">return</span> <span class="nb">nil</span><span class="p">;</span>
+	<span class="p">}</span>
+    
+	<span class="n">_captureSessionPreset</span> <span class="o">=</span> <span class="n">sessionPreset</span><span class="p">;</span>
+    <span class="p">[</span><span class="n">_captureSession</span> <span class="nf">setSessionPreset</span><span class="p">:</span><span class="n">_captureSessionPreset</span><span class="p">];</span>
+
+<span class="c1">// This will let you get 60 FPS video from the 720p preset on an iPhone 4S, but only that device and that preset
+//    AVCaptureConnection *conn = [videoOutput connectionWithMediaType:AVMediaTypeVideo];
+//    
+//    if (conn.supportsVideoMinFrameDuration)
+//        conn.videoMinFrameDuration = CMTimeMake(1,60);
+//    if (conn.supportsVideoMaxFrameDuration)
+//        conn.videoMaxFrameDuration = CMTimeMake(1,60);
+</span>    
+    <span class="p">[</span><span class="n">_captureSession</span> <span class="nf">commitConfiguration</span><span class="p">];</span>
+    
+	<span class="k">return</span> <span class="n">self</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>最后则是添加为videoDataOutput的代理，用于接受和处理采集的视频数据。</p>
+
+<h5 id="采集数据后的操作">采集数据后的操作</h5>
+
+<p>接下来看在videoDataOutput的代理方法中的代码。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">captureOutput</span><span class="p">:(</span><span class="n">AVCaptureOutput</span> <span class="o">*</span><span class="p">)</span><span class="nv">captureOutput</span> <span class="nf">didOutputSampleBuffer</span><span class="p">:(</span><span class="n">CMSampleBufferRef</span><span class="p">)</span><span class="nv">sampleBuffer</span> <span class="nf">fromConnection</span><span class="p">:(</span><span class="n">AVCaptureConnection</span> <span class="o">*</span><span class="p">)</span><span class="nv">connection</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">self</span><span class="p">.</span><span class="n">captureSession</span><span class="p">.</span><span class="n">isRunning</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">captureOutput</span> <span class="o">==</span> <span class="n">audioOutput</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="p">[</span><span class="n">self</span> <span class="nf">processAudioSampleBuffer</span><span class="p">:</span><span class="n">sampleBuffer</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="k">else</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">dispatch_semaphore_wait</span><span class="p">(</span><span class="n">frameRenderingSemaphore</span><span class="p">,</span> <span class="n">DISPATCH_TIME_NOW</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+        
+        <span class="n">CFRetain</span><span class="p">(</span><span class="n">sampleBuffer</span><span class="p">);</span>
+        <span class="n">runAsynchronouslyOnVideoProcessingQueue</span><span class="p">(</span><span class="o">^</span><span class="p">{</span>
+            <span class="c1">//Feature Detection Hook.
+</span>            <span class="k">if</span> <span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">delegate</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">delegate</span> <span class="nf">willOutputSampleBuffer</span><span class="p">:</span><span class="n">sampleBuffer</span><span class="p">];</span>
+            <span class="p">}</span>
+            
+            <span class="p">[</span><span class="n">self</span> <span class="nf">processVideoSampleBuffer</span><span class="p">:</span><span class="n">sampleBuffer</span><span class="p">];</span>
+            
+            <span class="n">CFRelease</span><span class="p">(</span><span class="n">sampleBuffer</span><span class="p">);</span>
+            <span class="n">dispatch_semaphore_signal</span><span class="p">(</span><span class="n">frameRenderingSemaphore</span><span class="p">);</span>
+        <span class="p">});</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>可以看到主要就是判断sampleBuffer是音频帧还是视频帧，然后执行了一个代理方法用于给使用者获取到滤镜处理之前的数据。之后就是将视频帧作为参数执行processVideoSampleBuffer：方法。</p>
+
+<h5 id="processvideosamplebuffer方法">processVideoSampleBuffer方法</h5>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32<br/>33<br/>34<br/>35<br/>36<br/>37<br/>38<br/>39<br/>40<br/>41<br/>42<br/>43</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">processVideoSampleBuffer</span><span class="p">:(</span><span class="n">CMSampleBufferRef</span><span class="p">)</span><span class="nv">sampleBuffer</span><span class="p">;</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">capturePaused</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    
+    <span class="n">CFAbsoluteTime</span> <span class="n">startTime</span> <span class="o">=</span> <span class="n">CFAbsoluteTimeGetCurrent</span><span class="p">();</span>
+    <span class="n">CVImageBufferRef</span> <span class="n">cameraFrame</span> <span class="o">=</span> <span class="n">CMSampleBufferGetImageBuffer</span><span class="p">(</span><span class="n">sampleBuffer</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">bufferWidth</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span> <span class="n">CVPixelBufferGetWidth</span><span class="p">(</span><span class="n">cameraFrame</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">bufferHeight</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span> <span class="n">CVPixelBufferGetHeight</span><span class="p">(</span><span class="n">cameraFrame</span><span class="p">);</span>
+    <span class="n">CFTypeRef</span> <span class="n">colorAttachments</span> <span class="o">=</span> <span class="n">CVBufferGetAttachment</span><span class="p">(</span><span class="n">cameraFrame</span><span class="p">,</span> <span class="n">kCVImageBufferYCbCrMatrixKey</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">colorAttachments</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">CFStringCompare</span><span class="p">(</span><span class="n">colorAttachments</span><span class="p">,</span> <span class="n">kCVImageBufferYCbCrMatrix_ITU_R_601_4</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="n">kCFCompareEqualTo</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">isFullYUVRange</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">_preferredConversion</span> <span class="o">=</span> <span class="n">kColorConversion601FullRange</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="k">else</span>
+            <span class="p">{</span>
+                <span class="n">_preferredConversion</span> <span class="o">=</span> <span class="n">kColorConversion601</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">else</span>
+        <span class="p">{</span>
+            <span class="n">_preferredConversion</span> <span class="o">=</span> <span class="n">kColorConversion709</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">else</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">isFullYUVRange</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">_preferredConversion</span> <span class="o">=</span> <span class="n">kColorConversion601FullRange</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">else</span>
+        <span class="p">{</span>
+            <span class="n">_preferredConversion</span> <span class="o">=</span> <span class="n">kColorConversion601</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+	<span class="p">...</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>首先是获取一些视频帧的信息，最主要的是确定颜色格式，根据颜色格式设置一个用于OpenGL 处理颜色转换的矩阵。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32<br/>33<br/>34<br/>35<br/>36<br/>37<br/>38<br/>39<br/>40<br/>41<br/>42<br/>43<br/>44<br/>45<br/>46<br/>47<br/>48<br/>49<br/>50<br/>51<br/>52<br/>53<br/>54<br/>55<br/>56<br/>57<br/>58<br/>59<br/>60<br/>61<br/>62<br/>63<br/>64<br/>65<br/>66<br/>67<br/>68<br/>69<br/>70<br/>71<br/>72<br/>73<br/>74<br/>75<br/>76<br/>77<br/>78<br/>79<br/>80<br/>81<br/>82<br/>83<br/>84<br/>85</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">processVideoSampleBuffer</span><span class="p">:(</span><span class="n">CMSampleBufferRef</span><span class="p">)</span><span class="nv">sampleBuffer</span><span class="p">;</span>
+<span class="p">{</span>
+	<span class="p">...</span>
+	<span class="n">CMTime</span> <span class="n">currentTime</span> <span class="o">=</span> <span class="n">CMSampleBufferGetPresentationTimeStamp</span><span class="p">(</span><span class="n">sampleBuffer</span><span class="p">);</span>
+
+    <span class="p">[</span><span class="n">GPUImageContext</span> <span class="nf">useImageProcessingContext</span><span class="p">];</span>
+
+    <span class="k">if</span> <span class="p">([</span><span class="n">GPUImageContext</span> <span class="nf">supportsFastTextureUpload</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="n">captureAsYUV</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">CVOpenGLESTextureRef</span> <span class="n">luminanceTextureRef</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+        <span class="n">CVOpenGLESTextureRef</span> <span class="n">chrominanceTextureRef</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">CVPixelBufferGetPlaneCount</span><span class="p">(</span><span class="n">cameraFrame</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="c1">// Check for YUV planar inputs to do RGB conversion
+</span>        <span class="p">{</span>
+            <span class="n">CVPixelBufferLockBaseAddress</span><span class="p">(</span><span class="n">cameraFrame</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+            
+            <span class="k">if</span> <span class="p">(</span> <span class="p">(</span><span class="n">imageBufferWidth</span> <span class="o">!=</span> <span class="n">bufferWidth</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">imageBufferHeight</span> <span class="o">!=</span> <span class="n">bufferHeight</span><span class="p">)</span> <span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">imageBufferWidth</span> <span class="o">=</span> <span class="n">bufferWidth</span><span class="p">;</span>
+                <span class="n">imageBufferHeight</span> <span class="o">=</span> <span class="n">bufferHeight</span><span class="p">;</span>
+            <span class="p">}</span>
+            
+            <span class="n">CVReturn</span> <span class="n">err</span><span class="p">;</span>
+            <span class="c1">// Y-plane
+</span>            <span class="n">glActiveTexture</span><span class="p">(</span><span class="n">GL_TEXTURE4</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">([</span><span class="n">GPUImageContext</span> <span class="nf">deviceSupportsRedTextures</span><span class="p">])</span>
+            <span class="p">{</span>
+                <span class="n">err</span> <span class="o">=</span> <span class="n">CVOpenGLESTextureCacheCreateTextureFromImage</span><span class="p">(</span><span class="n">kCFAllocatorDefault</span><span class="p">,</span> <span class="p">[[</span><span class="n">GPUImageContext</span> <span class="nf">sharedImageProcessingContext</span><span class="p">]</span> <span class="nf">coreVideoTextureCache</span><span class="p">],</span> <span class="n">cameraFrame</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_LUMINANCE</span><span class="p">,</span> <span class="n">bufferWidth</span><span class="p">,</span> <span class="n">bufferHeight</span><span class="p">,</span> <span class="n">GL_LUMINANCE</span><span class="p">,</span> <span class="n">GL_UNSIGNED_BYTE</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">luminanceTextureRef</span><span class="p">);</span>
+            <span class="p">}</span>
+            <span class="k">else</span>
+            <span class="p">{</span>
+                <span class="n">err</span> <span class="o">=</span> <span class="n">CVOpenGLESTextureCacheCreateTextureFromImage</span><span class="p">(</span><span class="n">kCFAllocatorDefault</span><span class="p">,</span> <span class="p">[[</span><span class="n">GPUImageContext</span> <span class="nf">sharedImageProcessingContext</span><span class="p">]</span> <span class="nf">coreVideoTextureCache</span><span class="p">],</span> <span class="n">cameraFrame</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_LUMINANCE</span><span class="p">,</span> <span class="n">bufferWidth</span><span class="p">,</span> <span class="n">bufferHeight</span><span class="p">,</span> <span class="n">GL_LUMINANCE</span><span class="p">,</span> <span class="n">GL_UNSIGNED_BYTE</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">luminanceTextureRef</span><span class="p">);</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">err</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">NSLog</span><span class="p">(</span><span class="s">@"Error at CVOpenGLESTextureCacheCreateTextureFromImage %d"</span><span class="p">,</span> <span class="n">err</span><span class="p">);</span>
+            <span class="p">}</span>
+            
+            <span class="n">luminanceTexture</span> <span class="o">=</span> <span class="n">CVOpenGLESTextureGetName</span><span class="p">(</span><span class="n">luminanceTextureRef</span><span class="p">);</span>
+            <span class="n">glBindTexture</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">luminanceTexture</span><span class="p">);</span>
+            <span class="n">glTexParameterf</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_WRAP_S</span><span class="p">,</span> <span class="n">GL_CLAMP_TO_EDGE</span><span class="p">);</span>
+            <span class="n">glTexParameterf</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_WRAP_T</span><span class="p">,</span> <span class="n">GL_CLAMP_TO_EDGE</span><span class="p">);</span>
+            
+            <span class="c1">// UV-plane
+</span>            <span class="n">glActiveTexture</span><span class="p">(</span><span class="n">GL_TEXTURE5</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">([</span><span class="n">GPUImageContext</span> <span class="nf">deviceSupportsRedTextures</span><span class="p">])</span>
+            <span class="p">{</span>
+<span class="c1">//                err = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault, coreVideoTextureCache, cameraFrame, NULL, GL_TEXTURE_2D, GL_RG_EXT, bufferWidth/2, bufferHeight/2, GL_RG_EXT, GL_UNSIGNED_BYTE, 1, &amp;chrominanceTextureRef);
+</span>                <span class="n">err</span> <span class="o">=</span> <span class="n">CVOpenGLESTextureCacheCreateTextureFromImage</span><span class="p">(</span><span class="n">kCFAllocatorDefault</span><span class="p">,</span> <span class="p">[[</span><span class="n">GPUImageContext</span> <span class="nf">sharedImageProcessingContext</span><span class="p">]</span> <span class="nf">coreVideoTextureCache</span><span class="p">],</span> <span class="n">cameraFrame</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_LUMINANCE_ALPHA</span><span class="p">,</span> <span class="n">bufferWidth</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">bufferHeight</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">GL_LUMINANCE_ALPHA</span><span class="p">,</span> <span class="n">GL_UNSIGNED_BYTE</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">chrominanceTextureRef</span><span class="p">);</span>
+            <span class="p">}</span>
+            <span class="k">else</span>
+            <span class="p">{</span>
+                <span class="n">err</span> <span class="o">=</span> <span class="n">CVOpenGLESTextureCacheCreateTextureFromImage</span><span class="p">(</span><span class="n">kCFAllocatorDefault</span><span class="p">,</span> <span class="p">[[</span><span class="n">GPUImageContext</span> <span class="nf">sharedImageProcessingContext</span><span class="p">]</span> <span class="nf">coreVideoTextureCache</span><span class="p">],</span> <span class="n">cameraFrame</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_LUMINANCE_ALPHA</span><span class="p">,</span> <span class="n">bufferWidth</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">bufferHeight</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">GL_LUMINANCE_ALPHA</span><span class="p">,</span> <span class="n">GL_UNSIGNED_BYTE</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">chrominanceTextureRef</span><span class="p">);</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">err</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">NSLog</span><span class="p">(</span><span class="s">@"Error at CVOpenGLESTextureCacheCreateTextureFromImage %d"</span><span class="p">,</span> <span class="n">err</span><span class="p">);</span>
+            <span class="p">}</span>
+            
+            <span class="n">chrominanceTexture</span> <span class="o">=</span> <span class="n">CVOpenGLESTextureGetName</span><span class="p">(</span><span class="n">chrominanceTextureRef</span><span class="p">);</span>
+            <span class="n">glBindTexture</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">chrominanceTexture</span><span class="p">);</span>
+            <span class="n">glTexParameterf</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_WRAP_S</span><span class="p">,</span> <span class="n">GL_CLAMP_TO_EDGE</span><span class="p">);</span>
+            <span class="n">glTexParameterf</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_WRAP_T</span><span class="p">,</span> <span class="n">GL_CLAMP_TO_EDGE</span><span class="p">);</span>
+            
+<span class="c1">//            if (!allTargetsWantMonochromeData)
+//            {
+</span>                <span class="p">[</span><span class="n">self</span> <span class="nf">convertYUVToRGBOutput</span><span class="p">];</span>
+<span class="c1">//            }
+</span>
+            <span class="kt">int</span> <span class="n">rotatedImageBufferWidth</span> <span class="o">=</span> <span class="n">bufferWidth</span><span class="p">,</span> <span class="n">rotatedImageBufferHeight</span> <span class="o">=</span> <span class="n">bufferHeight</span><span class="p">;</span>
+            
+            <span class="k">if</span> <span class="p">(</span><span class="n">GPUImageRotationSwapsWidthAndHeight</span><span class="p">(</span><span class="n">internalRotation</span><span class="p">))</span>
+            <span class="p">{</span>
+                <span class="n">rotatedImageBufferWidth</span> <span class="o">=</span> <span class="n">bufferHeight</span><span class="p">;</span>
+                <span class="n">rotatedImageBufferHeight</span> <span class="o">=</span> <span class="n">bufferWidth</span><span class="p">;</span>
+            <span class="p">}</span>
+            
+            <span class="p">[</span><span class="n">self</span> <span class="nf">updateTargetsForVideoCameraUsingCacheTextureAtWidth</span><span class="p">:</span><span class="n">rotatedImageBufferWidth</span> <span class="nf">height</span><span class="p">:</span><span class="n">rotatedImageBufferHeight</span> <span class="n">time</span><span class="o">:</span><span class="n">currentTime</span><span class="p">];</span>
+            
+            <span class="n">CVPixelBufferUnlockBaseAddress</span><span class="p">(</span><span class="n">cameraFrame</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+            <span class="n">CFRelease</span><span class="p">(</span><span class="n">luminanceTextureRef</span><span class="p">);</span>
+            <span class="n">CFRelease</span><span class="p">(</span><span class="n">chrominanceTextureRef</span><span class="p">);</span>
+        <span class="p">}</span>
+		
+		<span class="p">...</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>接下来就是处理视频原始数据了。首先判断了视频的颜色格式，如果属于yuv格式的，则创建两个CVOpenGLESTextureRef用于接受y分量和uv分量的纹理。
+在CVOpenGLESTextureRef的定义出可以看出CVOpenGLESTextureRef实际上就是CVImageBufferRef的别名。</p>
+<blockquote>
+  <p>@typedef	CVOpenGLESTextureRef
+  @abstract   OpenGLES texture based image buffer</p>
+</blockquote>
+
+<blockquote>
+  <p>typedef CVImageBufferRef CVOpenGLESTextureRef;</p>
+</blockquote>
+
+<p>接下来就是调用CVOpenGLESTextureCacheCreateTextureFromImage这个方法将y分量和uv分量分别写入两个纹理并与OpenGL的纹理绑定。然后就是调用方法convertYUVToRGBOutput来将yuv数据转换成RGB数据并放入帧缓冲中，并且作为纹理存放在framebuffer的_texture中。然后调用updateTargetsForVideoCameraUsingCacheTextureAtWidth方法，将帧缓冲交给响应链的下一个对象处理。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">processVideoSampleBuffer</span><span class="p">:(</span><span class="n">CMSampleBufferRef</span><span class="p">)</span><span class="nv">sampleBuffer</span><span class="p">;</span>
+<span class="p">{</span>
+	<span class="p">...</span>
+	<span class="n">CMTime</span> <span class="n">currentTime</span> <span class="o">=</span> <span class="n">CMSampleBufferGetPresentationTimeStamp</span><span class="p">(</span><span class="n">sampleBuffer</span><span class="p">);</span>
+
+    <span class="p">[</span><span class="n">GPUImageContext</span> <span class="nf">useImageProcessingContext</span><span class="p">];</span>
+
+    <span class="k">if</span> <span class="p">([</span><span class="n">GPUImageContext</span> <span class="nf">supportsFastTextureUpload</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="n">captureAsYUV</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="p">...</span>
+    <span class="p">}</span>
+    <span class="k">else</span>
+    <span class="p">{</span>
+        <span class="n">CVPixelBufferLockBaseAddress</span><span class="p">(</span><span class="n">cameraFrame</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+        
+        <span class="kt">int</span> <span class="n">bytesPerRow</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span> <span class="n">CVPixelBufferGetBytesPerRow</span><span class="p">(</span><span class="n">cameraFrame</span><span class="p">);</span>
+        <span class="n">outputFramebuffer</span> <span class="o">=</span> <span class="p">[[</span><span class="n">GPUImageContext</span> <span class="nf">sharedFramebufferCache</span><span class="p">]</span> <span class="nf">fetchFramebufferForSize</span><span class="p">:</span><span class="n">CGSizeMake</span><span class="p">(</span><span class="n">bytesPerRow</span> <span class="o">/</span> <span class="mi">4</span><span class="p">,</span> <span class="n">bufferHeight</span><span class="p">)</span> <span class="nf">onlyTexture</span><span class="p">:</span><span class="nb">YES</span><span class="p">];</span>
+        <span class="p">[</span><span class="n">outputFramebuffer</span> <span class="nf">activateFramebuffer</span><span class="p">];</span>
+
+        <span class="n">glBindTexture</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="p">[</span><span class="n">outputFramebuffer</span> <span class="nf">texture</span><span class="p">]);</span>
+        
+        <span class="c1">// Using BGRA extension to pull in video frame data directly
+</span>        <span class="c1">// The use of bytesPerRow / 4 accounts for a display glitch present in preview video frames when using the photo preset on the camera
+</span>        <span class="n">glTexImage2D</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">GL_RGBA</span><span class="p">,</span> <span class="n">bytesPerRow</span> <span class="o">/</span> <span class="mi">4</span><span class="p">,</span> <span class="n">bufferHeight</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">GL_BGRA</span><span class="p">,</span> <span class="n">GL_UNSIGNED_BYTE</span><span class="p">,</span> <span class="n">CVPixelBufferGetBaseAddress</span><span class="p">(</span><span class="n">cameraFrame</span><span class="p">));</span>
+        
+        <span class="p">[</span><span class="n">self</span> <span class="nf">updateTargetsForVideoCameraUsingCacheTextureAtWidth</span><span class="p">:</span><span class="n">bytesPerRow</span> <span class="o">/</span> <span class="mi">4</span> <span class="nf">height</span><span class="p">:</span><span class="n">bufferHeight</span> <span class="n">time</span><span class="o">:</span><span class="n">currentTime</span><span class="p">];</span>
+        
+        <span class="n">CVPixelBufferUnlockBaseAddress</span><span class="p">(</span><span class="n">cameraFrame</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+        
+      <span class="p">...</span>
+    <span class="p">}</span>  
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>视频数据是RGB的情况的话，就直接将数据写入outputFramebuffer的纹理中，然后执行响应链后续的处理。而响应链的处理，就是将outputFramebuffer设置为下一对象的inputFramebuffer，然后执行newFrameReadyAtTime:atIndex: 方法做下一步处理，这个方法具体的处理在上一篇笔记中有过分析。</p>
+
+<h4 id="分析gpuimageview">分析GPUImageView</h4>
+
+<p>在响应链中，经过filter的处理后，GPUImageView作为处理的终点，将画面渲染出来。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32<br/>33<br/>34<br/>35<br/>36<br/>37<br/>38<br/>39<br/>40<br/>41<br/>42<br/>43<br/>44<br/>45<br/>46<br/>47<br/>48<br/>49<br/>50<br/>51<br/>52<br/>53<br/>54<br/>55<br/>56<br/>57<br/>58<br/>59<br/>60<br/>61<br/>62<br/>63</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="nf">initWithFrame</span><span class="p">:(</span><span class="n">CGRect</span><span class="p">)</span><span class="nv">frame</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">self</span> <span class="o">=</span> <span class="p">[</span><span class="n">super</span> <span class="nf">initWithFrame</span><span class="p">:</span><span class="n">frame</span><span class="p">]))</span>
+    <span class="p">{</span>
+		<span class="k">return</span> <span class="nb">nil</span><span class="p">;</span>
+    <span class="p">}</span>
+    
+    <span class="p">[</span><span class="n">self</span> <span class="nf">commonInit</span><span class="p">];</span>
+    
+    <span class="k">return</span> <span class="n">self</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">commonInit</span><span class="p">;</span>
+<span class="p">{</span>
+    <span class="c1">// Set scaling to account for Retina display	
+</span>    <span class="k">if</span> <span class="p">([</span><span class="n">self</span> <span class="nf">respondsToSelector</span><span class="p">:</span><span class="k">@selector</span><span class="p">(</span><span class="nf">setContentScaleFactor</span><span class="p">:)])</span>
+    <span class="p">{</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">contentScaleFactor</span> <span class="o">=</span> <span class="p">[[</span><span class="n">UIScreen</span> <span class="nf">mainScreen</span><span class="p">]</span> <span class="nf">scale</span><span class="p">];</span>
+    <span class="p">}</span>
+
+    <span class="n">inputRotation</span> <span class="o">=</span> <span class="n">kGPUImageNoRotation</span><span class="p">;</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">opaque</span> <span class="o">=</span> <span class="nb">YES</span><span class="p">;</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">hidden</span> <span class="o">=</span> <span class="nb">NO</span><span class="p">;</span>
+    <span class="n">CAEAGLLayer</span> <span class="o">*</span><span class="n">eaglLayer</span> <span class="o">=</span> <span class="p">(</span><span class="n">CAEAGLLayer</span> <span class="o">*</span><span class="p">)</span><span class="n">self</span><span class="p">.</span><span class="n">layer</span><span class="p">;</span>
+    <span class="n">eaglLayer</span><span class="p">.</span><span class="n">opaque</span> <span class="o">=</span> <span class="nb">YES</span><span class="p">;</span>
+    <span class="n">eaglLayer</span><span class="p">.</span><span class="n">drawableProperties</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSDictionary</span> <span class="nf">dictionaryWithObjectsAndKeys</span><span class="p">:[</span><span class="n">NSNumber</span> <span class="nf">numberWithBool</span><span class="p">:</span><span class="nb">NO</span><span class="p">],</span> <span class="n">kEAGLDrawablePropertyRetainedBacking</span><span class="p">,</span> <span class="n">kEAGLColorFormatRGBA8</span><span class="p">,</span> <span class="n">kEAGLDrawablePropertyColorFormat</span><span class="p">,</span> <span class="nb">nil</span><span class="p">];</span>
+
+    <span class="n">self</span><span class="p">.</span><span class="n">enabled</span> <span class="o">=</span> <span class="nb">YES</span><span class="p">;</span>
+    
+    <span class="n">runSynchronouslyOnVideoProcessingQueue</span><span class="p">(</span><span class="o">^</span><span class="p">{</span>
+        <span class="p">[</span><span class="n">GPUImageContext</span> <span class="nf">useImageProcessingContext</span><span class="p">];</span>
+        
+        <span class="n">displayProgram</span> <span class="o">=</span> <span class="p">[[</span><span class="n">GPUImageContext</span> <span class="nf">sharedImageProcessingContext</span><span class="p">]</span> <span class="nf">programForVertexShaderString</span><span class="p">:</span><span class="n">kGPUImageVertexShaderString</span> <span class="nf">fragmentShaderString</span><span class="p">:</span><span class="n">kGPUImagePassthroughFragmentShaderString</span><span class="p">];</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">displayProgram</span><span class="p">.</span><span class="n">initialized</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="p">[</span><span class="n">displayProgram</span> <span class="nf">addAttribute</span><span class="p">:</span><span class="s">@"position"</span><span class="p">];</span>
+            <span class="p">[</span><span class="n">displayProgram</span> <span class="nf">addAttribute</span><span class="p">:</span><span class="s">@"inputTextureCoordinate"</span><span class="p">];</span>
+            
+            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">[</span><span class="n">displayProgram</span> <span class="nf">link</span><span class="p">])</span>
+            <span class="p">{</span>
+                <span class="n">NSString</span> <span class="o">*</span><span class="n">progLog</span> <span class="o">=</span> <span class="p">[</span><span class="n">displayProgram</span> <span class="nf">programLog</span><span class="p">];</span>
+                <span class="n">NSLog</span><span class="p">(</span><span class="s">@"Program link log: %@"</span><span class="p">,</span> <span class="n">progLog</span><span class="p">);</span>
+                <span class="n">NSString</span> <span class="o">*</span><span class="n">fragLog</span> <span class="o">=</span> <span class="p">[</span><span class="n">displayProgram</span> <span class="nf">fragmentShaderLog</span><span class="p">];</span>
+                <span class="n">NSLog</span><span class="p">(</span><span class="s">@"Fragment shader compile log: %@"</span><span class="p">,</span> <span class="n">fragLog</span><span class="p">);</span>
+                <span class="n">NSString</span> <span class="o">*</span><span class="n">vertLog</span> <span class="o">=</span> <span class="p">[</span><span class="n">displayProgram</span> <span class="nf">vertexShaderLog</span><span class="p">];</span>
+                <span class="n">NSLog</span><span class="p">(</span><span class="s">@"Vertex shader compile log: %@"</span><span class="p">,</span> <span class="n">vertLog</span><span class="p">);</span>
+                <span class="n">displayProgram</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">;</span>
+                <span class="n">NSAssert</span><span class="p">(</span><span class="nb">NO</span><span class="p">,</span> <span class="s">@"Filter shader link failed"</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        
+        <span class="n">displayPositionAttribute</span> <span class="o">=</span> <span class="p">[</span><span class="n">displayProgram</span> <span class="nf">attributeIndex</span><span class="p">:</span><span class="s">@"position"</span><span class="p">];</span>
+        <span class="n">displayTextureCoordinateAttribute</span> <span class="o">=</span> <span class="p">[</span><span class="n">displayProgram</span> <span class="nf">attributeIndex</span><span class="p">:</span><span class="s">@"inputTextureCoordinate"</span><span class="p">];</span>
+        <span class="n">displayInputTextureUniform</span> <span class="o">=</span> <span class="p">[</span><span class="n">displayProgram</span> <span class="nf">uniformIndex</span><span class="p">:</span><span class="s">@"inputImageTexture"</span><span class="p">];</span> <span class="c1">// This does assume a name of "inputTexture" for the fragment shader
+</span>
+        <span class="p">[</span><span class="n">GPUImageContext</span> <span class="nf">setActiveShaderProgram</span><span class="p">:</span><span class="n">displayProgram</span><span class="p">];</span>
+        <span class="n">glEnableVertexAttribArray</span><span class="p">(</span><span class="n">displayPositionAttribute</span><span class="p">);</span>
+        <span class="n">glEnableVertexAttribArray</span><span class="p">(</span><span class="n">displayTextureCoordinateAttribute</span><span class="p">);</span>
+        
+        <span class="p">[</span><span class="n">self</span> <span class="nf">setBackgroundColorRed</span><span class="p">:</span><span class="mi">0</span><span class="p">.</span><span class="mi">0</span> <span class="nf">green</span><span class="p">:</span><span class="mi">0</span><span class="p">.</span><span class="mi">0</span> <span class="n">blue</span><span class="o">:</span><span class="mi">0</span><span class="p">.</span><span class="mi">0</span> <span class="n">alpha</span><span class="o">:</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">];</span>
+        <span class="n">_fillMode</span> <span class="o">=</span> <span class="n">kGPUImageFillModePreserveAspectRatio</span><span class="p">;</span>
+        <span class="p">[</span><span class="n">self</span> <span class="nf">createDisplayFramebuffer</span><span class="p">];</span>
+    <span class="p">});</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>可以看到，GPUImageView，基本上就是使用OpenGL实现了一个用于渲染RGBA数据的view。在初始化时，首先将自身的layer设置为CAEAGLLayer，然后创建一个用于渲染显示的program,链接并使用它。之后再配置一些输入参数。最后使用createDisplayFramebuffer方法创建一个用于显示的帧缓冲。</p>
+
+<p>由于GPUImageView也实现了GPUImageInput协议，因此也实现了newFrameReadyAtTime: atIndex:方法，用于处理接收到的视频数据。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">newFrameReadyAtTime</span><span class="p">:(</span><span class="n">CMTime</span><span class="p">)</span><span class="nv">frameTime</span> <span class="nf">atIndex</span><span class="p">:(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nv">textureIndex</span><span class="p">;</span>
+<span class="p">{</span>
+    <span class="n">runSynchronouslyOnVideoProcessingQueue</span><span class="p">(</span><span class="o">^</span><span class="p">{</span>
+        <span class="p">[</span><span class="n">GPUImageContext</span> <span class="nf">setActiveShaderProgram</span><span class="p">:</span><span class="n">displayProgram</span><span class="p">];</span>
+        <span class="p">[</span><span class="n">self</span> <span class="nf">setDisplayFramebuffer</span><span class="p">];</span>
+        
+        <span class="n">glClearColor</span><span class="p">(</span><span class="n">backgroundColorRed</span><span class="p">,</span> <span class="n">backgroundColorGreen</span><span class="p">,</span> <span class="n">backgroundColorBlue</span><span class="p">,</span> <span class="n">backgroundColorAlpha</span><span class="p">);</span>
+        <span class="n">glClear</span><span class="p">(</span><span class="n">GL_COLOR_BUFFER_BIT</span> <span class="o">|</span> <span class="n">GL_DEPTH_BUFFER_BIT</span><span class="p">);</span>
+        
+        <span class="n">glActiveTexture</span><span class="p">(</span><span class="n">GL_TEXTURE4</span><span class="p">);</span>
+        <span class="n">glBindTexture</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="p">[</span><span class="n">inputFramebufferForDisplay</span> <span class="nf">texture</span><span class="p">]);</span>
+        <span class="n">glUniform1i</span><span class="p">(</span><span class="n">displayInputTextureUniform</span><span class="p">,</span> <span class="mi">4</span><span class="p">);</span>
+        
+        <span class="n">glVertexAttribPointer</span><span class="p">(</span><span class="n">displayPositionAttribute</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">GL_FLOAT</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">imageVertices</span><span class="p">);</span>
+        <span class="n">glVertexAttribPointer</span><span class="p">(</span><span class="n">displayTextureCoordinateAttribute</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">GL_FLOAT</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="n">GPUImageView</span> <span class="nf">textureCoordinatesForRotation</span><span class="p">:</span><span class="n">inputRotation</span><span class="p">]);</span>
+        
+        <span class="n">glDrawArrays</span><span class="p">(</span><span class="n">GL_TRIANGLE_STRIP</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">);</span>
+        
+        <span class="p">[</span><span class="n">self</span> <span class="nf">presentFramebuffer</span><span class="p">];</span>
+        <span class="p">[</span><span class="n">inputFramebufferForDisplay</span> <span class="nf">unlock</span><span class="p">];</span>
+        <span class="n">inputFramebufferForDisplay</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">;</span>
+    <span class="p">});</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>这里就是实现了OpenGL的渲染过程，首先在setDisplayFramebuffer方法中绑定用于显示的帧缓冲，然后将inputFramebufferForDisplay的纹理绑定并作为参数传入片段着色器，然后传入顶点和纹理坐标，调用glDrawArrays进行绘制，最后调用presentFramebuffer方法，使用renderbuffer渲染画面。</p>
+
+<h3 id="补充获取滤镜处理后的数据">补充，获取滤镜处理后的数据</h3>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32<br/>33<br/>34<br/>35<br/>36<br/>37<br/>38<br/>39<br/>40</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">viewDidLoad</span> <span class="p">{</span>
+    <span class="p">[</span><span class="n">super</span> <span class="nf">viewDidLoad</span><span class="p">];</span>
+    <span class="c1">// Do any additional setup after loading the view.
+</span>    
+    
+    <span class="n">GPUImageVideoCamera</span> <span class="o">*</span><span class="n">videoCamera</span> <span class="o">=</span> <span class="p">[[</span><span class="n">GPUImageVideoCamera</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithSessionPreset</span><span class="p">:</span><span class="n">AVCaptureSessionPreset640x480</span> <span class="nf">cameraPosition</span><span class="p">:</span><span class="n">AVCaptureDevicePositionFront</span><span class="p">];</span>
+    <span class="n">videoCamera</span><span class="p">.</span><span class="n">outputImageOrientation</span> <span class="o">=</span> <span class="n">UIInterfaceOrientationPortrait</span><span class="p">;</span>
+    
+    <span class="n">GPUImageSketchFilter</span> <span class="o">*</span><span class="n">customFilter</span> <span class="o">=</span> <span class="p">[[</span><span class="n">GPUImageSketchFilter</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">init</span><span class="p">];</span>
+    <span class="n">GPUImageView</span> <span class="o">*</span><span class="n">filteredVideoView</span> <span class="o">=</span> <span class="p">[[</span><span class="n">GPUImageView</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithFrame</span><span class="p">:</span><span class="n">self</span><span class="p">.</span><span class="n">view</span><span class="p">.</span><span class="n">bounds</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">view</span> <span class="nf">addSubview</span><span class="p">:</span><span class="n">filteredVideoView</span><span class="p">];</span>
+    <span class="c1">// Add the view somewhere so it's visible
+</span>    
+    <span class="p">[</span><span class="n">videoCamera</span> <span class="nf">addTarget</span><span class="p">:</span><span class="n">customFilter</span><span class="p">];</span>
+<span class="c1">//    [customFilter addTarget:filteredVideoView];
+</span>    
+    <span class="p">[</span><span class="n">videoCamera</span> <span class="nf">startCameraCapture</span><span class="p">];</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">videoCamera</span> <span class="o">=</span> <span class="n">videoCamera</span><span class="p">;</span>
+    
+    <span class="n">GPUImageRawDataOutput</span><span class="o">*</span><span class="n">output</span><span class="o">=</span> <span class="p">[[</span><span class="n">GPUImageRawDataOutput</span> <span class="nf">alloc</span><span class="p">]</span><span class="nf">initWithImageSize</span><span class="p">:</span><span class="n">CGSizeMake</span><span class="p">(</span><span class="mi">480</span><span class="p">,</span> <span class="mi">640</span><span class="p">)</span> <span class="nf">resultsInBGRAFormat</span><span class="p">:</span><span class="nb">YES</span><span class="p">];</span>
+    <span class="n">__weak</span> <span class="n">GPUImageRawDataOutput</span> <span class="o">*</span><span class="n">weakOutput</span> <span class="o">=</span> <span class="n">output</span><span class="p">;</span>
+    
+    <span class="n">__weak</span> <span class="n">typeof</span><span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="n">weakSelf</span> <span class="o">=</span> <span class="n">self</span><span class="p">;</span>
+    <span class="n">output</span><span class="p">.</span><span class="n">newFrameAvailableBlock</span> <span class="o">=</span> <span class="o">^</span><span class="p">{</span>
+        <span class="p">[</span><span class="n">weakOutput</span> <span class="nf">lockFramebufferForReading</span><span class="p">];</span>
+        <span class="n">GLubyte</span> <span class="o">*</span><span class="n">data</span>  <span class="o">=</span> <span class="p">[</span><span class="n">weakOutput</span> <span class="nf">rawBytesForImage</span><span class="p">];</span>
+		<span class="c1">//对数据后续的处理，发送等。。。
+</span>		
+		<span class="c1">//这里用一个渲染view去渲染BGRA数据
+</span>        <span class="p">[</span><span class="n">weakSelf</span><span class="p">.</span><span class="n">displayView</span> <span class="nf">displayWithRGBBuffer</span><span class="p">:</span><span class="n">data</span> <span class="nf">width</span><span class="p">:</span><span class="mi">480</span> <span class="n">height</span><span class="o">:</span><span class="mi">640</span><span class="p">];</span>
+        <span class="p">[</span><span class="n">weakOutput</span> <span class="nf">unlockFramebufferAfterReading</span><span class="p">];</span>
+    <span class="p">};</span>
+    
+    <span class="n">self</span><span class="p">.</span><span class="n">output</span> <span class="o">=</span> <span class="n">output</span><span class="p">;</span>
+    <span class="p">[</span><span class="n">customFilter</span> <span class="nf">addTarget</span><span class="p">:</span><span class="n">output</span><span class="p">];</span>
+    
+    <span class="n">LYRSampleBufferDisplayView</span><span class="o">*</span><span class="n">displayView</span> <span class="o">=</span> <span class="p">[[</span><span class="n">LYRSampleBufferDisplayView</span> <span class="nf">alloc</span><span class="p">]</span><span class="nf">initWithFrame</span><span class="p">:</span><span class="n">self</span><span class="p">.</span><span class="n">view</span><span class="p">.</span><span class="n">bounds</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">view</span> <span class="nf">addSubview</span><span class="p">:</span><span class="n">displayView</span><span class="p">];</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">displayView</span> <span class="o">=</span> <span class="n">displayView</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<p>最开始调用的代码，只是将采集视频经过滤镜处理后，渲染显示在GPUImageView上，而实际应用时，一般需要将处理后的数据发送出去，而不是简单地在本地显示。获取处理后的数据，就需要用到GPUImageRawDataOutput。<br />
+GPUImageRawDataOutput也是一个实现GPUImageInput协议的类，也可以作为响应链中的target，然后给它的newFrameAvailableBlock赋值，在block中通过rawBytesForImage方法取得数据。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">newFrameReadyAtTime</span><span class="p">:(</span><span class="n">CMTime</span><span class="p">)</span><span class="nv">frameTime</span> <span class="nf">atIndex</span><span class="p">:(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nv">textureIndex</span><span class="p">;</span>
+<span class="p">{</span>
+    <span class="n">hasReadFromTheCurrentFrame</span> <span class="o">=</span> <span class="nb">NO</span><span class="p">;</span>
+    
+    <span class="k">if</span> <span class="p">(</span><span class="n">_newFrameAvailableBlock</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">_newFrameAvailableBlock</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<p>可以看到GPUImageRawDataOutput在newFrameReadyAtTime:atIndex:方法中执行_newFrameAvailableBlock这个block，用于每次取得渲染好的数据后回调。</p>
+
+<h3 id="总结">总结</h3>
+
+<p>GPUImage的视频实时滤镜处理实际上就是一个响应链由GPUImageVideoCamera为起点，经过一系列filter的处理后，由GPUImageView或GPUImageRawDataOutput作为链条的终点。并且也可以看到GPUImage中有些对OpenGL的调用使用了CoreVideo框架的接口，后续也可以研究一下。</p>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            
+            <a href="/tag/#/OpenGL" rel="tag"># OpenGL</a>
+          
+            
+            <a href="/tag/#/%E9%9F%B3%E8%A7%86%E9%A2%91" rel="tag"># 音视频</a>
+          
+            
+            <a href="/tag/#/%E7%AC%94%E8%AE%B0" rel="tag"># 笔记</a>
+          
+            
+            <a href="/tag/#/GPUImage" rel="tag"># GPUImage</a>
+          
+        </div>
+      
+
+      
+      
+      
+      
+      
+
+      
+      
+        <div class="post-nav" id="post-nav-id">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/tip/2018/08/23/Tip01/" rel="next" title="记一次静态库导致的审核被拒">
+                <i class="fa fa-chevron-left"></i> 记一次静态库导致的审核被拒
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/gpuimage/2018/05/01/GPUImage01/" rel="prev" title="GPUImage源码研究01 研究图片滤镜过程">
+                GPUImage源码研究01 研究图片滤镜过程 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+      
+
+      
+    </footer>
+  </article>
+
+  <div class="post-spread">
+    
+  </div>
+</div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        
+        
+        
+
+
+
+
+
+
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/assets/images/avatar.gif"
+               alt="Michael" />
+          <p class="site-author-name" itemprop="name">Michael</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+        
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+
+
+
+
+
+
+
+            
+              <div class="post-toc-content">
+    <ol class=nav>
+      <li class="nav-item nav-level-3"> <a class="nav-link" href="#使用滤镜渲染采集视频"> <span class="nav-number">1</span> <span class="nav-text">使用滤镜渲染采集视频</span> </a> <ol class="nav-child"> <li class="nav-item nav-level-4"> <a class="nav-link" href="#使用gpuimagevideocamera采集视频数据"> <span class="nav-number">1.1</span> <span class="nav-text">使用GPUImageVideoCamera采集视频数据</span> </a> <ol class="nav-child"> <li class="nav-item nav-level-5"> <a class="nav-link" href="#初始化方法"> <span class="nav-number">1.1.1</span> <span class="nav-text">初始化方法</span> </a> </li> <li class="nav-item nav-level-5"> <a class="nav-link" href="#采集数据后的操作"> <span class="nav-number">1.1.2</span> <span class="nav-text">采集数据后的操作</span> </a> </li> <li class="nav-item nav-level-5"> <a class="nav-link" href="#processvideosamplebuffer方法"> <span class="nav-number">1.1.3</span> <span class="nav-text">processVideoSampleBuffer方法</span> </a> </li> </ol> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#分析gpuimageview"> <span class="nav-number">1.2</span> <span class="nav-text">分析GPUImageView</span> </a> </li> </ol> </li> <li class="nav-item nav-level-3"> <a class="nav-link" href="#补充获取滤镜处理后的数据"> <span class="nav-number">2</span> <span class="nav-text">补充，获取滤镜处理后的数据</span> </a> </li> <li class="nav-item nav-level-3"> <a class="nav-link" href="#总结"> <span class="nav-number">3</span> <span class="nav-text">总结</span> </a> </li>
+    </ol>
+  </div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Michael</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://jekyllrb.com">Jekyll</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/simpleyyt/jekyll-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+   
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/assets/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/assets/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  <script type="text/javascript" src="/assets/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/assets/js/src/post-details.js?v=5.1.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/assets/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+    
+
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+  
+
+  
+  
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
+

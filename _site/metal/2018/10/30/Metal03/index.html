@@ -1,0 +1,1169 @@
+
+<!doctype html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/assets/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/assets/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/assets/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="OpenGL,音视频,笔记,Metal," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Micheal's blog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="上篇笔记">
+<meta name="keywords" content="OpenGL, 音视频, 笔记, Metal">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Metal学习笔记03 渲染视频原始数据">
+<meta property="og:url" content="http://localhost:4000/metal/2018/10/30/Metal03/">
+<meta property="og:site_name" content="Micheal's blog">
+<meta property="og:description" content="上篇笔记">
+<meta property="og:locale" content="zh-Hans">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Metal学习笔记03 渲染视频原始数据">
+<meta name="twitter:description" content="上篇笔记">
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://localhost:4000/"/>
+
+
+
+
+
+  <title>Metal学习笔记03 渲染视频原始数据 | Micheal's blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> <div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Micheal's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+<div id="posts" class="posts-expand">
+  
+  
+
+  
+
+  
+  
+  
+
+  <article class="post post-type- " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://localhost:4000/metal/2018/10/30/Metal03/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Michael">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="assets/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Micheal's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+          
+          
+            Metal学习笔记03 渲染视频原始数据
+          
+        </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-30T00:00:00+08:00">
+                2018-10-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/category/#/Metal" itemprop="url" rel="index">
+                    <span itemprop="name">Metal</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+            
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <p><a href="https://kof97500.github.io/metal/2018/10/23/Metal02/">上篇笔记</a></p>
+
+<p>这次来使用Metal渲染视频数据，渲染视频实际上就是不断地把视频数据变成MTLTexture，再使用renderEncoder去渲染显示，本文会利用iOS设备采集RGBA、NV12数据，然后进行渲染显示。</p>
+
+<h3 id="渲染bgra数据">渲染BGRA数据</h3>
+
+<h4 id="创建一个layer类型为cametallayer的view">创建一个layer类型为CAMetalLayer的view</h4>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4</pre></td><td class="code"><pre class="highlight"><code><span class="k">+</span><span class="p">(</span><span class="n">Class</span><span class="p">)</span><span class="n">layerClass</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">CAMetalLayer</span> <span class="nf">class</span><span class="p">];</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<h4 id="设置layer的属性">设置layer的属性</h4>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18</pre></td><td class="code"><pre class="highlight"><code>
+<span class="k">@property</span><span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span><span class="n">strong</span><span class="p">)</span><span class="n">id</span><span class="o">&lt;</span><span class="n">MTLDevice</span><span class="o">&gt;</span><span class="n">device</span><span class="p">;</span>
+<span class="k">@property</span><span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span><span class="n">strong</span><span class="p">)</span><span class="n">CAMetalLayer</span> <span class="o">*</span> <span class="n">metalLayer</span><span class="p">;</span>
+<span class="p">...</span>
+<span class="o">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">prepareLayer</span><span class="p">{</span>
+
+    <span class="n">self</span><span class="p">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">MTLCreateSystemDefaultDevice</span><span class="p">();</span>
+    
+    
+    <span class="n">self</span><span class="p">.</span><span class="n">metalLayer</span> <span class="o">=</span> <span class="p">(</span><span class="n">CAMetalLayer</span><span class="o">*</span><span class="p">)</span><span class="n">self</span><span class="p">.</span><span class="n">layer</span><span class="p">;</span>
+    
+    <span class="n">self</span><span class="p">.</span><span class="n">metalLayer</span><span class="p">.</span><span class="n">pixelFormat</span> <span class="o">=</span> <span class="n">MTLPixelFormatBGRA8Unorm</span><span class="p">;</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">metalLayer</span><span class="p">.</span><span class="n">framebufferOnly</span> <span class="o">=</span> <span class="nb">YES</span><span class="p">;</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">metalLayer</span><span class="p">.</span><span class="n">drawableSize</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">bounds</span><span class="p">.</span><span class="n">size</span><span class="p">;</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">metalLayer</span><span class="p">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">device</span><span class="p">;</span>
+    
+<span class="p">}</span>
+
+</code></pre></td></tr></tbody></table></div></div>
+<p>这里主要是获取了默认的设备（GPU）然后赋值给layer的device属性，然后设置一些渲染格式和尺寸的属性。</p>
+
+<h4 id="准备管道状态">准备管道状态</h4>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20</pre></td><td class="code"><pre class="highlight"><code><span class="k">@property</span><span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span><span class="n">strong</span><span class="p">)</span><span class="n">id</span><span class="o">&lt;</span><span class="n">MTLRenderPipelineState</span><span class="o">&gt;</span> <span class="n">pipelineState</span><span class="p">;</span>
+
+<span class="p">...</span>
+<span class="o">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">preparePipelineState</span>
+<span class="p">{</span>
+    <span class="n">id</span><span class="o">&lt;</span><span class="n">MTLLibrary</span><span class="o">&gt;</span><span class="n">library</span> <span class="o">=</span> <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">device</span> <span class="nf">newDefaultLibrary</span><span class="p">];</span>
+    <span class="n">id</span><span class="o">&lt;</span><span class="n">MTLFunction</span><span class="o">&gt;</span><span class="n">vertexFunc</span> <span class="o">=</span> <span class="p">[</span><span class="n">library</span> <span class="nf">newFunctionWithName</span><span class="p">:</span><span class="s">@"texture_vertex"</span><span class="p">];</span>
+    <span class="n">id</span><span class="o">&lt;</span><span class="n">MTLFunction</span><span class="o">&gt;</span><span class="n">fragmentFunc</span> <span class="o">=</span> <span class="p">[</span><span class="n">library</span> <span class="nf">newFunctionWithName</span><span class="p">:</span><span class="s">@"texture_fragment"</span><span class="p">];</span>
+    
+    <span class="n">MTLRenderPipelineDescriptor</span><span class="o">*</span><span class="n">descriptor</span> <span class="o">=</span> <span class="p">[[</span><span class="n">MTLRenderPipelineDescriptor</span> <span class="nf">alloc</span><span class="p">]</span><span class="nf">init</span><span class="p">];</span>
+    <span class="n">descriptor</span><span class="p">.</span><span class="n">vertexFunction</span> <span class="o">=</span> <span class="n">vertexFunc</span><span class="p">;</span>
+    <span class="n">descriptor</span><span class="p">.</span><span class="n">fragmentFunction</span> <span class="o">=</span> <span class="n">fragmentFunc</span><span class="p">;</span>
+    <span class="n">descriptor</span><span class="p">.</span><span class="n">colorAttachments</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">pixelFormat</span> <span class="o">=</span> <span class="n">MTLPixelFormatBGRA8Unorm</span><span class="p">;</span>
+    
+    <span class="n">id</span><span class="o">&lt;</span><span class="n">MTLRenderPipelineState</span><span class="o">&gt;</span> <span class="n">pipelineState</span> <span class="o">=</span> <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">device</span> <span class="nf">newRenderPipelineStateWithDescriptor</span><span class="p">:</span><span class="n">descriptor</span> <span class="nf">error</span><span class="p">:</span><span class="nb">nil</span><span class="p">];</span>
+    
+    <span class="n">self</span><span class="p">.</span><span class="n">pipelineState</span> <span class="o">=</span> <span class="n">pipelineState</span><span class="p">;</span>
+    
+<span class="p">}</span>
+
+</code></pre></td></tr></tbody></table></div></div>
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27</pre></td><td class="code"><pre class="highlight"><code><span class="cp">#include &lt;metal_stdlib&gt;
+</span><span class="n">using</span> <span class="n">namespace</span> <span class="n">metal</span><span class="p">;</span>
+<span class="k">struct</span> <span class="n">VertexOut</span>
+<span class="p">{</span>
+    <span class="n">float4</span> <span class="n">position</span> <span class="p">[[</span><span class="nf">position</span><span class="p">]];</span>
+    <span class="n">float2</span> <span class="n">textureCoordinate</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="n">vertex</span> <span class="n">VertexOut</span> <span class="n">texture_vertex</span> <span class="p">(</span>
+    <span class="n">constant</span> <span class="n">float4</span><span class="o">*</span><span class="n">vertex_array</span><span class="p">[[</span><span class="n">buffer</span><span class="p">(</span><span class="mi">0</span><span class="p">)]],</span>
+    <span class="n">constant</span> <span class="n">float2</span><span class="o">*</span><span class="n">textureCoord_array</span><span class="p">[[</span><span class="n">buffer</span><span class="p">(</span><span class="mi">1</span><span class="p">)]],</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">vid</span><span class="p">[[</span><span class="nf">vertex_id</span><span class="p">]]){</span>
+
+    <span class="n">VertexOut</span> <span class="n">outputVertices</span><span class="p">;</span>
+
+    <span class="n">outputVertices</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">vertex_array</span><span class="p">[</span><span class="nf">vid</span><span class="p">];</span>
+    <span class="n">outputVertices</span><span class="p">.</span><span class="n">textureCoordinate</span> <span class="o">=</span> <span class="n">textureCoord_array</span><span class="p">[</span><span class="nf">vid</span><span class="p">];</span>
+
+    <span class="k">return</span> <span class="n">outputVertices</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">fragment</span> <span class="n">float4</span> <span class="n">texture_fragment</span><span class="p">(</span><span class="n">VertexOut</span> <span class="n">fragmentInput</span> <span class="p">[[</span><span class="nf">stage_in</span><span class="p">]],</span>
+                                 <span class="n">texture2d</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span> <span class="n">inputTexture</span> <span class="p">[[</span><span class="n">texture</span><span class="p">(</span><span class="mi">0</span><span class="p">)]])</span> <span class="p">{</span>
+    <span class="n">constexpr</span> <span class="n">sampler</span> <span class="n">quadSampler</span><span class="p">;</span>
+    <span class="n">float4</span> <span class="n">color</span> <span class="o">=</span> <span class="n">inputTexture</span><span class="p">.</span><span class="n">sample</span><span class="p">(</span><span class="n">quadSampler</span><span class="p">,</span> <span class="n">fragmentInput</span><span class="p">.</span><span class="n">textureCoordinate</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">color</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>这里创建了管道状态，设置了两个着色器函数，和上一篇笔记渲染图片纹理的函数一致。</p>
+
+<h4 id="创建命令队列">创建命令队列</h4>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7</pre></td><td class="code"><pre class="highlight"><code><span class="k">@property</span><span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span><span class="n">strong</span><span class="p">)</span><span class="n">id</span><span class="o">&lt;</span><span class="n">MTLCommandQueue</span><span class="o">&gt;</span><span class="n">commandQueue</span><span class="p">;</span>
+<span class="p">...</span>
+<span class="o">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">prepareCommandQueue</span>
+<span class="p">{</span>
+    <span class="n">id</span><span class="o">&lt;</span><span class="n">MTLCommandQueue</span><span class="o">&gt;</span><span class="n">commandQueue</span> <span class="o">=</span> <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">device</span> <span class="nf">newCommandQueue</span><span class="p">];</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">commandQueue</span> <span class="o">=</span> <span class="n">commandQueue</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<p>这里创建一个命令队列，用于渲染时取得可用的command给GPU渲染命令。</p>
+
+<h4 id="渲染方法">渲染方法</h4>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32<br/>33<br/>34<br/>35<br/>36<br/>37<br/>38<br/>39<br/>40<br/>41<br/>42<br/>43<br/>44<br/>45<br/>46<br/>47<br/>48<br/>49<br/>50<br/>51<br/>52<br/>53<br/>54<br/>55<br/>56<br/>57<br/>58<br/>59<br/>60<br/>61<br/>62<br/>63<br/>64<br/>65<br/>66<br/>67<br/>68<br/>69<br/>70<br/>71<br/>72</pre></td><td class="code"><pre class="highlight"><code><span class="k">@property</span><span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span><span class="n">strong</span><span class="p">)</span><span class="n">id</span><span class="o">&lt;</span><span class="n">MTLTexture</span><span class="o">&gt;</span><span class="n">texture</span><span class="p">;</span>
+
+<span class="k">@property</span><span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span><span class="n">strong</span><span class="p">)</span><span class="n">MTLTextureDescriptor</span><span class="o">*</span><span class="n">textureDes</span><span class="p">;</span>
+<span class="k">@property</span><span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span><span class="n">assign</span><span class="p">)</span><span class="kt">int</span>  <span class="n">textureHeight</span><span class="p">;</span>
+<span class="k">@property</span><span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span><span class="n">assign</span><span class="p">)</span><span class="kt">int</span>  <span class="n">textureWidth</span><span class="p">;</span>
+<span class="p">...</span>
+<span class="o">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">renderRGBAWith</span><span class="o">:</span><span class="p">(</span><span class="kt">uint8_t</span><span class="o">*</span><span class="p">)</span><span class="n">RGBBuffer</span> <span class="n">width</span><span class="o">:</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">width</span> <span class="n">height</span><span class="o">:</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">height</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">self</span><span class="p">.</span><span class="n">textureDes</span> <span class="o">||</span> <span class="n">self</span><span class="p">.</span><span class="n">textureWidth</span> <span class="o">!=</span> <span class="n">width</span> <span class="o">||</span><span class="n">self</span><span class="p">.</span><span class="n">textureHeight</span> <span class="o">!=</span> <span class="n">height</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">textureDes</span> <span class="o">=</span> <span class="p">[</span><span class="n">MTLTextureDescriptor</span> <span class="nf">texture2DDescriptorWithPixelFormat</span><span class="p">:</span><span class="n">MTLPixelFormatBGRA8Unorm</span> <span class="nf">width</span><span class="p">:</span><span class="n">width</span> <span class="n">height</span><span class="o">:</span><span class="n">height</span> <span class="n">mipmapped</span><span class="o">:</span><span class="nb">NO</span><span class="p">];</span>
+    <span class="p">}</span>
+	<span class="c1">//创建纹理
+</span>    <span class="n">self</span><span class="p">.</span><span class="n">texture</span> <span class="o">=</span> <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">device</span> <span class="nf">newTextureWithDescriptor</span><span class="p">:</span><span class="n">self</span><span class="p">.</span><span class="n">textureDes</span><span class="p">];</span>
+    <span class="n">MTLRegion</span> <span class="n">region</span> <span class="o">=</span> <span class="n">MTLRegionMake2D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">);</span>
+	<span class="c1">//将数据写入纹理
+</span>    <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">texture</span> <span class="nf">replaceRegion</span><span class="p">:</span><span class="n">region</span> <span class="nf">mipmapLevel</span><span class="p">:</span><span class="mi">0</span> <span class="n">withBytes</span><span class="o">:</span><span class="n">RGBBuffer</span> <span class="n">bytesPerRow</span><span class="o">:</span><span class="n">width</span><span class="o">*</span><span class="mi">4</span><span class="p">];</span>
+    
+    
+    
+    <span class="n">id</span><span class="o">&lt;</span><span class="n">MTLCommandBuffer</span><span class="o">&gt;</span><span class="n">commandBuffer</span> <span class="o">=</span> <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">commandQueue</span> <span class="nf">commandBuffer</span><span class="p">];</span>
+    
+
+    <span class="n">id</span><span class="o">&lt;</span><span class="n">CAMetalDrawable</span><span class="o">&gt;</span><span class="n">drawable</span> <span class="o">=</span> <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">metalLayer</span> <span class="nf">nextDrawable</span><span class="p">];</span>
+    
+    <span class="n">MTLRenderPassDescriptor</span><span class="o">*</span><span class="n">renderPassDes</span> <span class="o">=</span> <span class="p">[[</span><span class="n">MTLRenderPassDescriptor</span> <span class="nf">alloc</span><span class="p">]</span><span class="nf">init</span><span class="p">];</span>
+    
+    <span class="n">renderPassDes</span><span class="p">.</span><span class="n">colorAttachments</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">texture</span> <span class="o">=</span> <span class="p">[</span><span class="n">drawable</span> <span class="nf">texture</span><span class="p">];</span>
+    <span class="n">renderPassDes</span><span class="p">.</span><span class="n">colorAttachments</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">loadAction</span> <span class="o">=</span> <span class="n">MTLLoadActionClear</span><span class="p">;</span>
+    <span class="n">renderPassDes</span><span class="p">.</span><span class="n">colorAttachments</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">clearColor</span> <span class="o">=</span> <span class="n">MTLClearColorMake</span><span class="p">(</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">);</span>
+    <span class="n">renderPassDes</span><span class="p">.</span><span class="n">colorAttachments</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">storeAction</span> <span class="o">=</span> <span class="n">MTLStoreActionStore</span><span class="p">;</span>
+    
+    <span class="n">id</span><span class="o">&lt;</span><span class="n">MTLRenderCommandEncoder</span><span class="o">&gt;</span><span class="n">renderEncoder</span> <span class="o">=</span> <span class="p">[</span><span class="n">commandBuffer</span> <span class="nf">renderCommandEncoderWithDescriptor</span><span class="p">:</span><span class="n">renderPassDes</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">renderEncoder</span> <span class="nf">setRenderPipelineState</span><span class="p">:</span><span class="n">self</span><span class="p">.</span><span class="n">pipelineState</span><span class="p">];</span>
+    
+    
+    <span class="kt">float</span> <span class="n">vertexArray</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">-</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span>
+        <span class="o">-</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span>  <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span>  <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">};</span>
+    
+    
+    <span class="c1">//顶点坐标buffer
+</span>    <span class="n">id</span><span class="o">&lt;</span><span class="n">MTLBuffer</span><span class="o">&gt;</span><span class="n">vertexBuffer</span> <span class="o">=</span> <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">device</span> <span class="nf">newBufferWithBytes</span><span class="p">:</span><span class="n">vertexArray</span> <span class="nf">length</span><span class="p">:</span><span class="k">sizeof</span><span class="p">(</span><span class="n">vertexArray</span><span class="p">)</span> <span class="n">options</span><span class="o">:</span><span class="n">MTLResourceCPUCacheModeDefaultCache</span><span class="p">];</span>
+    
+    <span class="p">[</span><span class="n">renderEncoder</span> <span class="nf">setVertexBuffer</span><span class="p">:</span><span class="n">vertexBuffer</span> <span class="nf">offset</span><span class="p">:</span><span class="mi">0</span> <span class="n">atIndex</span><span class="o">:</span><span class="mi">0</span><span class="p">];</span>
+    
+    
+    <span class="kt">float</span> <span class="n">textureCoord</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span><span class="mi">0</span>
+    <span class="p">};</span>
+	<span class="c1">//纹理坐标buffer
+</span>    <span class="n">id</span><span class="o">&lt;</span><span class="n">MTLBuffer</span><span class="o">&gt;</span><span class="n">textureCoordBuffer</span> <span class="o">=</span> <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">device</span> <span class="nf">newBufferWithBytes</span><span class="p">:</span><span class="n">textureCoord</span> <span class="nf">length</span><span class="p">:</span><span class="k">sizeof</span><span class="p">(</span><span class="n">textureCoord</span><span class="p">)</span> <span class="n">options</span><span class="o">:</span><span class="n">MTLResourceCPUCacheModeDefaultCache</span><span class="p">];</span>
+    
+    <span class="p">[</span><span class="n">renderEncoder</span> <span class="nf">setVertexBuffer</span><span class="p">:</span><span class="n">textureCoordBuffer</span> <span class="nf">offset</span><span class="p">:</span><span class="mi">0</span> <span class="n">atIndex</span><span class="o">:</span><span class="mi">1</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">renderEncoder</span> <span class="nf">setFragmentTexture</span><span class="p">:</span><span class="n">self</span><span class="p">.</span><span class="n">texture</span> <span class="nf">atIndex</span><span class="p">:</span><span class="mi">0</span><span class="p">];</span>
+    
+    <span class="p">[</span><span class="n">renderEncoder</span> <span class="nf">drawPrimitives</span><span class="p">:</span><span class="n">MTLPrimitiveTypeTriangleStrip</span> <span class="nf">vertexStart</span><span class="p">:</span><span class="mi">0</span> <span class="n">vertexCount</span><span class="o">:</span><span class="mi">4</span><span class="p">];</span>
+    
+    
+    <span class="p">[</span><span class="n">commandBuffer</span> <span class="nf">presentDrawable</span><span class="p">:</span><span class="n">drawable</span><span class="p">];</span>
+    
+    <span class="p">[</span><span class="n">renderEncoder</span> <span class="nf">endEncoding</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">commandBuffer</span> <span class="nf">commit</span><span class="p">];</span>
+    
+    
+    
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>这里根据传入的宽高判断是否需要新创建纹理描述，然后根据纹理描述创建纹理，将数据写入。然后创建MTLRenderPassDescriptor，MTLRenderPassDescriptor描述一系列attachments的值，类似GL的FrameBuffer，同时也用来创建MTLRenderCommandEncoder。
+然后创建顶点和纹理坐标buffer，然后设置给renderEncoder，然后渲染显示。</p>
+
+<h4 id="将数据传入renderview">将数据传入renderView</h4>
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">captureOutput</span><span class="p">:(</span><span class="n">AVCaptureOutput</span> <span class="o">*</span><span class="p">)</span><span class="nv">output</span> <span class="nf">didOutputSampleBuffer</span><span class="p">:(</span><span class="n">CMSampleBufferRef</span><span class="p">)</span><span class="nv">sampleBuffer</span> <span class="nf">fromConnection</span><span class="p">:(</span><span class="n">AVCaptureConnection</span> <span class="o">*</span><span class="p">)</span><span class="nv">connection</span>
+<span class="p">{</span>
+    <span class="n">CVImageBufferRef</span> <span class="n">imageBuffer</span> <span class="o">=</span> <span class="n">CMSampleBufferGetImageBuffer</span><span class="p">(</span><span class="n">sampleBuffer</span><span class="p">);</span>
+    
+    <span class="k">if</span><span class="p">(</span><span class="n">CVPixelBufferLockBaseAddress</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="n">kCVReturnSuccess</span><span class="p">)</span>
+    <span class="p">{</span>
+                <span class="n">UInt8</span> <span class="o">*</span><span class="n">rgbBuffer</span> <span class="o">=</span> <span class="p">(</span><span class="n">UInt8</span> <span class="o">*</span><span class="p">)</span><span class="n">CVPixelBufferGetBaseAddressOfPlane</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+                <span class="kt">size_t</span> <span class="n">width</span> <span class="o">=</span> <span class="n">CVPixelBufferGetWidth</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">);</span>
+                <span class="kt">size_t</span> <span class="n">height</span> <span class="o">=</span> <span class="n">CVPixelBufferGetHeight</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">);</span>
+        
+        <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">renderView</span> <span class="nf">renderRGBAWith</span><span class="p">:</span><span class="n">rgbBuffer</span> <span class="nf">width</span><span class="p">:</span><span class="n">width</span> <span class="n">height</span><span class="o">:</span><span class="n">height</span><span class="p">];</span>
+        
+        
+    <span class="p">}</span>
+    <span class="n">CVPixelBufferUnlockBaseAddress</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>运行后即可看到渲染的视频。</p>
+
+<h4 id="遇到的问题">遇到的问题</h4>
+<p>一开始我在采集之后才将renderView添加到view上，导致崩溃在</p>
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1</pre></td><td class="code"><pre class="highlight"><code><span class="n">id</span><span class="o">&lt;</span><span class="n">CAMetalDrawable</span><span class="o">&gt;</span><span class="n">drawable</span> <span class="o">=</span> <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">metalLayer</span> <span class="nf">nextDrawable</span><span class="p">];</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>原因是drawableSize为0，无法取出drawable。</p>
+
+<h3 id="渲染nv12">渲染NV12</h3>
+
+<h4 id="使用两个纹理">使用两个纹理</h4>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24</pre></td><td class="code"><pre class="highlight"><code><span class="k">@property</span><span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span><span class="n">strong</span><span class="p">)</span><span class="n">MTLTextureDescriptor</span><span class="o">*</span><span class="n">textureYDes</span><span class="p">;</span>
+<span class="k">@property</span><span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span><span class="n">strong</span><span class="p">)</span><span class="n">MTLTextureDescriptor</span><span class="o">*</span><span class="n">textureUVDes</span><span class="p">;</span>
+
+<span class="k">@property</span><span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span><span class="n">strong</span><span class="p">)</span><span class="n">id</span><span class="o">&lt;</span><span class="n">MTLTexture</span><span class="o">&gt;</span><span class="n">textureY</span><span class="p">;</span>
+<span class="k">@property</span><span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span><span class="n">strong</span><span class="p">)</span><span class="n">id</span><span class="o">&lt;</span><span class="n">MTLTexture</span><span class="o">&gt;</span><span class="n">textureUV</span><span class="p">;</span>
+
+<span class="p">...</span>
+<span class="o">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">renderNV12With</span><span class="o">:</span><span class="p">(</span><span class="kt">uint8_t</span><span class="o">*</span><span class="p">)</span><span class="n">yBuffer</span> <span class="n">uvBuffer</span><span class="o">:</span><span class="p">(</span><span class="kt">uint8_t</span><span class="o">*</span><span class="p">)</span><span class="n">uvBuffer</span> <span class="n">width</span><span class="o">:</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">width</span> <span class="n">height</span><span class="o">:</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">height</span>
+	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">self</span><span class="p">.</span><span class="n">textureYDes</span> <span class="o">||</span> <span class="n">self</span><span class="p">.</span><span class="n">textureWidth</span> <span class="o">!=</span> <span class="n">width</span> <span class="o">||</span><span class="n">self</span><span class="p">.</span><span class="n">textureHeight</span> <span class="o">!=</span> <span class="n">height</span><span class="p">)</span> <span class="p">{</span>
+			<span class="n">self</span><span class="p">.</span><span class="n">textureYDes</span> <span class="o">=</span> <span class="p">[</span><span class="n">MTLTextureDescriptor</span> <span class="nf">texture2DDescriptorWithPixelFormat</span><span class="p">:</span><span class="n">MTLPixelFormatR8Unorm</span> <span class="nf">width</span><span class="p">:</span><span class="n">width</span> <span class="n">height</span><span class="o">:</span><span class="n">height</span> <span class="n">mipmapped</span><span class="o">:</span><span class="nb">NO</span><span class="p">];</span>
+		<span class="p">}</span>
+		<span class="n">self</span><span class="p">.</span><span class="n">textureY</span> <span class="o">=</span> <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">device</span> <span class="nf">newTextureWithDescriptor</span><span class="p">:</span><span class="n">self</span><span class="p">.</span><span class="n">textureYDes</span><span class="p">];</span>
+		<span class="n">MTLRegion</span> <span class="n">region</span> <span class="o">=</span> <span class="n">MTLRegionMake2D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">);</span>
+		<span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">textureY</span> <span class="nf">replaceRegion</span><span class="p">:</span><span class="n">region</span> <span class="nf">mipmapLevel</span><span class="p">:</span><span class="mi">0</span> <span class="n">withBytes</span><span class="o">:</span><span class="n">yBuffer</span> <span class="n">bytesPerRow</span><span class="o">:</span><span class="n">width</span><span class="p">];</span>
+
+		<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">self</span><span class="p">.</span><span class="n">textureUVDes</span> <span class="o">||</span> <span class="n">self</span><span class="p">.</span><span class="n">textureWidth</span> <span class="o">!=</span> <span class="n">width</span> <span class="o">||</span><span class="n">self</span><span class="p">.</span><span class="n">textureHeight</span> <span class="o">!=</span> <span class="n">height</span><span class="p">)</span> <span class="p">{</span>
+			<span class="n">self</span><span class="p">.</span><span class="n">textureUVDes</span> <span class="o">=</span> <span class="p">[</span><span class="n">MTLTextureDescriptor</span> <span class="nf">texture2DDescriptorWithPixelFormat</span><span class="p">:</span><span class="n">MTLPixelFormatRG8Unorm</span> <span class="nf">width</span><span class="p">:</span><span class="n">width</span><span class="o">/</span><span class="mi">2</span> <span class="n">height</span><span class="o">:</span><span class="n">height</span><span class="o">/</span><span class="mi">2</span> <span class="n">mipmapped</span><span class="o">:</span><span class="nb">NO</span><span class="p">];</span>
+		<span class="p">}</span>
+
+		<span class="n">region</span> <span class="o">=</span> <span class="n">MTLRegionMake2D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">height</span><span class="o">/</span><span class="mi">2</span><span class="p">);</span>
+		<span class="n">self</span><span class="p">.</span><span class="n">textureUV</span> <span class="o">=</span> <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">device</span> <span class="nf">newTextureWithDescriptor</span><span class="p">:</span><span class="n">self</span><span class="p">.</span><span class="n">textureUVDes</span><span class="p">];</span>
+		<span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">textureUV</span> <span class="nf">replaceRegion</span><span class="p">:</span><span class="n">region</span> <span class="nf">mipmapLevel</span><span class="p">:</span><span class="mi">0</span> <span class="n">withBytes</span><span class="o">:</span><span class="n">uvBuffer</span> <span class="n">bytesPerRow</span><span class="o">:</span><span class="n">width</span><span class="p">];</span>
+		<span class="p">...</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<p>由于NV12有两个通道，因此需要传入两个纹理。这里使用两个MTLTextureDescriptor创建，y分量的纹理因为只有y值，因此使用MTLPixelFormatR8Unorm格式，表示一个八位的通道。uv分量使用MTLPixelFormatRG8Unorm，有两个八位通道。</p>
+
+<h4 id="修改片段着色器">修改片段着色器</h4>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18</pre></td><td class="code"><pre class="highlight"><code><span class="n">fragment</span> <span class="n">float4</span> <span class="nf">nv12_fragment</span><span class="p">(</span><span class="n">VertexOut</span> <span class="n">fragmentInput</span> <span class="p">[[</span><span class="nf">stage_in</span><span class="p">]],</span>
+                              <span class="n">texture2d</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span> <span class="n">textureY</span> <span class="p">[[</span><span class="n">texture</span><span class="p">(</span><span class="mi">0</span><span class="p">)]]</span><span class="err">，</span>
+                               <span class="n">texture2d</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span> <span class="n">textureUV</span> <span class="p">[[</span><span class="n">texture</span><span class="p">(</span><span class="mi">1</span><span class="p">)]])</span> <span class="p">{</span>
+    <span class="n">constexpr</span> <span class="n">sampler</span> <span class="n">quadSampler</span><span class="p">;</span>
+    
+    <span class="kt">float</span> <span class="n">y</span> <span class="o">=</span> <span class="n">textureY</span><span class="p">.</span><span class="n">sample</span><span class="p">(</span><span class="n">quadSampler</span><span class="p">,</span><span class="n">fragmentInput</span><span class="p">.</span><span class="n">textureCoordinate</span><span class="p">).</span><span class="n">r</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">u</span> <span class="o">=</span> <span class="n">textureUV</span><span class="p">.</span><span class="n">sample</span><span class="p">(</span><span class="n">quadSampler</span><span class="p">,</span> <span class="n">fragmentInput</span><span class="p">.</span><span class="n">textureCoordinate</span><span class="p">).</span><span class="n">r</span> <span class="o">-</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span><span class="p">;</span>
+    
+    <span class="kt">float</span> <span class="n">v</span> <span class="o">=</span> <span class="n">textureUV</span><span class="p">.</span><span class="n">sample</span><span class="p">(</span><span class="n">quadSampler</span><span class="p">,</span> <span class="n">fragmentInput</span><span class="p">.</span><span class="n">textureCoordinate</span><span class="p">).</span><span class="n">g</span> <span class="o">-</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span><span class="p">;</span>
+    
+    <span class="kt">float</span> <span class="n">r</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span>             <span class="mi">1</span><span class="p">.</span><span class="mi">402</span> <span class="o">*</span> <span class="n">v</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">g</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="mi">0</span><span class="p">.</span><span class="mi">344</span> <span class="o">*</span> <span class="n">u</span> <span class="o">-</span> <span class="mi">0</span><span class="p">.</span><span class="mi">714</span> <span class="o">*</span> <span class="n">v</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">b</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">.</span><span class="mi">772</span> <span class="o">*</span> <span class="n">u</span><span class="p">;</span>
+    
+    <span class="n">float4</span> <span class="n">color</span> <span class="o">=</span> <span class="n">float4</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">);</span>
+    
+    <span class="k">return</span> <span class="n">color</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>这里增加一个纹理参数，从textureY中取出y，textureUV分别取出uv，利用公式转换成rgb值。</p>
+
+<h4 id="修改着色器程序">修改着色器程序</h4>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2</pre></td><td class="code"><pre class="highlight"><code><span class="c1">//    id&lt;MTLFunction&gt;fragmentFunc = [library newFunctionWithName:@"texture_fragment"];
+</span>    <span class="n">id</span><span class="o">&lt;</span><span class="n">MTLFunction</span><span class="o">&gt;</span><span class="n">fragmentFunc</span> <span class="o">=</span> <span class="p">[</span><span class="n">library</span> <span class="nf">newFunctionWithName</span><span class="p">:</span><span class="s">@"nv12_fragment"</span><span class="p">];</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<h4 id="给renderencoder传入两个纹理">给renderEncoder传入两个纹理</h4>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2</pre></td><td class="code"><pre class="highlight"><code> 	<span class="p">[</span><span class="n">renderEncoder</span> <span class="nf">setFragmentTexture</span><span class="p">:</span><span class="n">self</span><span class="p">.</span><span class="n">textureY</span> <span class="nf">atIndex</span><span class="p">:</span><span class="mi">0</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">renderEncoder</span> <span class="nf">setFragmentTexture</span><span class="p">:</span><span class="n">self</span><span class="p">.</span><span class="n">textureUV</span> <span class="nf">atIndex</span><span class="p">:</span><span class="mi">1</span><span class="p">];</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<h4 id="调用渲染方法">调用渲染方法</h4>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">captureOutput</span><span class="p">:(</span><span class="n">AVCaptureOutput</span> <span class="o">*</span><span class="p">)</span><span class="nv">output</span> <span class="nf">didOutputSampleBuffer</span><span class="p">:(</span><span class="n">CMSampleBufferRef</span><span class="p">)</span><span class="nv">sampleBuffer</span> <span class="nf">fromConnection</span><span class="p">:(</span><span class="n">AVCaptureConnection</span> <span class="o">*</span><span class="p">)</span><span class="nv">connection</span>
+<span class="p">{</span>
+    <span class="n">CVImageBufferRef</span> <span class="n">imageBuffer</span> <span class="o">=</span> <span class="n">CMSampleBufferGetImageBuffer</span><span class="p">(</span><span class="n">sampleBuffer</span><span class="p">);</span>
+    
+    <span class="k">if</span><span class="p">(</span><span class="n">CVPixelBufferLockBaseAddress</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="n">kCVReturnSuccess</span><span class="p">)</span>
+    <span class="p">{</span>
+                <span class="n">UInt8</span> <span class="o">*</span><span class="n">yBuffer</span> <span class="o">=</span> <span class="p">(</span><span class="n">UInt8</span> <span class="o">*</span><span class="p">)</span><span class="n">CVPixelBufferGetBaseAddressOfPlane</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+            <span class="n">UInt8</span> <span class="o">*</span><span class="n">uvBuffer</span> <span class="o">=</span> <span class="p">(</span><span class="n">UInt8</span> <span class="o">*</span><span class="p">)</span><span class="n">CVPixelBufferGetBaseAddressOfPlane</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+                <span class="kt">size_t</span> <span class="n">width</span> <span class="o">=</span> <span class="n">CVPixelBufferGetWidth</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">);</span>
+                <span class="kt">size_t</span> <span class="n">height</span> <span class="o">=</span> <span class="n">CVPixelBufferGetHeight</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">);</span>
+        
+        
+        <span class="kt">size_t</span> <span class="n">linesize_yu</span> <span class="o">=</span> <span class="n">CVPixelBufferGetBytesPerRowOfPlane</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="c1">//        [self.renderView renderRGBAWith:rgbBuffer width:width height:height];
+</span>        <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">renderView</span> <span class="nf">renderNV12With</span><span class="p">:</span><span class="n">yBuffer</span> <span class="nf">uvBuffer</span><span class="p">:</span><span class="n">uvBuffer</span> <span class="n">width</span><span class="o">:</span><span class="n">width</span> <span class="n">height</span><span class="o">:</span><span class="n">height</span><span class="p">];</span>
+        
+        
+    <span class="p">}</span>
+    <span class="n">CVPixelBufferUnlockBaseAddress</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>运行程序，即可看到采集的画面。</p>
+
+<h3 id="使用corevideo相关函数创建纹理">使用CoreVideo相关函数创建纹理</h3>
+
+<p>使用CVMetalTextureCacheRef纹理缓存，CVMetalTextureCacheCreateTextureFromImage函数可以直接从CVPixelBufferRef中获取CVMetalTextureRef，然后在从CVMetalTextureRef中获得MTLTexture。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20</pre></td><td class="code"><pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">assign</span><span class="p">)</span> <span class="n">CVMetalTextureCacheRef</span> <span class="n">textureCache</span><span class="p">;</span>
+<span class="p">...</span>
+<span class="c1">//创建CVMetalTextureCacheRef
+</span><span class="n">CVMetalTextureCacheCreate</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">device</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">_textureCache</span><span class="p">);</span>
+
+<span class="p">...</span>
+		<span class="n">id</span><span class="o">&lt;</span><span class="n">MTLTexture</span><span class="o">&gt;</span> <span class="n">textureY</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">;</span>
+        <span class="kt">size_t</span> <span class="n">width</span> <span class="o">=</span> <span class="n">CVPixelBufferGetWidthOfPlane</span><span class="p">(</span><span class="n">pixelBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+        <span class="kt">size_t</span> <span class="n">height</span> <span class="o">=</span> <span class="n">CVPixelBufferGetHeightOfPlane</span><span class="p">(</span><span class="n">pixelBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+        <span class="n">MTLPixelFormat</span> <span class="n">pixelFormat</span> <span class="o">=</span> <span class="n">MTLPixelFormatR8Unorm</span><span class="p">;</span>
+	
+        <span class="n">CVMetalTextureRef</span> <span class="n">texture</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span> 
+		<span class="c1">//将pixelBuffer的0通道写入CVMetalTextureRef
+</span>        <span class="n">CVReturn</span> <span class="n">status</span> <span class="o">=</span> <span class="n">CVMetalTextureCacheCreateTextureFromImage</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">textureCache</span><span class="p">,</span> <span class="n">pixelBuffer</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">pixelFormat</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">texture</span><span class="p">);</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">status</span> <span class="o">==</span> <span class="n">kCVReturnSuccess</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">textureY</span> <span class="o">=</span> <span class="n">CVMetalTextureGetTexture</span><span class="p">(</span><span class="n">texture</span><span class="p">);</span> <span class="c1">// 转成Metal用的纹理
+</span>            <span class="n">CFRelease</span><span class="p">(</span><span class="n">texture</span><span class="p">);</span>
+        <span class="p">}</span>
+    
+</code></pre></td></tr></tbody></table></div></div>
+<p>之后就和上面的纹理处理一致了。</p>
+
+<h3 id="总结">总结</h3>
+<p>感觉使用Metal渲染的视频的代码比OpenGL的实现要容易些，基本就是渲染图片纹理稍作修改即可实现，而且MetalKit还提供了一些直接将AVFoundation数据转换为Metal可以处理的类型的功能，使得开发更加简单。</p>
+
+<p><a href="https://github.com/kof97500/OpenGLIOSDemo/tree/master/Metal/MetalDemo03">demo地址</a></p>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            
+            <a href="/tag/#/OpenGL" rel="tag"># OpenGL</a>
+          
+            
+            <a href="/tag/#/%E9%9F%B3%E8%A7%86%E9%A2%91" rel="tag"># 音视频</a>
+          
+            
+            <a href="/tag/#/%E7%AC%94%E8%AE%B0" rel="tag"># 笔记</a>
+          
+            
+            <a href="/tag/#/Metal" rel="tag"># Metal</a>
+          
+        </div>
+      
+
+      
+      
+      
+      
+      
+
+      
+      
+        <div class="post-nav" id="post-nav-id">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/gpuimage/2018/11/07/GPUImage3_01/" rel="next" title="GPUImage3源码研究 研究视频滤镜过程">
+                <i class="fa fa-chevron-left"></i> GPUImage3源码研究 研究视频滤镜过程
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/metal/2018/10/23/Metal02/" rel="prev" title="Metal学习笔记02 渲染图片纹理">
+                Metal学习笔记02 渲染图片纹理 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+      
+
+      
+    </footer>
+  </article>
+
+  <div class="post-spread">
+    
+  </div>
+</div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        
+        
+        
+
+
+
+
+
+
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/assets/images/avatar.gif"
+               alt="Michael" />
+          <p class="site-author-name" itemprop="name">Michael</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+        
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+
+
+
+
+
+
+
+            
+              <div class="post-toc-content">
+    <ol class=nav>
+      <li class="nav-item nav-level-3"> <a class="nav-link" href="#渲染bgra数据"> <span class="nav-number">1</span> <span class="nav-text">渲染BGRA数据</span> </a> <ol class="nav-child"> <li class="nav-item nav-level-4"> <a class="nav-link" href="#创建一个layer类型为cametallayer的view"> <span class="nav-number">1.1</span> <span class="nav-text">创建一个layer类型为CAMetalLayer的view</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#设置layer的属性"> <span class="nav-number">1.2</span> <span class="nav-text">设置layer的属性</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#准备管道状态"> <span class="nav-number">1.3</span> <span class="nav-text">准备管道状态</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#创建命令队列"> <span class="nav-number">1.4</span> <span class="nav-text">创建命令队列</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#渲染方法"> <span class="nav-number">1.5</span> <span class="nav-text">渲染方法</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#将数据传入renderview"> <span class="nav-number">1.6</span> <span class="nav-text">将数据传入renderView</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#遇到的问题"> <span class="nav-number">1.7</span> <span class="nav-text">遇到的问题</span> </a> </li> </ol> </li> <li class="nav-item nav-level-3"> <a class="nav-link" href="#渲染nv12"> <span class="nav-number">2</span> <span class="nav-text">渲染NV12</span> </a> <ol class="nav-child"> <li class="nav-item nav-level-4"> <a class="nav-link" href="#使用两个纹理"> <span class="nav-number">2.1</span> <span class="nav-text">使用两个纹理</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#修改片段着色器"> <span class="nav-number">2.2</span> <span class="nav-text">修改片段着色器</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#修改着色器程序"> <span class="nav-number">2.3</span> <span class="nav-text">修改着色器程序</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#给renderencoder传入两个纹理"> <span class="nav-number">2.4</span> <span class="nav-text">给renderEncoder传入两个纹理</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#调用渲染方法"> <span class="nav-number">2.5</span> <span class="nav-text">调用渲染方法</span> </a> </li> </ol> </li> <li class="nav-item nav-level-3"> <a class="nav-link" href="#使用corevideo相关函数创建纹理"> <span class="nav-number">3</span> <span class="nav-text">使用CoreVideo相关函数创建纹理</span> </a> </li> <li class="nav-item nav-level-3"> <a class="nav-link" href="#总结"> <span class="nav-number">4</span> <span class="nav-text">总结</span> </a> </li>
+    </ol>
+  </div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Michael</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://jekyllrb.com">Jekyll</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/simpleyyt/jekyll-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+   
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/assets/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/assets/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  <script type="text/javascript" src="/assets/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/assets/js/src/post-details.js?v=5.1.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/assets/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+    
+
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+  
+
+  
+  
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
+

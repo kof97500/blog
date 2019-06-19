@@ -1,0 +1,1569 @@
+
+<!doctype html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/assets/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/assets/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/assets/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="OpenGL,音视频,笔记," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Micheal's blog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="上一篇笔记">
+<meta name="keywords" content="OpenGL, 音视频, 笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenGL ES iOS笔记03 渲染视频">
+<meta property="og:url" content="http://localhost:4000/opengl/2018/04/08/OpenGLiOS03/">
+<meta property="og:site_name" content="Micheal's blog">
+<meta property="og:description" content="上一篇笔记">
+<meta property="og:locale" content="zh-Hans">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OpenGL ES iOS笔记03 渲染视频">
+<meta name="twitter:description" content="上一篇笔记">
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://localhost:4000/"/>
+
+
+
+
+
+  <title>OpenGL ES iOS笔记03 渲染视频 | Micheal's blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> <div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Micheal's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+<div id="posts" class="posts-expand">
+  
+  
+
+  
+
+  
+  
+  
+
+  <article class="post post-type- " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://localhost:4000/opengl/2018/04/08/OpenGLiOS03/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Michael">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="assets/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Micheal's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+          
+          
+            OpenGL ES iOS笔记03 渲染视频
+          
+        </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-08T00:00:00+08:00">
+                2018-04-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/category/#/OpenGL" itemprop="url" rel="index">
+                    <span itemprop="name">OpenGL</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+            
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <p><a href="https://kof97500.github.io/opengl/2018/03/25/OpenGLiOS02/">上一篇笔记</a></p>
+
+<p>渲染视频实际上就是不断地把视频数据放入纹理中，让OpenGL去渲染显示，本文会利用iOS设备采集RGBA、NV12数据，然后进行渲染显示。</p>
+
+<h3 id="利用avfoundation采集视频">利用AVFoundation采集视频</h3>
+
+<p>这里创建一个AVCaptureSession采集前置摄像头视频数据，格式为32BGRA，然后利用AVCaptureVideoDataOutput的代理方法获取采集到的数据。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32<br/>33<br/>34<br/>35<br/>36<br/>37<br/>38<br/>39</pre></td><td class="code"><pre class="highlight"><code>
+<span class="k">@interface</span> <span class="nc">ViewController</span> <span class="p">()</span><span class="o">&lt;</span><span class="n">AVCaptureVideoDataOutputSampleBufferDelegate</span><span class="o">&gt;</span>
+<span class="k">@property</span><span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span><span class="n">strong</span><span class="p">)</span><span class="n">AVCaptureSession</span><span class="o">*</span><span class="n">session</span><span class="p">;</span>
+
+<span class="k">@property</span> <span class="p">(</span><span class="n">weak</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">IBOutlet</span> <span class="n">LYRGLView</span> <span class="o">*</span><span class="n">renderView</span><span class="p">;</span>
+
+<span class="k">@end</span>
+
+<span class="o">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">viewDidLoad</span> <span class="p">{</span>
+    <span class="p">[</span><span class="n">super</span> <span class="nf">viewDidLoad</span><span class="p">];</span>
+    <span class="c1">// Do any additional setup after loading the view.
+</span>    
+    <span class="n">self</span><span class="p">.</span><span class="n">session</span> <span class="o">=</span> <span class="p">[[</span><span class="n">AVCaptureSession</span> <span class="nf">alloc</span><span class="p">]</span><span class="nf">init</span><span class="p">];</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">session</span><span class="p">.</span><span class="n">sessionPreset</span> <span class="o">=</span> <span class="n">AVCaptureSessionPreset640x480</span><span class="p">;</span>
+    <span class="n">NSArray</span> <span class="o">*</span><span class="n">cameras</span> <span class="o">=</span> <span class="p">[</span><span class="n">AVCaptureDevice</span> <span class="nf">devicesWithMediaType</span><span class="p">:</span><span class="n">AVMediaTypeVideo</span><span class="p">];</span>
+    <span class="n">AVCaptureDevice</span><span class="o">*</span><span class="n">frontCamera</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">AVCaptureDevice</span> <span class="o">*</span><span class="n">device</span> <span class="k">in</span> <span class="n">cameras</span><span class="p">){</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">device</span><span class="p">.</span><span class="n">position</span> <span class="o">==</span> <span class="n">AVCaptureDevicePositionFront</span><span class="p">){</span>
+            <span class="n">frontCamera</span> <span class="o">=</span> <span class="n">device</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="n">NSError</span> <span class="o">*</span><span class="n">error</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">;</span>
+    <span class="n">AVCaptureDeviceInput</span> <span class="o">*</span><span class="n">videoInput</span> <span class="o">=</span> <span class="p">[</span><span class="n">AVCaptureDeviceInput</span> <span class="nf">deviceInputWithDevice</span><span class="p">:</span><span class="n">frontCamera</span> <span class="nf">error</span><span class="p">:</span><span class="o">&amp;</span><span class="n">error</span><span class="p">];</span>
+    
+    <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">session</span> <span class="nf">addInput</span><span class="p">:</span><span class="n">videoInput</span><span class="p">];</span>
+    
+    <span class="n">AVCaptureVideoDataOutput</span> <span class="o">*</span><span class="n">avCaptureVideoDataOutput</span> <span class="o">=</span> <span class="p">[[</span><span class="n">AVCaptureVideoDataOutput</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">init</span><span class="p">];</span>
+    <span class="c1">//设置采集RGBA
+</span>    <span class="n">NSDictionary</span> <span class="o">*</span><span class="n">settings</span> <span class="o">=</span> <span class="p">[[</span><span class="n">NSDictionary</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithObjectsAndKeys</span><span class="p">:[</span><span class="n">NSNumber</span> <span class="nf">numberWithUnsignedInt</span><span class="p">:</span><span class="n">kCVPixelFormatType_32BGRA</span><span class="p">],</span> <span class="n">kCVPixelBufferPixelFormatTypeKey</span><span class="p">,</span>
+                              <span class="nb">nil</span><span class="p">];</span>
+    
+    <span class="n">avCaptureVideoDataOutput</span><span class="p">.</span><span class="n">videoSettings</span> <span class="o">=</span> <span class="n">settings</span><span class="p">;</span>
+    <span class="n">avCaptureVideoDataOutput</span><span class="p">.</span><span class="n">alwaysDiscardsLateVideoFrames</span> <span class="o">=</span> <span class="nb">YES</span><span class="p">;</span>
+    <span class="n">dispatch_queue_t</span> <span class="n">queue</span> <span class="o">=</span> <span class="n">dispatch_queue_create</span><span class="p">(</span><span class="s">"myQueue"</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="p">[</span><span class="n">avCaptureVideoDataOutput</span> <span class="nf">setSampleBufferDelegate</span><span class="p">:</span><span class="n">self</span> <span class="nf">queue</span><span class="p">:</span><span class="n">queue</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">session</span> <span class="nf">addOutput</span><span class="p">:</span><span class="n">avCaptureVideoDataOutput</span><span class="p">];</span>
+    
+    <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">session</span> <span class="nf">startRunning</span><span class="p">];</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<p>AVCaptureVideoDataOutput代理方法实现</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">captureOutput</span><span class="p">:(</span><span class="n">AVCaptureOutput</span> <span class="o">*</span><span class="p">)</span><span class="nv">output</span> <span class="nf">didOutputSampleBuffer</span><span class="p">:(</span><span class="n">CMSampleBufferRef</span><span class="p">)</span><span class="nv">sampleBuffer</span> <span class="nf">fromConnection</span><span class="p">:(</span><span class="n">AVCaptureConnection</span> <span class="o">*</span><span class="p">)</span><span class="nv">connection</span>
+<span class="p">{</span>
+    <span class="n">CVImageBufferRef</span> <span class="n">imageBuffer</span> <span class="o">=</span> <span class="n">CMSampleBufferGetImageBuffer</span><span class="p">(</span><span class="n">sampleBuffer</span><span class="p">);</span>
+    
+    <span class="k">if</span><span class="p">(</span><span class="n">CVPixelBufferLockBaseAddress</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="n">kCVReturnSuccess</span><span class="p">)</span>
+    <span class="p">{</span>
+    	<span class="c1">//获取数据地址
+</span>        <span class="n">UInt8</span> <span class="o">*</span><span class="n">bufferPtr</span> <span class="o">=</span> <span class="p">(</span><span class="n">UInt8</span> <span class="o">*</span><span class="p">)</span><span class="n">CVPixelBufferGetBaseAddress</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">);</span>
+        <span class="kt">size_t</span> <span class="n">width</span> <span class="o">=</span> <span class="n">CVPixelBufferGetWidth</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">);</span>
+        <span class="kt">size_t</span> <span class="n">height</span> <span class="o">=</span> <span class="n">CVPixelBufferGetHeight</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">);</span>
+         <span class="nl">height:</span><span class="n">height</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="n">CVPixelBufferUnlockBaseAddress</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>bufferPtr指针即指向RGBA数据的地址。</p>
+
+<h3 id="修改glview">修改GLView</h3>
+
+<h4 id="调用opengl的准备工作">调用OpenGL的准备工作</h4>
+
+<p>这里将调用OpenGL的准备方法整合到一起，并在initWithFrame:和initWithCoder:中都调用它，这样在代码和storyboard中创建View就都会准备好OpenGL。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32<br/>33<br/>34<br/>35<br/>36<br/>37<br/>38<br/>39<br/>40<br/>41<br/>42<br/>43<br/>44<br/>45<br/>46<br/>47<br/>48<br/>49<br/>50<br/>51<br/>52<br/>53<br/>54<br/>55<br/>56<br/>57<br/>58<br/>59<br/>60<br/>61<br/>62<br/>63<br/>64<br/>65<br/>66<br/>67<br/>68<br/>69<br/>70<br/>71<br/>72<br/>73<br/>74<br/>75<br/>76<br/>77<br/>78<br/>79<br/>80<br/>81<br/>82<br/>83<br/>84<br/>85<br/>86<br/>87<br/>88<br/>89<br/>90<br/>91<br/>92<br/>93<br/>94<br/>95<br/>96<br/>97<br/>98<br/>99<br/>100<br/>101<br/>102<br/>103<br/>104<br/>105<br/>106<br/>107<br/>108<br/>109<br/>110<br/>111<br/>112<br/>113<br/>114<br/>115<br/>116<br/>117<br/>118<br/>119<br/>120<br/>121<br/>122<br/>123<br/>124<br/>125<br/>126<br/>127<br/>128<br/>129<br/>130<br/>131<br/>132<br/>133<br/>134<br/>135<br/>136<br/>137<br/>138<br/>139<br/>140<br/>141<br/>142<br/>143<br/>144<br/>145<br/>146<br/>147<br/>148<br/>149<br/>150<br/>151<br/>152<br/>153<br/>154<br/>155<br/>156<br/>157<br/>158<br/>159<br/>160</pre></td><td class="code"><pre class="highlight"><code><span class="k">@interface</span> <span class="nc">LYRGLView</span> <span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">GLuint</span> <span class="n">_renderBuffer</span><span class="p">;</span>
+    <span class="n">GLuint</span> <span class="n">_framebuffer</span><span class="p">;</span>
+    
+    <span class="c1">//纹理缓冲
+</span>    <span class="n">GLuint</span> <span class="n">_rgbTexture</span><span class="p">;</span>
+    
+    <span class="c1">//着色器程序
+</span>    <span class="n">GLuint</span> <span class="n">_glprogram</span><span class="p">;</span>
+    <span class="c1">//记录renderbuffer的宽高
+</span>    <span class="n">GLint</span>           <span class="n">_backingWidth</span><span class="p">;</span>
+    <span class="n">GLint</span>           <span class="n">_backingHeight</span><span class="p">;</span>
+    
+    
+    <span class="n">dispatch_queue_t</span> <span class="n">_renderQueue</span><span class="p">;</span>
+    
+    <span class="c1">//纹理参数
+</span>    <span class="n">GLint</span> <span class="n">_inputTexture</span><span class="p">;</span>
+    <span class="c1">//顶点参数
+</span>    <span class="n">GLint</span> <span class="n">_vertexPosition</span><span class="p">;</span>
+    <span class="c1">//纹理坐标参数
+</span>    <span class="n">GLint</span> <span class="n">_textureCoords</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">@property</span><span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span><span class="n">strong</span><span class="p">)</span><span class="n">CAEAGLLayer</span><span class="o">*</span><span class="n">eaglLayer</span><span class="p">;</span>
+<span class="k">@property</span><span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span><span class="n">strong</span><span class="p">)</span><span class="n">EAGLContext</span><span class="o">*</span><span class="n">context</span><span class="p">;</span>
+<span class="k">@end</span>
+<span class="k">@implementation</span> <span class="nc">LYRGLView</span>
+<span class="cp">#pragma mark - life cycle
+</span><span class="k">-</span><span class="p">(</span><span class="n">instancetype</span><span class="p">)</span><span class="nf">initWithCoder</span><span class="p">:(</span><span class="n">NSCoder</span> <span class="o">*</span><span class="p">)</span><span class="nv">aDecoder</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">self</span> <span class="o">=</span> <span class="p">[</span><span class="n">super</span> <span class="nf">initWithCoder</span><span class="p">:</span><span class="n">aDecoder</span><span class="p">])</span> <span class="p">{</span>
+        <span class="p">[</span><span class="n">self</span> <span class="nf">commonInit</span><span class="p">];</span>
+    <span class="p">}</span>
+    
+    <span class="k">return</span> <span class="n">self</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">-</span><span class="p">(</span><span class="n">instancetype</span><span class="p">)</span><span class="nf">initWithFrame</span><span class="p">:(</span><span class="n">CGRect</span><span class="p">)</span><span class="nv">frame</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">self</span> <span class="o">=</span> <span class="p">[</span><span class="n">super</span> <span class="nf">initWithFrame</span><span class="p">:</span><span class="n">frame</span><span class="p">])</span> <span class="p">{</span>
+        <span class="p">[</span><span class="n">self</span> <span class="nf">commonInit</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">self</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">commonInit</span><span class="p">{</span>
+    
+    <span class="n">_renderQueue</span> <span class="o">=</span> <span class="n">dispatch_queue_create</span><span class="p">(</span><span class="s">"renderQueue"</span><span class="p">,</span> <span class="n">DISPATCH_QUEUE_SERIAL</span><span class="p">);</span>
+    
+    
+    <span class="p">[</span><span class="n">self</span> <span class="nf">prepareLayer</span><span class="p">];</span>
+    <span class="n">dispatch_sync</span><span class="p">(</span><span class="n">_renderQueue</span><span class="p">,</span> <span class="o">^</span><span class="p">{</span>
+        <span class="p">[</span><span class="n">self</span> <span class="nf">prepareContext</span><span class="p">];</span>
+        <span class="p">[</span><span class="n">self</span> <span class="nf">prepareShader</span><span class="p">];</span>
+        <span class="p">[</span><span class="n">self</span> <span class="nf">prepareRenderBuffer</span><span class="p">];</span>
+        <span class="p">[</span><span class="n">self</span> <span class="nf">prepareFrameBuffer</span><span class="p">];</span>
+        
+    <span class="p">});</span>
+<span class="p">}</span>
+<span class="o">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">prepareLayer</span>
+<span class="p">{</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">eaglLayer</span> <span class="o">=</span> <span class="p">(</span><span class="n">CAEAGLLayer</span><span class="o">*</span><span class="p">)</span><span class="n">self</span><span class="p">.</span><span class="n">layer</span><span class="p">;</span>
+    <span class="c1">//设置不透明，节省性能
+</span>    <span class="n">self</span><span class="p">.</span><span class="n">eaglLayer</span><span class="p">.</span><span class="n">opaque</span> <span class="o">=</span> <span class="nb">YES</span><span class="p">;</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">eaglLayer</span><span class="p">.</span><span class="n">drawableProperties</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSDictionary</span> <span class="nf">dictionaryWithObjectsAndKeys</span><span class="p">:[</span><span class="n">NSNumber</span> <span class="nf">numberWithBool</span><span class="p">:</span><span class="nb">NO</span><span class="p">],</span> <span class="n">kEAGLDrawablePropertyRetainedBacking</span><span class="p">,</span> <span class="n">kEAGLColorFormatRGBA8</span><span class="p">,</span> <span class="n">kEAGLDrawablePropertyColorFormat</span><span class="p">,</span> <span class="nb">nil</span><span class="p">];</span>
+<span class="p">}</span>
+<span class="o">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">prepareContext</span>
+<span class="p">{</span>
+    
+    
+        <span class="n">self</span><span class="p">.</span><span class="n">context</span> <span class="o">=</span> <span class="p">[[</span><span class="n">EAGLContext</span> <span class="nf">alloc</span><span class="p">]</span><span class="nf">initWithAPI</span><span class="p">:</span><span class="n">kEAGLRenderingAPIOpenGLES2</span><span class="p">];</span>
+        <span class="p">[</span><span class="n">EAGLContext</span> <span class="nf">setCurrentContext</span><span class="p">:</span><span class="n">self</span><span class="p">.</span><span class="n">context</span><span class="p">];</span>
+    
+    
+<span class="p">}</span>
+<span class="o">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">prepareRenderBuffer</span><span class="p">{</span>
+    <span class="n">glGenRenderbuffers</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">_renderBuffer</span><span class="p">);</span>
+    <span class="n">glBindRenderbuffer</span><span class="p">(</span><span class="n">GL_RENDERBUFFER</span><span class="p">,</span> <span class="n">_renderBuffer</span><span class="p">);</span>
+    <span class="c1">//调用这个方法来创建一块空间用于存储缓冲数据，替代了glRenderbufferStorage
+</span>    <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">context</span> <span class="nf">renderbufferStorage</span><span class="p">:</span><span class="n">GL_RENDERBUFFER</span> <span class="nf">fromDrawable</span><span class="p">:</span><span class="n">self</span><span class="p">.</span><span class="n">eaglLayer</span><span class="p">];</span>
+    
+    <span class="n">glGetRenderbufferParameteriv</span><span class="p">(</span><span class="n">GL_RENDERBUFFER</span><span class="p">,</span> <span class="n">GL_RENDERBUFFER_WIDTH</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">_backingWidth</span><span class="p">);</span>
+    <span class="n">glGetRenderbufferParameteriv</span><span class="p">(</span><span class="n">GL_RENDERBUFFER</span><span class="p">,</span> <span class="n">GL_RENDERBUFFER_HEIGHT</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">_backingHeight</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="o">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">prepareFrameBuffer</span>
+<span class="p">{</span>
+    <span class="n">glGenFramebuffers</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">_framebuffer</span><span class="p">);</span>
+    <span class="n">glBindFramebuffer</span><span class="p">(</span><span class="n">GL_FRAMEBUFFER</span><span class="p">,</span> <span class="n">_framebuffer</span><span class="p">);</span>
+    
+    <span class="c1">//设置gl渲染窗口大小
+</span>    <span class="n">glViewport</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">_backingWidth</span><span class="p">,</span> <span class="n">_backingHeight</span><span class="p">);</span>
+    <span class="c1">//附加之前的_renderBuffer
+</span>    <span class="c1">//GL_COLOR_ATTACHMENT0指定第一个颜色缓冲区附着点
+</span>    <span class="n">glFramebufferRenderbuffer</span><span class="p">(</span><span class="n">GL_FRAMEBUFFER</span><span class="p">,</span> <span class="n">GL_COLOR_ATTACHMENT0</span><span class="p">,</span>
+                              <span class="n">GL_RENDERBUFFER</span><span class="p">,</span> <span class="n">_renderBuffer</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="o">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">prepareShader</span>
+<span class="p">{</span>
+    <span class="c1">//创建顶点着色器
+</span>    <span class="n">GLuint</span> <span class="n">vertexShader</span> <span class="o">=</span> <span class="n">glCreateShader</span><span class="p">(</span><span class="n">GL_VERTEX_SHADER</span><span class="p">);</span>
+    
+    <span class="k">const</span> <span class="n">GLchar</span><span class="o">*</span> <span class="k">const</span> <span class="n">vertexShaderSource</span> <span class="o">=</span>  <span class="p">(</span><span class="n">GLchar</span><span class="o">*</span><span class="p">)[</span><span class="n">vertexShaderString</span> <span class="nf">UTF8String</span><span class="p">];</span>
+    <span class="n">GLint</span> <span class="n">vertexShaderLength</span> <span class="o">=</span> <span class="p">(</span><span class="n">GLint</span><span class="p">)[</span><span class="n">vertexShaderString</span> <span class="nf">length</span><span class="p">];</span>
+    <span class="c1">//读取shader字符串
+</span>    <span class="n">glShaderSource</span><span class="p">(</span><span class="n">vertexShader</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">vertexShaderSource</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">vertexShaderLength</span><span class="p">);</span>
+    <span class="c1">//编译shader
+</span>    <span class="n">glCompileShader</span><span class="p">(</span><span class="n">vertexShader</span><span class="p">);</span>
+    
+    <span class="n">GLint</span> <span class="n">logLength</span><span class="p">;</span>
+    <span class="n">glGetShaderiv</span><span class="p">(</span><span class="n">vertexShader</span><span class="p">,</span> <span class="n">GL_INFO_LOG_LENGTH</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">logLength</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">logLength</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">GLchar</span> <span class="o">*</span><span class="n">log</span> <span class="o">=</span> <span class="p">(</span><span class="n">GLchar</span> <span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">logLength</span><span class="p">);</span>
+        <span class="n">glGetShaderInfoLog</span><span class="p">(</span><span class="n">vertexShader</span><span class="p">,</span> <span class="n">logLength</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">logLength</span><span class="p">,</span> <span class="n">log</span><span class="p">);</span>
+        <span class="n">NSLog</span><span class="p">(</span><span class="s">@"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">log</span><span class="p">);</span>
+        <span class="n">free</span><span class="p">(</span><span class="n">log</span><span class="p">);</span>
+    <span class="p">}</span>
+    
+    <span class="c1">//创建片元着色器
+</span>    <span class="n">GLuint</span> <span class="n">fragmentShader</span> <span class="o">=</span> <span class="n">glCreateShader</span><span class="p">(</span><span class="n">GL_FRAGMENT_SHADER</span><span class="p">);</span>
+    <span class="k">const</span> <span class="n">GLchar</span><span class="o">*</span> <span class="k">const</span> <span class="n">fragmentShaderSource</span> <span class="o">=</span> <span class="p">(</span><span class="n">GLchar</span><span class="o">*</span><span class="p">)[</span><span class="n">fragmentShaderString</span> <span class="nf">UTF8String</span><span class="p">];</span>
+    <span class="n">GLint</span> <span class="n">fragmentShaderLength</span> <span class="o">=</span> <span class="p">(</span><span class="n">GLint</span><span class="p">)[</span><span class="n">fragmentShaderString</span> <span class="nf">length</span><span class="p">];</span>
+    <span class="n">glShaderSource</span><span class="p">(</span><span class="n">fragmentShader</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">fragmentShaderSource</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">fragmentShaderLength</span><span class="p">);</span>
+    <span class="n">glCompileShader</span><span class="p">(</span><span class="n">fragmentShader</span><span class="p">);</span>
+    
+    <span class="n">glGetShaderiv</span><span class="p">(</span><span class="n">fragmentShader</span><span class="p">,</span> <span class="n">GL_INFO_LOG_LENGTH</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">logLength</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">logLength</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">GLchar</span> <span class="o">*</span><span class="n">log</span> <span class="o">=</span> <span class="p">(</span><span class="n">GLchar</span> <span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">logLength</span><span class="p">);</span>
+        <span class="n">glGetShaderInfoLog</span><span class="p">(</span><span class="n">fragmentShader</span><span class="p">,</span> <span class="n">logLength</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">logLength</span><span class="p">,</span> <span class="n">log</span><span class="p">);</span>
+        <span class="n">NSLog</span><span class="p">(</span><span class="s">@"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">log</span><span class="p">);</span>
+        <span class="n">free</span><span class="p">(</span><span class="n">log</span><span class="p">);</span>
+    <span class="p">}</span>
+    
+    <span class="c1">//创建glprogram
+</span>    <span class="n">_glprogram</span> <span class="o">=</span> <span class="n">glCreateProgram</span><span class="p">();</span>
+    
+    <span class="c1">//绑定shader
+</span>    <span class="n">glAttachShader</span><span class="p">(</span><span class="n">_glprogram</span><span class="p">,</span> <span class="n">vertexShader</span><span class="p">);</span>
+    <span class="n">glAttachShader</span><span class="p">(</span><span class="n">_glprogram</span><span class="p">,</span> <span class="n">fragmentShader</span><span class="p">);</span>
+    <span class="c1">//链接program
+</span>    <span class="n">glLinkProgram</span><span class="p">(</span><span class="n">_glprogram</span><span class="p">);</span>
+    
+    <span class="c1">//选择程序对象为当前使用的程序，类似setCurrentContext
+</span>    <span class="n">glUseProgram</span><span class="p">(</span><span class="n">_glprogram</span><span class="p">);</span>
+    
+    <span class="c1">//获取并保存参数位置
+</span>    <span class="n">_inputTexture</span> <span class="o">=</span> <span class="n">glGetUniformLocation</span><span class="p">(</span><span class="n">_glprogram</span><span class="p">,</span> <span class="s">"inputTexture"</span><span class="p">);</span>
+    <span class="n">_vertexPosition</span> <span class="o">=</span> <span class="n">glGetAttribLocation</span><span class="p">(</span><span class="n">_glprogram</span><span class="p">,</span> <span class="s">"vertexPosition"</span><span class="p">);</span>
+    <span class="n">_textureCoords</span> <span class="o">=</span> <span class="n">glGetAttribLocation</span><span class="p">(</span><span class="n">_glprogram</span><span class="p">,</span> <span class="s">"textureCoords"</span><span class="p">);</span>
+    
+    
+    <span class="c1">//使参数可见
+</span>    <span class="n">glEnableVertexAttribArray</span><span class="p">(</span><span class="n">_vertexPosition</span><span class="p">);</span>
+    <span class="n">glEnableVertexAttribArray</span><span class="p">(</span><span class="n">_textureCoords</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="p">...</span>
+<span class="k">@end</span>
+
+</code></pre></td></tr></tbody></table></div></div>
+
+<p>这里创建了一个串行队列，所有的OpenGL的操作都将同步在这个队列中执行。</p>
+
+<h4 id="shader程序">shader程序</h4>
+<p>这里的shader程序和上一篇笔记中的shader基本一致，就是顶点着色器将顶点坐标和纹理坐标传给片段着色器，然后片段着色器根据纹理和纹理坐标算出每个像素的颜色。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23</pre></td><td class="code"><pre class="highlight"><code><span class="n">NSString</span> <span class="o">*</span><span class="k">const</span> <span class="n">vertexShaderString</span> <span class="o">=</span> <span class="n">SHADER_STRING</span>
+<span class="p">(</span>
+ <span class="c1">//attribute 关键字用来描述传入shader的变量
+</span> <span class="n">attribute</span> <span class="n">vec4</span> <span class="n">vertexPosition</span><span class="p">;</span> <span class="c1">//传入的顶点坐标
+</span> <span class="n">attribute</span> <span class="n">vec2</span> <span class="n">textureCoords</span><span class="p">;</span><span class="c1">//要获取的纹理坐标
+</span> <span class="c1">//传给片段着色器参数
+</span> <span class="n">varying</span>  <span class="n">vec2</span> <span class="n">textureCoordsOut</span><span class="p">;</span>
+ <span class="kt">void</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+     <span class="n">gl_Position</span> <span class="o">=</span> <span class="n">vertexPosition</span><span class="p">;</span> <span class="c1">// gl_Position是vertex shader的内建变量，gl_Position中的顶点值最终输出到渲染管线中
+</span>     <span class="n">textureCoordsOut</span> <span class="o">=</span> <span class="n">textureCoords</span><span class="p">;</span>
+ <span class="p">}</span>
+ <span class="p">);</span>
+<span class="c1">//片段着色器
+</span><span class="n">NSString</span> <span class="o">*</span><span class="k">const</span> <span class="n">fragmentShaderString</span> <span class="o">=</span> <span class="n">SHADER_STRING</span>
+<span class="p">(</span>
+ <span class="n">varying</span> <span class="n">highp</span> <span class="n">vec2</span> <span class="n">textureCoordsOut</span><span class="p">;</span>
+ 
+ <span class="n">uniform</span> <span class="n">sampler2D</span> <span class="n">inputTexture</span><span class="p">;</span>
+ <span class="kt">void</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+     <span class="c1">//gl_FragColor是fragment shader的内建变量，gl_FragColor中的像素值最终输出到渲染管线中
+</span>     <span class="n">gl_FragColor</span> <span class="o">=</span> <span class="n">texture2D</span><span class="p">(</span><span class="n">inputTexture</span><span class="p">,</span> <span class="n">textureCoordsOut</span><span class="p">);</span>
+ <span class="p">}</span>
+ <span class="p">);</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<h4 id="使用视频数据创建纹理并渲染显示">使用视频数据创建纹理并渲染显示</h4>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32<br/>33<br/>34<br/>35<br/>36<br/>37<br/>38<br/>39<br/>40<br/>41<br/>42<br/>43<br/>44<br/>45<br/>46<br/>47</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">renderWithRGBData</span><span class="p">:(</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="nv">RGBData</span> <span class="nf">width</span><span class="p">:(</span><span class="kt">int</span><span class="p">)</span><span class="nv">width</span> <span class="nf">height</span><span class="p">:(</span><span class="kt">int</span><span class="p">)</span><span class="nv">height</span> <span class="p">{</span>
+    <span class="n">dispatch_sync</span><span class="p">(</span><span class="n">_renderQueue</span><span class="p">,</span> <span class="o">^</span><span class="p">{</span>
+        <span class="c1">//检查context
+</span>        <span class="k">if</span> <span class="p">([</span><span class="n">EAGLContext</span> <span class="nf">currentContext</span><span class="p">]</span> <span class="o">!=</span> <span class="n">self</span><span class="p">.</span><span class="n">context</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="p">[</span><span class="n">EAGLContext</span> <span class="nf">setCurrentContext</span><span class="p">:</span><span class="n">self</span><span class="p">.</span><span class="n">context</span><span class="p">];</span>
+        <span class="p">}</span>
+        
+        <span class="n">GLfloat</span> <span class="n">vertices</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+            <span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span>
+            
+        <span class="p">};</span>
+        <span class="n">GLfloat</span> <span class="n">textCoord</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span>
+        <span class="p">};</span>
+    
+        <span class="n">glBindTexture</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">_rgbTexture</span><span class="p">);</span>
+        <span class="n">glTexImage2D</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">GL_RGBA</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">GL_BGRA</span><span class="p">,</span> <span class="n">GL_UNSIGNED_BYTE</span><span class="p">,</span> <span class="n">RGBData</span><span class="p">);</span>
+
+        
+    
+        <span class="c1">//设置一些边缘的处理
+</span>        <span class="n">glTexParameteri</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_MAG_FILTER</span><span class="p">,</span> <span class="n">GL_LINEAR</span><span class="p">);</span>
+        <span class="n">glTexParameteri</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_MIN_FILTER</span><span class="p">,</span> <span class="n">GL_LINEAR</span><span class="p">);</span>
+        <span class="n">glTexParameterf</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_WRAP_S</span><span class="p">,</span> <span class="n">GL_CLAMP_TO_EDGE</span><span class="p">);</span>
+        <span class="n">glTexParameterf</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_WRAP_T</span><span class="p">,</span> <span class="n">GL_CLAMP_TO_EDGE</span><span class="p">);</span>
+        
+        <span class="c1">//确定采样器对应的哪个纹理，由于只使用一个，所以这句话可以不写
+</span>        <span class="n">glUniform1i</span><span class="p">(</span><span class="n">_inputTexture</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+        <span class="n">glVertexAttribPointer</span><span class="p">(</span><span class="n">_vertexPosition</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">GL_FLOAT</span><span class="p">,</span> <span class="n">GL_FALSE</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">vertices</span><span class="p">);</span>
+        <span class="n">glVertexAttribPointer</span><span class="p">(</span><span class="n">_textureCoords</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">GL_FLOAT</span><span class="p">,</span> <span class="n">GL_FALSE</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="n">textCoord</span><span class="p">);</span>
+    
+        <span class="c1">//清屏为白色
+</span>        <span class="n">glClearColor</span><span class="p">(</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">);</span>
+        <span class="n">glClear</span><span class="p">(</span><span class="n">GL_COLOR_BUFFER_BIT</span><span class="p">);</span>
+
+        <span class="n">glDrawArrays</span><span class="p">(</span><span class="n">GL_TRIANGLE_STRIP</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">);</span>
+        <span class="c1">//EACAGLContext 渲染OpenGL绘制好的图像到EACAGLLayer
+</span>        <span class="p">[</span><span class="n">_context</span> <span class="nf">presentRenderbuffer</span><span class="p">:</span><span class="n">GL_RENDERBUFFER</span><span class="p">];</span>
+    <span class="p">});</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<p>这里首先检查了EAGLContext是否是对应的context，因为context创建可能在不同的线程，导致不对应。接下来使用glTexImage2D函数将视频数据写入纹理缓冲，其中，由于采集的数据是32BGRA，所以倒数第三个参数传入GL_BGRA。之后使用glDrawArrays函数，传入GL_TRIANGLE_STRIP进行绘制，这个参数会使OpenGL逐个使用顶点并绘制三角形，根据GL_TRIANGLE_STRIP的特点，顶点坐标和纹理坐标以’Z’字形的顺序存放就可以画出矩形。</p>
+
+<p><a href="https://blog.csdn.net/qq526495605/article/details/47688841">GL_TRIANGLE_STRIP的绘制</a></p>
+
+<h3 id="在avcapturevideodataoutput代理中将数据传给glview">在AVCaptureVideoDataOutput代理中将数据传给GLView</h3>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">captureOutput</span><span class="p">:(</span><span class="n">AVCaptureOutput</span> <span class="o">*</span><span class="p">)</span><span class="nv">output</span> <span class="nf">didOutputSampleBuffer</span><span class="p">:(</span><span class="n">CMSampleBufferRef</span><span class="p">)</span><span class="nv">sampleBuffer</span> <span class="nf">fromConnection</span><span class="p">:(</span><span class="n">AVCaptureConnection</span> <span class="o">*</span><span class="p">)</span><span class="nv">connection</span>
+<span class="p">{</span>
+    <span class="n">CVImageBufferRef</span> <span class="n">imageBuffer</span> <span class="o">=</span> <span class="n">CMSampleBufferGetImageBuffer</span><span class="p">(</span><span class="n">sampleBuffer</span><span class="p">);</span>
+    
+    <span class="k">if</span><span class="p">(</span><span class="n">CVPixelBufferLockBaseAddress</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="n">kCVReturnSuccess</span><span class="p">)</span>
+    <span class="p">{</span>
+    	<span class="c1">//获取数据地址
+</span>        <span class="n">UInt8</span> <span class="o">*</span><span class="n">bufferPtr</span> <span class="o">=</span> <span class="p">(</span><span class="n">UInt8</span> <span class="o">*</span><span class="p">)</span><span class="n">CVPixelBufferGetBaseAddress</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">);</span>
+        <span class="kt">size_t</span> <span class="n">width</span> <span class="o">=</span> <span class="n">CVPixelBufferGetWidth</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">);</span>
+        <span class="kt">size_t</span> <span class="n">height</span> <span class="o">=</span> <span class="n">CVPixelBufferGetHeight</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">);</span>
+         <span class="nl">height:</span><span class="n">height</span><span class="p">];</span>
+         <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">renderView</span> <span class="nf">renderWithRGBData</span><span class="p">:</span><span class="n">bufferPtr</span> <span class="nf">width</span><span class="p">:</span><span class="n">width</span> <span class="n">height</span><span class="o">:</span><span class="n">height</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="n">CVPixelBufferUnlockBaseAddress</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>将一个GLView添加到Controller并真机运行后，即可看到采集的画面。</p>
+
+<h3 id="渲染yuv420p">渲染yuv420p</h3>
+
+<p>iOS系统可采集的另一种视频格式即是NV12，也叫yuv420sp，即是y分量存在一个平面，另外两个分量交替存储在另一个分量。因为NV12相对比较少见，实际渲染时也和yuv420p有些区别，因此先实现yuv420p的渲染，而因为iOS系统不支持直接采集yuv420p，因此此处使用一个三方库，libyuv，来对NV12的数据进行转换，然后再进行渲染。</p>
+
+<h4 id="修改采集格式">修改采集格式</h4>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1</pre></td><td class="code"><pre class="highlight"><code><span class="n">NSDictionary</span> <span class="o">*</span><span class="n">settings</span> <span class="o">=</span> <span class="p">[[</span><span class="n">NSDictionary</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithObjectsAndKeys</span><span class="p">:[</span><span class="n">NSNumber</span> <span class="nf">numberWithUnsignedInt</span><span class="p">:</span><span class="n">kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange</span><span class="p">],</span> <span class="n">kCVPixelBufferPixelFormatTypeKey</span><span class="p">,</span><span class="nb">nil</span><span class="p">];</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>这里可选kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange和kCVPixelFormatType_420YpCbCr8BiPlanarFullRange，都是采集NV12，区别是uv分量的取值范围不同，这里选择第一种。</p>
+
+<h4 id="使用libyuv转换为yuv420p格式数据">使用libyuv转换为yuv420p格式数据</h4>
+
+<p><a href="https://chromium.googlesource.com/external/libyuv/">libyuv</a></p>
+
+<p>在videoDataOutput的代理方法中，拿到sampleBuffer，取出两个分量，然后使用libyuv的函数NV12ToI420。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32<br/>33<br/>34<br/>35<br/>36<br/>37<br/>38<br/>39<br/>40<br/>41<br/>42<br/>43<br/>44<br/>45<br/>46<br/>47<br/>48<br/>49<br/>50<br/>51<br/>52<br/>53</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">captureOutput</span><span class="p">:(</span><span class="n">AVCaptureOutput</span> <span class="o">*</span><span class="p">)</span><span class="nv">output</span> <span class="nf">didOutputSampleBuffer</span><span class="p">:(</span><span class="n">CMSampleBufferRef</span><span class="p">)</span><span class="nv">sampleBuffer</span> <span class="nf">fromConnection</span><span class="p">:(</span><span class="n">AVCaptureConnection</span> <span class="o">*</span><span class="p">)</span><span class="nv">connection</span>
+<span class="p">{</span>
+    <span class="n">CVImageBufferRef</span> <span class="n">imageBuffer</span> <span class="o">=</span> <span class="n">CMSampleBufferGetImageBuffer</span><span class="p">(</span><span class="n">sampleBuffer</span><span class="p">);</span>
+    
+    <span class="k">if</span><span class="p">(</span><span class="n">CVPixelBufferLockBaseAddress</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="n">kCVReturnSuccess</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">//图像宽度（像素）
+</span>        <span class="kt">size_t</span> <span class="n">pixelWidth</span> <span class="o">=</span> <span class="n">CVPixelBufferGetWidth</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">);</span>
+        <span class="c1">//图像高度（像素）
+</span>        <span class="kt">size_t</span> <span class="n">pixelHeight</span> <span class="o">=</span> <span class="n">CVPixelBufferGetHeight</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">);</span>
+        <span class="c1">//获取CVImageBufferRef中的y数据
+</span>        <span class="kt">uint8_t</span> <span class="o">*</span><span class="n">y_frame</span> <span class="o">=</span> <span class="n">CVPixelBufferGetBaseAddressOfPlane</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+        <span class="c1">//获取CMVImageBufferRef中的uv数据
+</span>        <span class="kt">uint8_t</span> <span class="o">*</span><span class="n">uv_frame</span> <span class="o">=</span> <span class="n">CVPixelBufferGetBaseAddressOfPlane</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+        <span class="c1">//y stride
+</span>        <span class="kt">size_t</span> <span class="n">plane1_stride</span> <span class="o">=</span> <span class="n">CVPixelBufferGetBytesPerRowOfPlane</span> <span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+        <span class="c1">//uv stride
+</span>        <span class="kt">size_t</span> <span class="n">plane2_stride</span> <span class="o">=</span> <span class="n">CVPixelBufferGetBytesPerRowOfPlane</span> <span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+        <span class="c1">//y_size
+</span>        <span class="kt">size_t</span> <span class="n">plane1_size</span> <span class="o">=</span> <span class="n">plane1_stride</span> <span class="o">*</span> <span class="n">CVPixelBufferGetHeightOfPlane</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+        <span class="c1">//uv_size
+</span>        <span class="kt">size_t</span> <span class="n">plane2_size</span> <span class="o">=</span> <span class="n">CVPixelBufferGetBytesPerRowOfPlane</span> <span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">CVPixelBufferGetHeightOfPlane</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+        <span class="c1">//yuv_size
+</span>        <span class="kt">size_t</span> <span class="n">frame_size</span> <span class="o">=</span> <span class="n">plane1_size</span> <span class="o">+</span> <span class="n">plane2_size</span><span class="p">;</span>
+        
+        <span class="c1">//这些几个指针就是转换后的yuv分量的指针
+</span>        <span class="n">uint8</span><span class="o">*</span> <span class="n">dst_y</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="n">frame_size</span><span class="p">);</span>
+        <span class="n">uint8</span><span class="o">*</span> <span class="n">dst_u</span> <span class="o">=</span> <span class="n">dst_y</span> <span class="o">+</span> <span class="n">plane1_size</span><span class="p">;</span>
+        <span class="n">uint8</span><span class="o">*</span> <span class="n">dst_v</span> <span class="o">=</span> <span class="n">dst_u</span> <span class="o">+</span> <span class="n">plane1_size</span><span class="o">/</span><span class="mi">4</span><span class="p">;</span>
+        
+        <span class="k">if</span> <span class="p">(</span><span class="n">dst_y</span> <span class="o">==</span> <span class="nb">NULL</span> <span class="o">||</span> <span class="n">dst_u</span> <span class="o">==</span> <span class="nb">NULL</span> <span class="o">||</span> <span class="n">dst_v</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">CVPixelBufferUnlockBaseAddress</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="c1">// Let libyuv convert
+</span>        <span class="kt">int</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">NV12ToI420</span><span class="p">(</span><span class="n">y_frame</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">plane1_stride</span><span class="p">,</span>
+                             <span class="n">uv_frame</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">plane2_stride</span><span class="p">,</span>
+                             <span class="n">dst_y</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">plane1_stride</span><span class="p">,</span>
+                             <span class="n">dst_u</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">plane2_stride</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span>
+                             <span class="n">dst_v</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">plane2_stride</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span>
+                             <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">pixelWidth</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">pixelHeight</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">ret</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">free</span><span class="p">(</span><span class="n">dst_y</span><span class="p">);</span>
+            <span class="n">CVPixelBufferUnlockBaseAddress</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+        
+        
+		<span class="c1">//使用完之后需要手动释放内存
+</span>        <span class="n">free</span><span class="p">(</span><span class="n">dst_y</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">CVPixelBufferUnlockBaseAddress</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<h4 id="修改shader">修改shader</h4>
+
+<p>因为有yuv三个分量，因此就有三个纹理，片段着色器就有三个sampler2D，顶点着色器不做改动。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22</pre></td><td class="code"><pre class="highlight"><code><span class="n">NSString</span> <span class="o">*</span><span class="k">const</span> <span class="n">fragmentShaderString</span> <span class="o">=</span> <span class="n">SHADER_STRING</span>
+<span class="p">(</span>
+ <span class="n">varying</span> <span class="n">highp</span> <span class="n">vec2</span> <span class="n">textureCoordsOut</span><span class="p">;</span>
+ 
+ <span class="n">uniform</span> <span class="n">sampler2D</span> <span class="n">y_texture</span><span class="p">;</span>
+ <span class="n">uniform</span> <span class="n">sampler2D</span> <span class="n">u_texture</span><span class="p">;</span>
+ <span class="n">uniform</span> <span class="n">sampler2D</span> <span class="n">v_texture</span><span class="p">;</span>
+ 
+ <span class="kt">void</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+     
+     <span class="n">highp</span> <span class="kt">float</span> <span class="n">y</span> <span class="o">=</span> <span class="n">texture2D</span><span class="p">(</span><span class="n">y_texture</span><span class="p">,</span> <span class="n">textureCoordsOut</span><span class="p">).</span><span class="n">r</span><span class="p">;</span>
+     <span class="n">highp</span> <span class="kt">float</span> <span class="n">u</span> <span class="o">=</span> <span class="n">texture2D</span><span class="p">(</span><span class="n">u_texture</span><span class="p">,</span> <span class="n">textureCoordsOut</span><span class="p">).</span><span class="n">r</span> <span class="o">-</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span> <span class="p">;</span>
+     <span class="n">highp</span> <span class="kt">float</span> <span class="n">v</span> <span class="o">=</span> <span class="n">texture2D</span><span class="p">(</span><span class="n">v_texture</span><span class="p">,</span> <span class="n">textureCoordsOut</span><span class="p">).</span><span class="n">r</span> <span class="o">-</span><span class="mi">0</span><span class="p">.</span><span class="mi">5</span><span class="p">;</span>
+     <span class="c1">//yuv转换rgb公式
+</span>     <span class="n">highp</span> <span class="kt">float</span> <span class="n">r</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span>             <span class="mi">1</span><span class="p">.</span><span class="mi">402</span> <span class="o">*</span> <span class="n">v</span><span class="p">;</span>
+     <span class="n">highp</span> <span class="kt">float</span> <span class="n">g</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="mi">0</span><span class="p">.</span><span class="mi">344</span> <span class="o">*</span> <span class="n">u</span> <span class="o">-</span> <span class="mi">0</span><span class="p">.</span><span class="mi">714</span> <span class="o">*</span> <span class="n">v</span><span class="p">;</span>
+     <span class="n">highp</span> <span class="kt">float</span> <span class="n">b</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">.</span><span class="mi">772</span> <span class="o">*</span> <span class="n">u</span><span class="p">;</span>
+     
+     <span class="n">gl_FragColor</span> <span class="o">=</span> <span class="n">vec4</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">);</span>
+     
+ <span class="p">}</span>
+ <span class="p">);</span>
+</code></pre></td></tr></tbody></table></div></div>
+<h4 id="修改纹理">修改纹理</h4>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32<br/>33<br/>34<br/>35</pre></td><td class="code"><pre class="highlight"><code><span class="k">@interface</span> <span class="nc">LYRYUVView</span> <span class="p">()</span>
+<span class="p">{</span>
+    <span class="p">...</span>
+    <span class="c1">//纹理缓冲
+</span>    <span class="n">GLuint</span> <span class="n">_yTexture</span><span class="p">;</span>
+    <span class="n">GLuint</span> <span class="n">_uTexture</span><span class="p">;</span>
+    <span class="n">GLuint</span> <span class="n">_vTexture</span><span class="p">;</span>
+    
+    <span class="p">...</span>
+    
+    <span class="c1">//纹理参数
+</span>    <span class="n">GLint</span> <span class="n">_y_texture</span><span class="p">;</span>
+    <span class="n">GLint</span> <span class="n">_u_texture</span><span class="p">;</span>
+    <span class="n">GLint</span> <span class="n">_v_texture</span><span class="p">;</span>
+    
+<span class="p">}</span>
+<span class="p">...</span>
+<span class="o">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">prepareShader</span>
+<span class="p">{</span>
+    <span class="p">...</span>
+    <span class="c1">//选择程序对象为当前使用的程序，类似setCurrentContext
+</span>    <span class="n">glUseProgram</span><span class="p">(</span><span class="n">_glprogram</span><span class="p">);</span>
+    
+    <span class="c1">//获取并保存参数位置
+</span>    <span class="n">_y_texture</span> <span class="o">=</span> <span class="n">glGetUniformLocation</span><span class="p">(</span><span class="n">_glprogram</span><span class="p">,</span> <span class="s">"y_texture"</span><span class="p">);</span>
+    <span class="n">_u_texture</span> <span class="o">=</span> <span class="n">glGetUniformLocation</span><span class="p">(</span><span class="n">_glprogram</span><span class="p">,</span> <span class="s">"u_texture"</span><span class="p">);</span>
+    <span class="n">_v_texture</span> <span class="o">=</span> <span class="n">glGetUniformLocation</span><span class="p">(</span><span class="n">_glprogram</span><span class="p">,</span> <span class="s">"v_texture"</span><span class="p">);</span>
+    <span class="c1">//分配缓冲
+</span>    <span class="n">glGenTextures</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">_yTexture</span><span class="p">);</span>
+    <span class="n">glGenTextures</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">_uTexture</span><span class="p">);</span>
+    <span class="n">glGenTextures</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">_vTexture</span><span class="p">);</span>
+    
+    <span class="n">_vertexPosition</span> <span class="o">=</span> <span class="n">glGetAttribLocation</span><span class="p">(</span><span class="n">_glprogram</span><span class="p">,</span> <span class="s">"vertexPosition"</span><span class="p">);</span>
+   <span class="p">...</span>    
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<h4 id="修改渲染方法将yuv纹理传入纹理缓冲">修改渲染方法，将yuv纹理传入纹理缓冲</h4>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32<br/>33<br/>34<br/>35<br/>36<br/>37<br/>38<br/>39<br/>40<br/>41<br/>42<br/>43<br/>44<br/>45<br/>46<br/>47<br/>48<br/>49<br/>50<br/>51<br/>52<br/>53<br/>54<br/>55<br/>56<br/>57<br/>58<br/>59<br/>60<br/>61<br/>62<br/>63<br/>64<br/>65<br/>66<br/>67<br/>68</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">renderWithYData</span><span class="p">:(</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="nv">YData</span> <span class="nf">UData</span><span class="p">:(</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="nv">UData</span> <span class="nf">VData</span><span class="p">:(</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="nv">VData</span> <span class="nf">width</span><span class="p">:(</span><span class="kt">int</span><span class="p">)</span><span class="nv">width</span> <span class="nf">height</span><span class="p">:(</span><span class="kt">int</span><span class="p">)</span><span class="nv">height</span>
+<span class="p">{</span>
+    <span class="n">dispatch_sync</span><span class="p">(</span><span class="n">_renderQueue</span><span class="p">,</span> <span class="o">^</span><span class="p">{</span>
+        <span class="c1">//检查context
+</span>        <span class="k">if</span> <span class="p">([</span><span class="n">EAGLContext</span> <span class="nf">currentContext</span><span class="p">]</span> <span class="o">!=</span> <span class="n">self</span><span class="p">.</span><span class="n">context</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="p">[</span><span class="n">EAGLContext</span> <span class="nf">setCurrentContext</span><span class="p">:</span><span class="n">self</span><span class="p">.</span><span class="n">context</span><span class="p">];</span>
+        <span class="p">}</span>
+        
+        <span class="n">GLfloat</span> <span class="n">vertices</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+            <span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span>
+            
+        <span class="p">};</span>
+        <span class="n">GLfloat</span> <span class="n">textCoord</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span>
+        <span class="p">};</span>
+        
+        <span class="n">glActiveTexture</span><span class="p">(</span><span class="n">GL_TEXTURE0</span><span class="p">);</span>
+        <span class="n">glBindTexture</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">_yTexture</span><span class="p">);</span>
+        <span class="n">glUniform1i</span><span class="p">(</span><span class="n">_y_texture</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+        <span class="n">glTexImage2D</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">GL_LUMINANCE</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">GL_LUMINANCE</span><span class="p">,</span> <span class="n">GL_UNSIGNED_BYTE</span><span class="p">,</span> <span class="n">YData</span><span class="p">);</span>
+        <span class="c1">//设置一些边缘的处理,每个纹理都需要设置
+</span>        <span class="n">glTexParameteri</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_MAG_FILTER</span><span class="p">,</span> <span class="n">GL_LINEAR</span><span class="p">);</span>
+        <span class="n">glTexParameteri</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_MIN_FILTER</span><span class="p">,</span> <span class="n">GL_LINEAR</span><span class="p">);</span>
+        <span class="n">glTexParameterf</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_WRAP_S</span><span class="p">,</span> <span class="n">GL_CLAMP_TO_EDGE</span><span class="p">);</span>
+        <span class="n">glTexParameterf</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_WRAP_T</span><span class="p">,</span> <span class="n">GL_CLAMP_TO_EDGE</span><span class="p">);</span>
+        
+        
+        <span class="n">glActiveTexture</span><span class="p">(</span><span class="n">GL_TEXTURE0</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+        <span class="n">glBindTexture</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">_uTexture</span><span class="p">);</span>
+        <span class="n">glTexImage2D</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">GL_LUMINANCE</span><span class="p">,</span> <span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">height</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">GL_LUMINANCE</span><span class="p">,</span> <span class="n">GL_UNSIGNED_BYTE</span><span class="p">,</span> <span class="n">UData</span><span class="p">);</span>
+        <span class="n">glUniform1i</span><span class="p">(</span><span class="n">_u_texture</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+
+        <span class="n">glTexParameteri</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_MAG_FILTER</span><span class="p">,</span> <span class="n">GL_LINEAR</span><span class="p">);</span>
+        <span class="n">glTexParameteri</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_MIN_FILTER</span><span class="p">,</span> <span class="n">GL_LINEAR</span><span class="p">);</span>
+        <span class="n">glTexParameterf</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_WRAP_S</span><span class="p">,</span> <span class="n">GL_CLAMP_TO_EDGE</span><span class="p">);</span>
+        <span class="n">glTexParameterf</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_WRAP_T</span><span class="p">,</span> <span class="n">GL_CLAMP_TO_EDGE</span><span class="p">);</span>
+        
+        
+        <span class="n">glActiveTexture</span><span class="p">(</span><span class="n">GL_TEXTURE0</span> <span class="o">+</span> <span class="mi">2</span><span class="p">);</span>
+        <span class="n">glBindTexture</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">_vTexture</span><span class="p">);</span>
+        <span class="n">glTexImage2D</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">GL_LUMINANCE</span><span class="p">,</span> <span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">height</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">GL_LUMINANCE</span><span class="p">,</span> <span class="n">GL_UNSIGNED_BYTE</span><span class="p">,</span> <span class="n">VData</span><span class="p">);</span>
+        <span class="n">glUniform1i</span><span class="p">(</span><span class="n">_v_texture</span><span class="p">,</span><span class="mi">2</span><span class="p">);</span>
+        
+        <span class="n">glTexParameteri</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_MAG_FILTER</span><span class="p">,</span> <span class="n">GL_LINEAR</span><span class="p">);</span>
+        <span class="n">glTexParameteri</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_MIN_FILTER</span><span class="p">,</span> <span class="n">GL_LINEAR</span><span class="p">);</span>
+        <span class="n">glTexParameterf</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_WRAP_S</span><span class="p">,</span> <span class="n">GL_CLAMP_TO_EDGE</span><span class="p">);</span>
+        <span class="n">glTexParameterf</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_WRAP_T</span><span class="p">,</span> <span class="n">GL_CLAMP_TO_EDGE</span><span class="p">);</span>
+        
+        
+        <span class="n">glVertexAttribPointer</span><span class="p">(</span><span class="n">_vertexPosition</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">GL_FLOAT</span><span class="p">,</span> <span class="n">GL_FALSE</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">vertices</span><span class="p">);</span>
+        <span class="n">glVertexAttribPointer</span><span class="p">(</span><span class="n">_textureCoords</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">GL_FLOAT</span><span class="p">,</span> <span class="n">GL_FALSE</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="n">textCoord</span><span class="p">);</span>
+        
+        <span class="c1">//清屏为白色
+</span>        <span class="n">glClearColor</span><span class="p">(</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">);</span>
+        <span class="n">glClear</span><span class="p">(</span><span class="n">GL_COLOR_BUFFER_BIT</span><span class="p">);</span>
+        
+        <span class="n">glDrawArrays</span><span class="p">(</span><span class="n">GL_TRIANGLE_STRIP</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">);</span>
+        <span class="c1">//EACAGLContext 渲染OpenGL绘制好的图像到EACAGLLayer
+</span>        <span class="p">[</span><span class="n">_context</span> <span class="nf">presentRenderbuffer</span><span class="p">:</span><span class="n">GL_RENDERBUFFER</span><span class="p">];</span>
+    <span class="p">});</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<p>之后调用方法，运行后即可看到采集的视频。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">captureOutput</span><span class="p">:(</span><span class="n">AVCaptureOutput</span> <span class="o">*</span><span class="p">)</span><span class="nv">output</span> <span class="nf">didOutputSampleBuffer</span><span class="p">:(</span><span class="n">CMSampleBufferRef</span><span class="p">)</span><span class="nv">sampleBuffer</span> <span class="nf">fromConnection</span><span class="p">:(</span><span class="n">AVCaptureConnection</span> <span class="o">*</span><span class="p">)</span><span class="nv">connection</span>
+<span class="p">{</span>
+   <span class="p">...</span>
+        <span class="c1">// Let libyuv convert
+</span>        <span class="kt">int</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">NV12ToI420</span><span class="p">(</span><span class="n">y_frame</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">plane1_stride</span><span class="p">,</span>
+                             <span class="n">uv_frame</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">plane2_stride</span><span class="p">,</span>
+                             <span class="n">dst_y</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">plane1_stride</span><span class="p">,</span>
+                             <span class="n">dst_u</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">plane2_stride</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span>
+                             <span class="n">dst_v</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">plane2_stride</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span>
+                             <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">pixelWidth</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">pixelHeight</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">ret</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">free</span><span class="p">(</span><span class="n">dst_y</span><span class="p">);</span>
+            <span class="n">CVPixelBufferUnlockBaseAddress</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+        
+        
+        <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">renderView</span> <span class="nf">renderWithYData</span><span class="p">:</span><span class="n">dst_y</span> <span class="nf">UData</span><span class="p">:</span><span class="n">dst_u</span> <span class="n">VData</span><span class="o">:</span><span class="n">dst_v</span> <span class="n">width</span><span class="o">:</span><span class="n">pixelWidth</span> <span class="n">height</span><span class="o">:</span><span class="n">pixelHeight</span><span class="p">];</span>
+        <span class="c1">//使用完之后需要手动释放内存
+</span>        <span class="n">free</span><span class="p">(</span><span class="n">dst_y</span><span class="p">);</span>
+    <span class="p">...</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<h3 id="渲染nv12">渲染NV12</h3>
+
+<h4 id="修改shader-1">修改shader</h4>
+
+<p>这里和yuv420p的区别就是传入的纹理参数是两个，第二个是uv分量，u分量从r中取，v分量从a中取。
+在网上一些例子中，v分量是从g中获取的，这个应该是移动端和PC端存储数据位置的不同。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20</pre></td><td class="code"><pre class="highlight"><code><span class="n">NSString</span> <span class="o">*</span><span class="k">const</span> <span class="n">fragmentShaderString</span> <span class="o">=</span> <span class="n">SHADER_STRING</span>
+<span class="p">(</span>
+ <span class="n">varying</span> <span class="n">highp</span> <span class="n">vec2</span> <span class="n">textureCoordsOut</span><span class="p">;</span>
+ 
+ <span class="n">uniform</span> <span class="n">sampler2D</span> <span class="n">y_texture</span><span class="p">;</span>
+ <span class="n">uniform</span> <span class="n">sampler2D</span> <span class="n">uv_texture</span><span class="p">;</span>
+ 
+ <span class="kt">void</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+     
+     <span class="n">highp</span> <span class="kt">float</span> <span class="n">y</span> <span class="o">=</span> <span class="n">texture2D</span><span class="p">(</span><span class="n">y_texture</span><span class="p">,</span> <span class="n">textureCoordsOut</span><span class="p">).</span><span class="n">r</span><span class="p">;</span>
+     <span class="n">highp</span> <span class="kt">float</span> <span class="n">u</span> <span class="o">=</span> <span class="n">texture2D</span><span class="p">(</span><span class="n">uv_texture</span><span class="p">,</span> <span class="n">textureCoordsOut</span><span class="p">).</span><span class="n">r</span> <span class="o">-</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span> <span class="p">;</span>
+     <span class="n">highp</span> <span class="kt">float</span> <span class="n">v</span> <span class="o">=</span> <span class="n">texture2D</span><span class="p">(</span><span class="n">uv_texture</span><span class="p">,</span> <span class="n">textureCoordsOut</span><span class="p">).</span><span class="n">a</span> <span class="o">-</span><span class="mi">0</span><span class="p">.</span><span class="mi">5</span><span class="p">;</span>
+
+     <span class="n">highp</span> <span class="kt">float</span> <span class="n">r</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span>             <span class="mi">1</span><span class="p">.</span><span class="mi">402</span> <span class="o">*</span> <span class="n">v</span><span class="p">;</span>
+     <span class="n">highp</span> <span class="kt">float</span> <span class="n">g</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="mi">0</span><span class="p">.</span><span class="mi">344</span> <span class="o">*</span> <span class="n">u</span> <span class="o">-</span> <span class="mi">0</span><span class="p">.</span><span class="mi">714</span> <span class="o">*</span> <span class="n">v</span><span class="p">;</span>
+     <span class="n">highp</span> <span class="kt">float</span> <span class="n">b</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">.</span><span class="mi">772</span> <span class="o">*</span> <span class="n">u</span><span class="p">;</span>
+
+     <span class="n">gl_FragColor</span> <span class="o">=</span> <span class="n">vec4</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">);</span>
+ <span class="p">}</span>
+ <span class="p">);</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<h4 id="修改纹理-1">修改纹理</h4>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32<br/>33<br/>34<br/>35</pre></td><td class="code"><pre class="highlight"><code><span class="k">@interface</span> <span class="nc">LYRNV12View</span> <span class="p">()</span>
+<span class="p">{</span>
+	<span class="p">...</span>
+    <span class="c1">//纹理缓冲
+</span>    <span class="n">GLuint</span> <span class="n">_yTexture</span><span class="p">;</span>
+    <span class="n">GLuint</span> <span class="n">_uvTexture</span><span class="p">;</span>
+    
+    <span class="p">...</span>
+    
+    <span class="c1">//纹理参数
+</span>    <span class="n">GLint</span> <span class="n">_y_texture</span><span class="p">;</span>
+    <span class="n">GLint</span> <span class="n">_uv_texture</span><span class="p">;</span>
+    <span class="p">...</span>
+<span class="p">}</span>
+
+
+<span class="o">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">prepareShader</span>
+<span class="p">{</span>
+    <span class="p">...</span>
+    
+    <span class="c1">//选择程序对象为当前使用的程序，类似setCurrentContext
+</span>    <span class="n">glUseProgram</span><span class="p">(</span><span class="n">_glprogram</span><span class="p">);</span>
+    
+    <span class="c1">//获取并保存参数位置
+</span>    <span class="n">_y_texture</span> <span class="o">=</span> <span class="n">glGetUniformLocation</span><span class="p">(</span><span class="n">_glprogram</span><span class="p">,</span> <span class="s">"y_texture"</span><span class="p">);</span>
+    <span class="n">_uv_texture</span> <span class="o">=</span> <span class="n">glGetUniformLocation</span><span class="p">(</span><span class="n">_glprogram</span><span class="p">,</span> <span class="s">"uv_texture"</span><span class="p">);</span>
+    
+    <span class="n">glGenTextures</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">_yTexture</span><span class="p">);</span>
+    <span class="n">glGenTextures</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">_uvTexture</span><span class="p">);</span>
+    
+    <span class="n">_vertexPosition</span> <span class="o">=</span> <span class="n">glGetAttribLocation</span><span class="p">(</span><span class="n">_glprogram</span><span class="p">,</span> <span class="s">"vertexPosition"</span><span class="p">);</span>
+   <span class="p">...</span>
+    
+     
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<h4 id="修改渲染方法">修改渲染方法</h4>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32<br/>33<br/>34<br/>35<br/>36<br/>37<br/>38<br/>39<br/>40<br/>41<br/>42<br/>43<br/>44<br/>45<br/>46<br/>47<br/>48<br/>49<br/>50<br/>51<br/>52<br/>53<br/>54<br/>55<br/>56<br/>57<br/>58<br/>59<br/>60<br/>61<br/>62</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">renderWithYData</span><span class="p">:(</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="nv">YData</span> <span class="nf">UVData</span><span class="p">:(</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="nv">UVData</span> <span class="nf">width</span><span class="p">:(</span><span class="kt">int</span><span class="p">)</span><span class="nv">width</span> <span class="nf">height</span><span class="p">:(</span><span class="kt">int</span><span class="p">)</span><span class="nv">height</span>
+<span class="p">{</span>
+    <span class="n">dispatch_sync</span><span class="p">(</span><span class="n">_renderQueue</span><span class="p">,</span> <span class="o">^</span><span class="p">{</span>
+        <span class="c1">//检查context
+</span>        <span class="k">if</span> <span class="p">([</span><span class="n">EAGLContext</span> <span class="nf">currentContext</span><span class="p">]</span> <span class="o">!=</span> <span class="n">self</span><span class="p">.</span><span class="n">context</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="p">[</span><span class="n">EAGLContext</span> <span class="nf">setCurrentContext</span><span class="p">:</span><span class="n">self</span><span class="p">.</span><span class="n">context</span><span class="p">];</span>
+        <span class="p">}</span>
+        
+        <span class="n">GLfloat</span> <span class="n">vertices</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span>
+            <span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+            
+        <span class="p">};</span>
+        <span class="n">GLfloat</span> <span class="n">textCoord</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span>
+        <span class="p">};</span>
+        <span class="n">glActiveTexture</span><span class="p">(</span><span class="n">GL_TEXTURE0</span><span class="p">);</span>
+        <span class="n">glBindTexture</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">_yTexture</span><span class="p">);</span>
+        
+        <span class="n">glUniform1i</span><span class="p">(</span><span class="n">_y_texture</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+        <span class="n">glTexImage2D</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">GL_LUMINANCE</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">GL_LUMINANCE</span><span class="p">,</span> <span class="n">GL_UNSIGNED_BYTE</span><span class="p">,</span> <span class="n">YData</span><span class="p">);</span>
+        <span class="n">glTexParameteri</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_MAG_FILTER</span><span class="p">,</span> <span class="n">GL_LINEAR</span><span class="p">);</span>
+        <span class="n">glTexParameteri</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_MIN_FILTER</span><span class="p">,</span> <span class="n">GL_LINEAR</span><span class="p">);</span>
+        <span class="n">glTexParameterf</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_WRAP_S</span><span class="p">,</span> <span class="n">GL_CLAMP_TO_EDGE</span><span class="p">);</span>
+        <span class="n">glTexParameterf</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_WRAP_T</span><span class="p">,</span> <span class="n">GL_CLAMP_TO_EDGE</span><span class="p">);</span>
+        
+        
+        <span class="n">glActiveTexture</span><span class="p">(</span><span class="n">GL_TEXTURE0</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+
+        <span class="n">glBindTexture</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">_uvTexture</span><span class="p">);</span>
+        <span class="c1">//uv分量的参数变为GL_LUMINANCE_ALPHA
+</span>        <span class="n">glTexImage2D</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">GL_LUMINANCE_ALPHA</span><span class="p">,</span> <span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">height</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">GL_LUMINANCE_ALPHA</span><span class="p">,</span> <span class="n">GL_UNSIGNED_BYTE</span><span class="p">,</span> <span class="n">UVData</span><span class="p">);</span>
+        <span class="n">glUniform1i</span><span class="p">(</span><span class="n">_uv_texture</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+        
+        
+        <span class="c1">//设置一些边缘的处理
+</span>        <span class="n">glTexParameteri</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_MAG_FILTER</span><span class="p">,</span> <span class="n">GL_LINEAR</span><span class="p">);</span>
+        <span class="n">glTexParameteri</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_MIN_FILTER</span><span class="p">,</span> <span class="n">GL_LINEAR</span><span class="p">);</span>
+        <span class="n">glTexParameterf</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_WRAP_S</span><span class="p">,</span> <span class="n">GL_CLAMP_TO_EDGE</span><span class="p">);</span>
+        <span class="n">glTexParameterf</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_WRAP_T</span><span class="p">,</span> <span class="n">GL_CLAMP_TO_EDGE</span><span class="p">);</span>
+        
+        
+        
+        
+        <span class="n">glVertexAttribPointer</span><span class="p">(</span><span class="n">_vertexPosition</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">GL_FLOAT</span><span class="p">,</span> <span class="n">GL_FALSE</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">vertices</span><span class="p">);</span>
+        <span class="n">glVertexAttribPointer</span><span class="p">(</span><span class="n">_textureCoords</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">GL_FLOAT</span><span class="p">,</span> <span class="n">GL_FALSE</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="n">textCoord</span><span class="p">);</span>
+        
+        <span class="c1">//清屏为白色
+</span>        <span class="n">glClearColor</span><span class="p">(</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">);</span>
+        <span class="n">glClear</span><span class="p">(</span><span class="n">GL_COLOR_BUFFER_BIT</span><span class="p">);</span>
+        
+        <span class="n">glDrawArrays</span><span class="p">(</span><span class="n">GL_TRIANGLE_STRIP</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">);</span>
+        <span class="c1">//EACAGLContext 渲染OpenGL绘制好的图像到EACAGLLayer
+</span>        <span class="p">[</span><span class="n">_context</span> <span class="nf">presentRenderbuffer</span><span class="p">:</span><span class="n">GL_RENDERBUFFER</span><span class="p">];</span>
+    <span class="p">});</span>
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+<p>这里需要注意，uv分量的参数变为GL_LUMINANCE_ALPHA，这个参数表示按照亮度和alpha值存储纹理单元，而GL_LUMINANCE表示按照亮度值存储纹理单元，alpha值固定为1。在修改shader时也提到，v分量是从a中获取的，也就是说如果使用GL_LUMINANCE，则v分量的值会丢失。</p>
+
+<p>之后调用方法，运行后即可看到采集的视频。</p>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9</pre></td><td class="code"><pre class="highlight"><code><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">captureOutput</span><span class="p">:(</span><span class="n">AVCaptureOutput</span> <span class="o">*</span><span class="p">)</span><span class="nv">output</span> <span class="nf">didOutputSampleBuffer</span><span class="p">:(</span><span class="n">CMSampleBufferRef</span><span class="p">)</span><span class="nv">sampleBuffer</span> <span class="nf">fromConnection</span><span class="p">:(</span><span class="n">AVCaptureConnection</span> <span class="o">*</span><span class="p">)</span><span class="nv">connection</span>
+<span class="p">{</span>
+	<span class="n">UInt8</span> <span class="o">*</span><span class="n">yBuffer</span> <span class="o">=</span> <span class="p">(</span><span class="n">UInt8</span> <span class="o">*</span><span class="p">)</span><span class="n">CVPixelBufferGetBaseAddressOfPlane</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+	<span class="n">UInt8</span> <span class="o">*</span><span class="n">uvBuffer</span> <span class="o">=</span> <span class="p">(</span><span class="n">UInt8</span> <span class="o">*</span><span class="p">)</span><span class="n">CVPixelBufferGetBaseAddressOfPlane</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+	<span class="kt">size_t</span> <span class="n">width</span> <span class="o">=</span> <span class="n">CVPixelBufferGetWidth</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">);</span>
+	<span class="kt">size_t</span> <span class="n">height</span> <span class="o">=</span> <span class="n">CVPixelBufferGetHeight</span><span class="p">(</span><span class="n">imageBuffer</span><span class="p">);</span>
+	<span class="n">self</span><span class="p">.</span><span class="n">renderView</span> <span class="n">renderWithYData</span><span class="o">:</span><span class="n">yBuffer</span> <span class="n">UVData</span><span class="o">:</span><span class="n">uvBuffer</span> <span class="n">width</span><span class="o">:</span><span class="n">width</span> <span class="n">height</span><span class="o">:</span><span class="n">height</span><span class="p">];</span>
+	
+<span class="p">}</span>
+</code></pre></td></tr></tbody></table></div></div>
+
+<h3 id="总结">总结</h3>
+<p>视频渲染是OpenGL很重要的一个功能，在学习研究的时候也发现不少坑，主要是一些细节的参数的不同，以及移动端和PC端的差异导致的，其中看kxmovie和GPUImage的源码还是收益不少的。</p>
+
+<p><a href="https://github.com/kof97500/OpenGLIOSDemo/tree/master/OpenGLDemo03">demo地址</a></p>
+
+<p>参考：<br />
+<a href="https://github.com/kolyvan/kxmovie/blob/master/kxmovie/KxMovieGLView.m">kxmovie</a><br />
+<a href="https://github.com/BradLarson/GPUImage/blob/167b0389bc6e9dc4bb0121550f91d8d5d6412c53/framework/Source/iOS/GPUImageView.m">GPUImage</a><br />
+<a href="https://blog.csdn.net/wanghualin033/article/details/80155803">opengl渲染nv12视频</a></p>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            
+            <a href="/tag/#/OpenGL" rel="tag"># OpenGL</a>
+          
+            
+            <a href="/tag/#/%E9%9F%B3%E8%A7%86%E9%A2%91" rel="tag"># 音视频</a>
+          
+            
+            <a href="/tag/#/%E7%AC%94%E8%AE%B0" rel="tag"># 笔记</a>
+          
+        </div>
+      
+
+      
+      
+      
+      
+      
+
+      
+      
+        <div class="post-nav" id="post-nav-id">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/opengl/2018/04/14/OpenGLiOS04/" rel="next" title="OpenGL ES iOS笔记04 使用AVSampleBufferDisplayLayer渲染视频">
+                <i class="fa fa-chevron-left"></i> OpenGL ES iOS笔记04 使用AVSampleBufferDisplayLayer渲染视频
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/opengl/2018/03/25/OpenGLiOS02/" rel="prev" title="OpenGL ES iOS笔记02 使用纹理">
+                OpenGL ES iOS笔记02 使用纹理 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+      
+
+      
+    </footer>
+  </article>
+
+  <div class="post-spread">
+    
+  </div>
+</div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        
+        
+        
+
+
+
+
+
+
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/assets/images/avatar.gif"
+               alt="Michael" />
+          <p class="site-author-name" itemprop="name">Michael</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+        
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+
+
+
+
+
+
+
+            
+              <div class="post-toc-content">
+    <ol class=nav>
+      <li class="nav-item nav-level-3"> <a class="nav-link" href="#利用avfoundation采集视频"> <span class="nav-number">1</span> <span class="nav-text">利用AVFoundation采集视频</span> </a> </li> <li class="nav-item nav-level-3"> <a class="nav-link" href="#修改glview"> <span class="nav-number">2</span> <span class="nav-text">修改GLView</span> </a> <ol class="nav-child"> <li class="nav-item nav-level-4"> <a class="nav-link" href="#调用opengl的准备工作"> <span class="nav-number">2.1</span> <span class="nav-text">调用OpenGL的准备工作</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#shader程序"> <span class="nav-number">2.2</span> <span class="nav-text">shader程序</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#使用视频数据创建纹理并渲染显示"> <span class="nav-number">2.3</span> <span class="nav-text">使用视频数据创建纹理并渲染显示</span> </a> </li> </ol> </li> <li class="nav-item nav-level-3"> <a class="nav-link" href="#在avcapturevideodataoutput代理中将数据传给glview"> <span class="nav-number">3</span> <span class="nav-text">在AVCaptureVideoDataOutput代理中将数据传给GLView</span> </a> </li> <li class="nav-item nav-level-3"> <a class="nav-link" href="#渲染yuv420p"> <span class="nav-number">4</span> <span class="nav-text">渲染yuv420p</span> </a> <ol class="nav-child"> <li class="nav-item nav-level-4"> <a class="nav-link" href="#修改采集格式"> <span class="nav-number">4.1</span> <span class="nav-text">修改采集格式</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#使用libyuv转换为yuv420p格式数据"> <span class="nav-number">4.2</span> <span class="nav-text">使用libyuv转换为yuv420p格式数据</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#修改shader"> <span class="nav-number">4.3</span> <span class="nav-text">修改shader</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#修改纹理"> <span class="nav-number">4.4</span> <span class="nav-text">修改纹理</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#修改渲染方法将yuv纹理传入纹理缓冲"> <span class="nav-number">4.5</span> <span class="nav-text">修改渲染方法，将yuv纹理传入纹理缓冲</span> </a> </li> </ol> </li> <li class="nav-item nav-level-3"> <a class="nav-link" href="#渲染nv12"> <span class="nav-number">5</span> <span class="nav-text">渲染NV12</span> </a> <ol class="nav-child"> <li class="nav-item nav-level-4"> <a class="nav-link" href="#修改shader-1"> <span class="nav-number">5.1</span> <span class="nav-text">修改shader</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#修改纹理-1"> <span class="nav-number">5.2</span> <span class="nav-text">修改纹理</span> </a> </li> <li class="nav-item nav-level-4"> <a class="nav-link" href="#修改渲染方法"> <span class="nav-number">5.3</span> <span class="nav-text">修改渲染方法</span> </a> </li> </ol> </li> <li class="nav-item nav-level-3"> <a class="nav-link" href="#总结"> <span class="nav-number">6</span> <span class="nav-text">总结</span> </a> </li>
+    </ol>
+  </div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Michael</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://jekyllrb.com">Jekyll</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/simpleyyt/jekyll-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+   
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/assets/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/assets/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  <script type="text/javascript" src="/assets/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/assets/js/src/post-details.js?v=5.1.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/assets/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+    
+
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+  
+
+  
+  
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
+
